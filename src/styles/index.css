@@ -1,0 +1,21 @@
+html, body, #main {
+  width: 100%;
+  height: 100%;
+}
+
+.scratch-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.button {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 200px;
+  z-index: 100000;
+  padding: 20px;
+  text-align: center;
+  background-color: lightblue;
+  cursor: pointer;
+}
