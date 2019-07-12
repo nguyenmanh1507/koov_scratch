@@ -4,13 +4,13 @@ export function control(ScratchBlocks) {
   //let indexes = ['i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's'];
 
   console.info(ScratchBlocks);
-  ScratchBlocks.JavaScript['when-green-flag-clicked'] = function (_block) {
+  ScratchBlocks.JavaScript['when_green_flag_clicked'] = function (_block) {
     return "start();\n";
   };
 
   ScratchBlocks.JavaScript['wait'] = function (block) {
     console.info(block);
-    var secs = block.getFieldValue('secs');
+    var secs = block.getInputTargetBlock('SECS');
     return `sleep(${secs});\n`;
   };
 
