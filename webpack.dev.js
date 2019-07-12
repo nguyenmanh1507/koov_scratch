@@ -27,4 +27,7 @@ module.exports = merge(common, {
     }),
   ],
   devtool: 'none',
+  resolve: {
+    alias: { 'react-dom': '@hot-loader/react-dom'  }
+  },
 });
