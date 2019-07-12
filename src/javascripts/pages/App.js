@@ -1,30 +1,29 @@
 import * as React from 'react';
-import {ScratchBlocks, makeToolBox} from './blocks/ScratchBlocks';
+import {
+  ScratchBlocks
+  // makeToolBox
+} from './blocks/ScratchBlocks';
+import makeToolboxXML from '../../lib/makeToolboxXML';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     this.workspace = ScratchBlocks.inject(this.blockDiv, {
-      toolbox: makeToolBox(['when-green-flag-clicked', 'wait']),
-      zoom: {startScale: 1},
+      toolbox: makeToolboxXML(),
+      zoom: { startScale: 0.75 },
       scrollbars: true, // disable dragging on readonly workspace
       trashcan: true,
       sounds: false,
-      media: ' ',
-      readOnly: false,
+      media: 'http://koov_scratch_gui.surge.sh/media/',
+      readOnly: false
     });
 
-
     // Add start block
-    const startBlock = this.workspace.newBlock('when-green-flag-clicked');
+    const startBlock = this.workspace.newBlock('when_green_flag_clicked');
     startBlock.initSvg();
     startBlock.render();
+    startBlock.moveBy(100, 100);
     startBlock.setDeletable(false);
     this.workspace.render();
-
   }
 
   toDom() {
