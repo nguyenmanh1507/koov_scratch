@@ -45,10 +45,10 @@ const chain_blocks = (self, blks) => {
   return self;
 };
 
-const Bstart = blks => (
+const Bstart = (...blks) => (
   chain_blocks(block({ type: "when_green_flag_clicked" }, []), blks));
 
-const Bforever = blks => {
+const Bforever = (...blks) => {
   if (blks.length === 0)
     return block({ type: "forever" }, []);
   return block({ type: "forever" }, [
@@ -104,9 +104,8 @@ test('wait notation', () => {
                   field({ name: "NUM"}, [ 999 ]) ])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Bwait(999)])])]));
+        Bstart(
+          Bwait(999))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -129,9 +128,8 @@ test('forever notation (empty)', () => {
             block({ type: "forever" }, [])])])]));
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Bforever([])])])]));
+        Bstart(
+          Bforever())]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -159,9 +157,9 @@ test('forever notation (non empty)', () => {
                       field({ name: "NUM"}, [ 999 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Bforever([Bwait(999)])])])]));
+        Bstart(
+          Bforever(
+            Bwait(999)))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -187,9 +185,8 @@ test('repeat notation (no count and empty blocks)', () => {
                   field({ name: "NUM" })])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Brepeat(null, [])])])]));
+        Bstart(
+          Brepeat(null, []))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -212,9 +209,8 @@ test('repeat notation (count == 1 and empty blocks)', () => {
                   field({ name: "NUM" }, [1])])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Brepeat(1, [])])])]));
+        Bstart(
+          Brepeat(1, []))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -242,9 +238,8 @@ test('repeat notation (count == 1 and single blocks)', () => {
                       field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Brepeat(1, [ Bwait(2) ])])])]));
+        Bstart(
+          Brepeat(1, [ Bwait(2) ]))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -277,9 +272,8 @@ test('repeat notation (count == 1 and single blocks)', () => {
                           field({ name: "NUM"}, [ 3 ]) ])])])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Brepeat(1, [ Bwait(2), Bwait(3) ])])])]));
+        Bstart(
+          Brepeat(1, [ Bwait(2), Bwait(3) ]))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -310,9 +304,8 @@ test('wait(1 + 2) notation', () => {
 
     const dom2 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            Bwait(Bplus(1, 2))])])]));
+        Bstart(
+          Bwait(Bplus(1, 2)))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -342,7 +335,10 @@ test('when_green_flag_clicked notation', () => {
                     shadow({ type: "math_positive_number" }, [
                       field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [ Bstart([Bwait(1), Bwait(2)]) ]));
+      xml({}, [
+        Bstart(
+          Bwait(1),
+          Bwait(2) )]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -355,7 +351,7 @@ test('when_green_flag_clicked with empty blocks', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bstart([]) ]));
+      xml({}, [ Bstart() ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -496,7 +492,7 @@ test('forever(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bforever([]) ]));
+      xml({}, [ Bforever() ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -511,7 +507,7 @@ test('forever(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bforever([ Bwait(1) ]) ]));
+      xml({}, [ Bforever(Bwait(1)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -526,7 +522,7 @@ test('forever(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bforever([ Bwait(1), Bwait(2) ]) ]));
+      xml({}, [ Bforever(Bwait(1), Bwait(2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -545,12 +541,12 @@ test('nested forever(with two waits)', () => {
   try {
     const dom = j2e(
       xml({}, [
-        Bforever([
+        Bforever(
           Bwait(1),
           Bwait(2),
-          Bforever([
+          Bforever(
             Bwait(3),
-            Bwait(4) ])])]));
+            Bwait(4) ))]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
