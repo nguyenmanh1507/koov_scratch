@@ -86,8 +86,18 @@ const Bplus = (x, y) => (
     value({ name: "X" }, Bnumber(x, "math_number")),
     value({ name: "Y" }, Bnumber(y, "math_number")) ]));
 
+const Bminus = (x, y) => (
+  block({ type: "minus" }, [
+    value({ name: "X" }, Bnumber(x, "math_number")),
+    value({ name: "Y" }, Bnumber(y, "math_number")) ]));
+
 const Bmultiply = (x, y) => (
   block({ type: "multiply" }, [
+    value({ name: "X" }, Bnumber(x, "math_number")),
+    value({ name: "Y" }, Bnumber(y, "math_number")) ]));
+
+const Bdivide = (x, y) => (
+  block({ type: "divide" }, [
     value({ name: "X" }, Bnumber(x, "math_number")),
     value({ name: "Y" }, Bnumber(y, "math_number")) ]));
 
@@ -347,6 +357,10 @@ test('when_green_flag_clicked notation', () => {
   }
 });
 
+/*
+ * Tests for when_green_flag_clicked is under construction.
+ */
+
 test('when_green_flag_clicked with empty blocks', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
@@ -364,6 +378,11 @@ test('when_green_flag_clicked with empty blocks', () => {
     workspace.dispose();
   }
 });
+
+
+/*
+ * Tests for + and *.
+ */
 
 test('1 + 2', () => {
   const workspace = new ScratchBlocks.Workspace();
@@ -450,13 +469,172 @@ test('(1 + 2) * 3', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('(1 + 2) * 3' + "\n");
-
-//    expect(true).toBe(true);
-//    expect(() => { throw new Error(3); }).toThrow();
   } finally {
     workspace.dispose();
   }
 });
+
+/*
+ * Tests for - and /.
+ */
+
+test('1 - 2', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bminus(1, 2) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 - 2' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('1 - (2 - 3)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bminus(1, Bminus(2, 3)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 - (2 - 3)' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 - 2) - 3', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bminus(Bminus(1, 2), 3) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('(1 - 2) - 3' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('1 - (2 / 3)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bminus(1, Bdivide(2, 3)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 - 2 / 3' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 / 2) - 3', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bminus(Bdivide(1, 2), 3) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 / 2 - 3' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 - 2) / 3', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bdivide(Bminus(1, 2), 3) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('(1 - 2) / 3' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Mix of + and -, or, * and /.
+ */
+
+test('1 + (2 - 3)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bplus(1, Bminus(2, 3)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 + (2 - 3)' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 + 2) - 3', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bminus(Bplus(1, 2), 3) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('(1 + 2) - 3' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('1 * (2 / 3)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bmultiply(1, Bdivide(2, 3)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 * (2 / 3)' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 * 2) / 3', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bdivide(Bmultiply(1, 2), 3) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('(1 * 2) / 3' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for wait block.
+ */
 
 test('wait(1)', () => {
   const workspace = new ScratchBlocks.Workspace();
@@ -487,6 +665,10 @@ test('wait(1 + 2)', () => {
     workspace.dispose();
   }
 });
+
+/*
+ * Tests for forever block.
+ */
 
 test('forever(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
@@ -562,6 +744,10 @@ while True:\n\
     workspace.dispose();
   }
 });
+
+/*
+ * Tests for repeat block.
+ */
 
 test('repeat(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
