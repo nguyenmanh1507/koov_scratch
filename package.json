@@ -1,9 +1,10 @@
 {
   "name": "scratch-demo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --hot --history-api-fallback --host 0.0.0.0 --port 4001 --config webpack.dev.js"
+    "start": "webpack-dev-server --hot --history-api-fallback --host 0.0.0.0 --port 4001 --config webpack.dev.js",
+    "test": "jest"
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
@@ -67,6 +68,7 @@
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.1.5",
+    "xmlserializer": "^0.6.1",
     "yaml-loader": "^0.5.0"
   }
 }
