@@ -1,3 +1,4 @@
+// @flow
 const COLOUR = '#f27f62';
 
 export const variable_blocks = {
@@ -8,10 +9,10 @@ export const variable_blocks = {
       {
         type: 'field_variable',
         name: 'VAR', // Static name of the field
-        variable: '%{BKY_VARIABLES_DEFAULT_NAME}' // Given at runtime
-      }
+        variable: '%{BKY_VARIABLES_DEFAULT_NAME}', // Given at runtime
+      },
     ],
     output: null,
-    colour: COLOUR
-  }
+    colour: COLOUR,
+  },
 };

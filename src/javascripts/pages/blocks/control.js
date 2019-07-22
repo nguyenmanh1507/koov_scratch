@@ -1,3 +1,4 @@
+// @flow
 import ScratchBlocks from 'scratch-blocks';
 
 // Blocks definition
@@ -13,13 +14,13 @@ ScratchBlocks.Blocks['when_green_flag_clicked'] = {
       args0: [
         {
           type: 'field_label',
-          text: 'Start'
-        }
+          text: 'Start',
+        },
       ],
       nextStatement: null,
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['function'] = {
@@ -29,19 +30,19 @@ ScratchBlocks.Blocks['function'] = {
       args0: [
         {
           type: 'field_label',
-          text: 'function'
+          text: 'function',
         },
         {
           type: 'field_input',
           name: 'FUNCTION',
-          text: ''
-        }
+          text: '',
+        },
       ],
       message1: '%1',
       args1: [{ type: 'input_statement', name: 'BLOCKS' }],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['wait'] = {
@@ -51,13 +52,13 @@ ScratchBlocks.Blocks['wait'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'SECS'
-        }
+          name: 'SECS',
+        },
       ],
       extensions: ['shape_statement'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['forever'] = {
@@ -70,8 +71,8 @@ ScratchBlocks.Blocks['forever'] = {
       args1: [
         {
           type: 'input_statement',
-          name: 'BLOCKS'
-        }
+          name: 'BLOCKS',
+        },
       ],
       args2: [
         {
@@ -80,13 +81,13 @@ ScratchBlocks.Blocks['forever'] = {
           width: 24,
           height: 24,
           alt: '*',
-          flip_rtl: true
-        }
+          flip_rtl: true,
+        },
       ],
       extensions: ['shape_end'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['repeat'] = {
@@ -99,14 +100,14 @@ ScratchBlocks.Blocks['repeat'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'COUNT'
-        }
+          name: 'COUNT',
+        },
       ],
       args1: [
         {
           type: 'input_statement',
-          name: 'BLOCKS'
-        }
+          name: 'BLOCKS',
+        },
       ],
       args2: [
         {
@@ -115,13 +116,13 @@ ScratchBlocks.Blocks['repeat'] = {
           width: 24,
           height: 24,
           alt: '*',
-          flip_rtl: true
-        }
+          flip_rtl: true,
+        },
       ],
       extensions: ['shape_statement'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['if_then'] = {
@@ -134,19 +135,19 @@ ScratchBlocks.Blocks['if_then'] = {
         {
           type: 'input_value',
           name: 'CONDITION',
-          check: 'Boolean'
-        }
+          check: 'Boolean',
+        },
       ],
       args1: [
         {
           type: 'input_statement',
-          name: 'BLOCKS'
-        }
+          name: 'BLOCKS',
+        },
       ],
       extensions: ['shape_statement'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['if_then_else'] = {
@@ -165,25 +166,25 @@ ScratchBlocks.Blocks['if_then_else'] = {
         {
           type: 'input_value',
           name: 'CONDITION',
-          check: 'Boolean'
-        }
+          check: 'Boolean',
+        },
       ],
       args1: [
         {
           type: 'input_statement',
-          name: 'THEN_BLOCKS'
-        }
+          name: 'THEN_BLOCKS',
+        },
       ],
       args3: [
         {
           type: 'input_statement',
-          name: 'ELSE_BLOCKS'
-        }
+          name: 'ELSE_BLOCKS',
+        },
       ],
       extensions: ['shape_statement'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['wait_until'] = {
@@ -194,13 +195,13 @@ ScratchBlocks.Blocks['wait_until'] = {
         {
           type: 'input_value',
           name: 'CONDITION',
-          check: 'Boolean'
-        }
+          check: 'Boolean',
+        },
       ],
       extensions: ['shape_statement'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['repeat_until'] = {
@@ -214,14 +215,14 @@ ScratchBlocks.Blocks['repeat_until'] = {
         {
           type: 'input_value',
           name: 'CONDITION',
-          check: 'Boolean'
-        }
+          check: 'Boolean',
+        },
       ],
       args1: [
         {
           type: 'input_statement',
-          name: 'BLOCKS'
-        }
+          name: 'BLOCKS',
+        },
       ],
       args2: [
         {
@@ -230,13 +231,13 @@ ScratchBlocks.Blocks['repeat_until'] = {
           width: 24,
           height: 24,
           alt: '*',
-          flip_rtl: true
-        }
+          flip_rtl: true,
+        },
       ],
       extensions: ['shape_statement'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['breakpoint'] = {
@@ -246,13 +247,13 @@ ScratchBlocks.Blocks['breakpoint'] = {
       args0: [
         {
           type: 'field_label',
-          text: 'breakpoint'
-        }
+          text: 'breakpoint',
+        },
       ],
       extensions: ['shape_statement'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 // export const control_blocks = {

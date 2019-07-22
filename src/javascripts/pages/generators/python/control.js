@@ -12,12 +12,12 @@ export function control(ScratchBlocks) {
     return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
 
-  ScratchBlocks.Python['math_positive_number'] = (block) => {
+  ScratchBlocks.Python['math_positive_number'] = block => {
     const n = block.getFieldValue('NUM');
     return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
 
-  ScratchBlocks.Python['math_whole_number'] = (block) => {
+  ScratchBlocks.Python['math_whole_number'] = block => {
     const n = block.getFieldValue('NUM');
     return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
@@ -28,10 +28,8 @@ export function control(ScratchBlocks) {
   const binop_values = (block, op, order) => {
     const x = ScratchBlocks.Python.valueToCode(block, 'X', order);
     const y = ScratchBlocks.Python.valueToCode(block, 'Y', order);
-    if (!x)
-      throw new Error(`${op}: no first argument`);
-    if (!y)
-      throw new Error(`${op}: no second argument`);
+    if (!x) throw new Error(`${op}: no first argument`);
+    if (!y) throw new Error(`${op}: no second argument`);
     return { x, y };
   };
 
@@ -44,25 +42,37 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['plus'] = (block) => {
     const { x, y } = binop_values(
-      block, 'plus', ScratchBlocks.Python.ORDER_ADDITIVE);
+      block,
+      'plus',
+      ScratchBlocks.Python.ORDER_ADDITIVE
+    );
     return [`${x} + ${y}`, ScratchBlocks.Python.ORDER_ADDITIVE];
   };
 
-  ScratchBlocks.Python['minus'] = (block) => {
+  ScratchBlocks.Python['minus'] = block => {
     const { x, y } = binop_values(
-      block, 'minus', ScratchBlocks.Python.ORDER_ADDITIVE);
+      block,
+      'minus',
+      ScratchBlocks.Python.ORDER_ADDITIVE
+    );
     return [`${x} - ${y}`, ScratchBlocks.Python.ORDER_ADDITIVE];
   };
 
-  ScratchBlocks.Python['multiply'] = (block) => {
+  ScratchBlocks.Python['multiply'] = block => {
     const { x, y } = binop_values(
-      block, 'multiply', ScratchBlocks.Python.ORDER_MULTIPLICATIVE);
+      block,
+      'multiply',
+      ScratchBlocks.Python.ORDER_MULTIPLICATIVE
+    );
     return [`${x} * ${y}`, ScratchBlocks.Python.ORDER_MULTIPLICATIVE];
   };
 
-  ScratchBlocks.Python['divide'] = (block) => {
+  ScratchBlocks.Python['divide'] = block => {
     const { x, y } = binop_values(
-      block, 'divide', ScratchBlocks.Python.ORDER_MULTIPLICATIVE);
+      block,
+      'divide',
+      ScratchBlocks.Python.ORDER_MULTIPLICATIVE
+    );
     return [`${x} / ${y}`, ScratchBlocks.Python.ORDER_MULTIPLICATIVE];
   };
 
@@ -91,31 +101,46 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['less_than'] = (block) => {
     const { x, y } = binop_values(
-      block, 'less_than', ScratchBlocks.Python.ORDER_RELATIONAL);
+      block,
+      'less_than',
+      ScratchBlocks.Python.ORDER_RELATIONAL
+    );
     return [`${x} < ${y}`, ScratchBlocks.Python.ORDER_RELATIONAL];
   };
 
-  ScratchBlocks.Python['less_than_or_equal'] = (block) => {
+  ScratchBlocks.Python['less_than_or_equal'] = block => {
     const { x, y } = binop_values(
-      block, 'less_than_or_equal', ScratchBlocks.Python.ORDER_RELATIONAL);
+      block,
+      'less_than_or_equal',
+      ScratchBlocks.Python.ORDER_RELATIONAL
+    );
     return [`${x} <= ${y}`, ScratchBlocks.Python.ORDER_RELATIONAL];
   };
 
-  ScratchBlocks.Python['equal'] = (block) => {
+  ScratchBlocks.Python['equal'] = block => {
     const { x, y } = binop_values(
-      block, 'equal', ScratchBlocks.Python.ORDER_RELATIONAL);
+      block,
+      'equal',
+      ScratchBlocks.Python.ORDER_RELATIONAL
+    );
     return [`${x} == ${y}`, ScratchBlocks.Python.ORDER_RELATIONAL];
   };
 
-  ScratchBlocks.Python['greater_than'] = (block) => {
+  ScratchBlocks.Python['greater_than'] = block => {
     const { x, y } = binop_values(
-      block, 'greater_than', ScratchBlocks.Python.ORDER_RELATIONAL);
+      block,
+      'greater_than',
+      ScratchBlocks.Python.ORDER_RELATIONAL
+    );
     return [`${x} > ${y}`, ScratchBlocks.Python.ORDER_RELATIONAL];
   };
 
-  ScratchBlocks.Python['greater_than_or_equal'] = (block) => {
+  ScratchBlocks.Python['greater_than_or_equal'] = block => {
     const { x, y } = binop_values(
-      block, 'greater_than_or_equal', ScratchBlocks.Python.ORDER_RELATIONAL);
+      block,
+      'greater_than_or_equal',
+      ScratchBlocks.Python.ORDER_RELATIONAL
+    );
     return [`${x} >= ${y}`, ScratchBlocks.Python.ORDER_RELATIONAL];
   };
 
@@ -145,13 +170,16 @@ export function control(ScratchBlocks) {
   /*
    * Statements
    */
-  ScratchBlocks.Python['when_green_flag_clicked'] = (_block) => {
-    return "";
+  ScratchBlocks.Python['when_green_flag_clicked'] = _block => {
+    return '';
   };
 
-  ScratchBlocks.Python['wait'] = (block) => {
+  ScratchBlocks.Python['wait'] = block => {
     const secs = ScratchBlocks.Python.valueToCode(
-      block, 'SECS', ScratchBlocks.Python.ORDER_NONE);
+      block,
+      'SECS',
+      ScratchBlocks.Python.ORDER_NONE
+    );
     const op = 'wait';
     if (!secs)
       throw new Error(`${op}: no arguments`);
@@ -175,8 +203,7 @@ export function control(ScratchBlocks) {
     const stmts = ScratchBlocks.Python.statementToCode(
       block, 'BLOCKS') || pass();
     const op = 'repeat';
-    if (!count)
-      throw new Error(`${op}: no arguments`);
+    if (!count) throw new Error(`${op}: no arguments`);
 
     return `for _ in range(${count}):\n${stmts}`;
   };
@@ -225,8 +252,7 @@ export function control(ScratchBlocks) {
     const stmts = ScratchBlocks.Python.statementToCode(
       block, 'BLOCKS') || pass();
     const op = 'if_then';
-    if (!condition)
-      throw new Error(`${op}: no arguments`);
+    if (!condition) throw new Error(`${op}: no arguments`);
 
     return `if ${condition}:\n${stmts}`;
   };
@@ -241,8 +267,7 @@ export function control(ScratchBlocks) {
     const else_blocks = ScratchBlocks.Python.statementToCode(
       block, 'ELSE_BLOCKS') || pass();
     const op = 'if_then_else';
-    if (!condition)
-      throw new Error(`${op}: no arguments`);
+    if (!condition) throw new Error(`${op}: no arguments`);
 
     return `if ${condition}:\n${then_blocks}else:\n${else_blocks}`;
   };

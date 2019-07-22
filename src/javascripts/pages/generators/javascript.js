@@ -18,16 +18,13 @@
  * limitations under the License.
  */
 
-
 /**
  * @fileoverview Helper functions for generating JavaScript for blocks.
  * @author fraser@google.com (Neil Fraser)
  */
 'use strict';
 
-
 export function javascript(ScratchBlocks) {
-
   /**
    * JavaScript code generator.
    * @type {!ScratchBlocks.Generator}
@@ -42,68 +39,69 @@ export function javascript(ScratchBlocks) {
    * @private
    */
   ScratchBlocks.JavaScript.addReservedWords(
-    'ScratchBlocks,' +  // In case JS is evaled in the current window.
-    // https://developer.mozilla.org/en/JavaScript/Reference/Reserved_Words
-    'break,case,catch,continue,debugger,default,delete,do,else,finally,for,function,if,in,instanceof,new,return,switch,this,throw,try,typeof,var,void,while,with,' +
-    'class,enum,export,extends,import,super,implements,interface,let,package,private,protected,public,static,yield,' +
-    'const,null,true,false,' +
-    // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects
-    'Array,ArrayBuffer,Boolean,Date,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,Error,eval,EvalError,Float32Array,Float64Array,Function,Infinity,Int16Array,Int32Array,Int8Array,isFinite,isNaN,Iterator,JSON,Math,NaN,Number,Object,parseFloat,parseInt,RangeError,ReferenceError,RegExp,StopIteration,String,SyntaxError,TypeError,Uint16Array,Uint32Array,Uint8Array,Uint8ClampedArray,undefined,uneval,URIError,' +
-    // https://developer.mozilla.org/en/DOM/window
-    'applicationCache,closed,Components,content,_content,controllers,crypto,defaultStatus,dialogArguments,directories,document,frameElement,frames,fullScreen,globalStorage,history,innerHeight,innerWidth,length,location,locationbar,localStorage,menubar,messageManager,mozAnimationStartTime,mozInnerScreenX,mozInnerScreenY,mozPaintCount,name,navigator,opener,outerHeight,outerWidth,pageXOffset,pageYOffset,parent,performance,personalbar,pkcs11,returnValue,screen,screenX,screenY,scrollbars,scrollMaxX,scrollMaxY,scrollX,scrollY,self,sessionStorage,sidebar,status,statusbar,toolbar,top,URL,window,' +
-    'addEventListener,alert,atob,back,blur,btoa,captureEvents,clearImmediate,clearInterval,clearTimeout,close,confirm,disableExternalCapture,dispatchEvent,dump,enableExternalCapture,escape,find,focus,forward,GeckoActiveXObject,getAttention,getAttentionWithCycleCount,getComputedStyle,getSelection,home,matchMedia,maximize,minimize,moveBy,moveTo,mozRequestAnimationFrame,open,openDialog,postMessage,print,prompt,QueryInterface,releaseEvents,removeEventListener,resizeBy,resizeTo,restore,routeEvent,scroll,scrollBy,scrollByLines,scrollByPages,scrollTo,setCursor,setImmediate,setInterval,setResizable,setTimeout,showModalDialog,sizeToContent,stop,unescape,updateCommands,XPCNativeWrapper,XPCSafeJSObjectWrapper,' +
-    'onabort,onbeforeunload,onblur,onchange,onclick,onclose,oncontextmenu,ondevicemotion,ondeviceorientation,ondragdrop,onerror,onfocus,onhashchange,onkeydown,onkeypress,onkeyup,onload,onmousedown,onmousemove,onmouseout,onmouseover,onmouseup,onmozbeforepaint,onpaint,onpopstate,onreset,onresize,onscroll,onselect,onsubmit,onunload,onpageshow,onpagehide,' +
-    'Image,Option,Worker,' +
-    // https://developer.mozilla.org/en/Gecko_DOM_Reference
-    'Event,Range,File,FileReader,Blob,BlobBuilder,' +
-    'Attr,CDATASection,CharacterData,Comment,console,DocumentFragment,DocumentType,DomConfiguration,DOMError,DOMErrorHandler,DOMException,DOMImplementation,DOMImplementationList,DOMImplementationRegistry,DOMImplementationSource,DOMLocator,DOMObject,DOMString,DOMStringList,DOMTimeStamp,DOMUserData,Entity,EntityReference,MediaQueryList,MediaQueryListListener,NameList,NamedNodeMap,Node,NodeFilter,NodeIterator,NodeList,Notation,Plugin,PluginArray,ProcessingInstruction,SharedWorker,Text,TimeRanges,Treewalker,TypeInfo,UserDataHandler,Worker,WorkerGlobalScope,' +
-    'HTMLDocument,HTMLElement,HTMLAnchorElement,HTMLAppletElement,HTMLAudioElement,HTMLAreaElement,HTMLBaseElement,HTMLBaseFontElement,HTMLBodyElement,HTMLBRElement,HTMLButtonElement,HTMLCanvasElement,HTMLDirectoryElement,HTMLDivElement,HTMLDListElement,HTMLEmbedElement,HTMLFieldSetElement,HTMLFontElement,HTMLFormElement,HTMLFrameElement,HTMLFrameSetElement,HTMLHeadElement,HTMLHeadingElement,HTMLHtmlElement,HTMLHRElement,HTMLIFrameElement,HTMLImageElement,HTMLInputElement,HTMLKeygenElement,HTMLLabelElement,HTMLLIElement,HTMLLinkElement,HTMLMapElement,HTMLMenuElement,HTMLMetaElement,HTMLModElement,HTMLObjectElement,HTMLOListElement,HTMLOptGroupElement,HTMLOptionElement,HTMLOutputElement,HTMLParagraphElement,HTMLParamElement,HTMLPreElement,HTMLQuoteElement,HTMLScriptElement,HTMLSelectElement,HTMLSourceElement,HTMLSpanElement,HTMLStyleElement,HTMLTableElement,HTMLTableCaptionElement,HTMLTableCellElement,HTMLTableDataCellElement,HTMLTableHeaderCellElement,HTMLTableColElement,HTMLTableRowElement,HTMLTableSectionElement,HTMLTextAreaElement,HTMLTimeElement,HTMLTitleElement,HTMLTrackElement,HTMLUListElement,HTMLUnknownElement,HTMLVideoElement,' +
-    'HTMLCanvasElement,CanvasRenderingContext2D,CanvasGradient,CanvasPattern,TextMetrics,ImageData,CanvasPixelArray,HTMLAudioElement,HTMLVideoElement,NotifyAudioAvailableEvent,HTMLCollection,HTMLAllCollection,HTMLFormControlsCollection,HTMLOptionsCollection,HTMLPropertiesCollection,DOMTokenList,DOMSettableTokenList,DOMStringMap,RadioNodeList,' +
-    'SVGDocument,SVGElement,SVGAElement,SVGAltGlyphElement,SVGAltGlyphDefElement,SVGAltGlyphItemElement,SVGAnimationElement,SVGAnimateElement,SVGAnimateColorElement,SVGAnimateMotionElement,SVGAnimateTransformElement,SVGSetElement,SVGCircleElement,SVGClipPathElement,SVGColorProfileElement,SVGCursorElement,SVGDefsElement,SVGDescElement,SVGEllipseElement,SVGFilterElement,SVGFilterPrimitiveStandardAttributes,SVGFEBlendElement,SVGFEColorMatrixElement,SVGFEComponentTransferElement,SVGFECompositeElement,SVGFEConvolveMatrixElement,SVGFEDiffuseLightingElement,SVGFEDisplacementMapElement,SVGFEDistantLightElement,SVGFEFloodElement,SVGFEGaussianBlurElement,SVGFEImageElement,SVGFEMergeElement,SVGFEMergeNodeElement,SVGFEMorphologyElement,SVGFEOffsetElement,SVGFEPointLightElement,SVGFESpecularLightingElement,SVGFESpotLightElement,SVGFETileElement,SVGFETurbulenceElement,SVGComponentTransferFunctionElement,SVGFEFuncRElement,SVGFEFuncGElement,SVGFEFuncBElement,SVGFEFuncAElement,SVGFontElement,SVGFontFaceElement,SVGFontFaceFormatElement,SVGFontFaceNameElement,SVGFontFaceSrcElement,SVGFontFaceUriElement,SVGForeignObjectElement,SVGGElement,SVGGlyphElement,SVGGlyphRefElement,SVGGradientElement,SVGLinearGradientElement,SVGRadialGradientElement,SVGHKernElement,SVGImageElement,SVGLineElement,SVGMarkerElement,SVGMaskElement,SVGMetadataElement,SVGMissingGlyphElement,SVGMPathElement,SVGPathElement,SVGPatternElement,SVGPolylineElement,SVGPolygonElement,SVGRectElement,SVGScriptElement,SVGStopElement,SVGStyleElement,SVGSVGElement,SVGSwitchElement,SVGSymbolElement,SVGTextElement,SVGTextPathElement,SVGTitleElement,SVGTRefElement,SVGTSpanElement,SVGUseElement,SVGViewElement,SVGVKernElement,' +
-    'SVGAngle,SVGColor,SVGICCColor,SVGElementInstance,SVGElementInstanceList,SVGLength,SVGLengthList,SVGMatrix,SVGNumber,SVGNumberList,SVGPaint,SVGPoint,SVGPointList,SVGPreserveAspectRatio,SVGRect,SVGStringList,SVGTransform,SVGTransformList,' +
-    'SVGAnimatedAngle,SVGAnimatedBoolean,SVGAnimatedEnumeration,SVGAnimatedInteger,SVGAnimatedLength,SVGAnimatedLengthList,SVGAnimatedNumber,SVGAnimatedNumberList,SVGAnimatedPreserveAspectRatio,SVGAnimatedRect,SVGAnimatedString,SVGAnimatedTransformList,' +
-    'SVGPathSegList,SVGPathSeg,SVGPathSegArcAbs,SVGPathSegArcRel,SVGPathSegClosePath,SVGPathSegCurvetoCubicAbs,SVGPathSegCurvetoCubicRel,SVGPathSegCurvetoCubicSmoothAbs,SVGPathSegCurvetoCubicSmoothRel,SVGPathSegCurvetoQuadraticAbs,SVGPathSegCurvetoQuadraticRel,SVGPathSegCurvetoQuadraticSmoothAbs,SVGPathSegCurvetoQuadraticSmoothRel,SVGPathSegLinetoAbs,SVGPathSegLinetoHorizontalAbs,SVGPathSegLinetoHorizontalRel,SVGPathSegLinetoRel,SVGPathSegLinetoVerticalAbs,SVGPathSegLinetoVerticalRel,SVGPathSegMovetoAbs,SVGPathSegMovetoRel,ElementTimeControl,TimeEvent,SVGAnimatedPathData,' +
-    'SVGAnimatedPoints,SVGColorProfileRule,SVGCSSRule,SVGExternalResourcesRequired,SVGFitToViewBox,SVGLangSpace,SVGLocatable,SVGRenderingIntent,SVGStylable,SVGTests,SVGTextContentElement,SVGTextPositioningElement,SVGTransformable,SVGUnitTypes,SVGURIReference,SVGViewSpec,SVGZoomAndPan');
+    'ScratchBlocks,' + // In case JS is evaled in the current window.
+      // https://developer.mozilla.org/en/JavaScript/Reference/Reserved_Words
+      'break,case,catch,continue,debugger,default,delete,do,else,finally,for,function,if,in,instanceof,new,return,switch,this,throw,try,typeof,var,void,while,with,' +
+      'class,enum,export,extends,import,super,implements,interface,let,package,private,protected,public,static,yield,' +
+      'const,null,true,false,' +
+      // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects
+      'Array,ArrayBuffer,Boolean,Date,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,Error,eval,EvalError,Float32Array,Float64Array,Function,Infinity,Int16Array,Int32Array,Int8Array,isFinite,isNaN,Iterator,JSON,Math,NaN,Number,Object,parseFloat,parseInt,RangeError,ReferenceError,RegExp,StopIteration,String,SyntaxError,TypeError,Uint16Array,Uint32Array,Uint8Array,Uint8ClampedArray,undefined,uneval,URIError,' +
+      // https://developer.mozilla.org/en/DOM/window
+      'applicationCache,closed,Components,content,_content,controllers,crypto,defaultStatus,dialogArguments,directories,document,frameElement,frames,fullScreen,globalStorage,history,innerHeight,innerWidth,length,location,locationbar,localStorage,menubar,messageManager,mozAnimationStartTime,mozInnerScreenX,mozInnerScreenY,mozPaintCount,name,navigator,opener,outerHeight,outerWidth,pageXOffset,pageYOffset,parent,performance,personalbar,pkcs11,returnValue,screen,screenX,screenY,scrollbars,scrollMaxX,scrollMaxY,scrollX,scrollY,self,sessionStorage,sidebar,status,statusbar,toolbar,top,URL,window,' +
+      'addEventListener,alert,atob,back,blur,btoa,captureEvents,clearImmediate,clearInterval,clearTimeout,close,confirm,disableExternalCapture,dispatchEvent,dump,enableExternalCapture,escape,find,focus,forward,GeckoActiveXObject,getAttention,getAttentionWithCycleCount,getComputedStyle,getSelection,home,matchMedia,maximize,minimize,moveBy,moveTo,mozRequestAnimationFrame,open,openDialog,postMessage,print,prompt,QueryInterface,releaseEvents,removeEventListener,resizeBy,resizeTo,restore,routeEvent,scroll,scrollBy,scrollByLines,scrollByPages,scrollTo,setCursor,setImmediate,setInterval,setResizable,setTimeout,showModalDialog,sizeToContent,stop,unescape,updateCommands,XPCNativeWrapper,XPCSafeJSObjectWrapper,' +
+      'onabort,onbeforeunload,onblur,onchange,onclick,onclose,oncontextmenu,ondevicemotion,ondeviceorientation,ondragdrop,onerror,onfocus,onhashchange,onkeydown,onkeypress,onkeyup,onload,onmousedown,onmousemove,onmouseout,onmouseover,onmouseup,onmozbeforepaint,onpaint,onpopstate,onreset,onresize,onscroll,onselect,onsubmit,onunload,onpageshow,onpagehide,' +
+      'Image,Option,Worker,' +
+      // https://developer.mozilla.org/en/Gecko_DOM_Reference
+      'Event,Range,File,FileReader,Blob,BlobBuilder,' +
+      'Attr,CDATASection,CharacterData,Comment,console,DocumentFragment,DocumentType,DomConfiguration,DOMError,DOMErrorHandler,DOMException,DOMImplementation,DOMImplementationList,DOMImplementationRegistry,DOMImplementationSource,DOMLocator,DOMObject,DOMString,DOMStringList,DOMTimeStamp,DOMUserData,Entity,EntityReference,MediaQueryList,MediaQueryListListener,NameList,NamedNodeMap,Node,NodeFilter,NodeIterator,NodeList,Notation,Plugin,PluginArray,ProcessingInstruction,SharedWorker,Text,TimeRanges,Treewalker,TypeInfo,UserDataHandler,Worker,WorkerGlobalScope,' +
+      'HTMLDocument,HTMLElement,HTMLAnchorElement,HTMLAppletElement,HTMLAudioElement,HTMLAreaElement,HTMLBaseElement,HTMLBaseFontElement,HTMLBodyElement,HTMLBRElement,HTMLButtonElement,HTMLCanvasElement,HTMLDirectoryElement,HTMLDivElement,HTMLDListElement,HTMLEmbedElement,HTMLFieldSetElement,HTMLFontElement,HTMLFormElement,HTMLFrameElement,HTMLFrameSetElement,HTMLHeadElement,HTMLHeadingElement,HTMLHtmlElement,HTMLHRElement,HTMLIFrameElement,HTMLImageElement,HTMLInputElement,HTMLKeygenElement,HTMLLabelElement,HTMLLIElement,HTMLLinkElement,HTMLMapElement,HTMLMenuElement,HTMLMetaElement,HTMLModElement,HTMLObjectElement,HTMLOListElement,HTMLOptGroupElement,HTMLOptionElement,HTMLOutputElement,HTMLParagraphElement,HTMLParamElement,HTMLPreElement,HTMLQuoteElement,HTMLScriptElement,HTMLSelectElement,HTMLSourceElement,HTMLSpanElement,HTMLStyleElement,HTMLTableElement,HTMLTableCaptionElement,HTMLTableCellElement,HTMLTableDataCellElement,HTMLTableHeaderCellElement,HTMLTableColElement,HTMLTableRowElement,HTMLTableSectionElement,HTMLTextAreaElement,HTMLTimeElement,HTMLTitleElement,HTMLTrackElement,HTMLUListElement,HTMLUnknownElement,HTMLVideoElement,' +
+      'HTMLCanvasElement,CanvasRenderingContext2D,CanvasGradient,CanvasPattern,TextMetrics,ImageData,CanvasPixelArray,HTMLAudioElement,HTMLVideoElement,NotifyAudioAvailableEvent,HTMLCollection,HTMLAllCollection,HTMLFormControlsCollection,HTMLOptionsCollection,HTMLPropertiesCollection,DOMTokenList,DOMSettableTokenList,DOMStringMap,RadioNodeList,' +
+      'SVGDocument,SVGElement,SVGAElement,SVGAltGlyphElement,SVGAltGlyphDefElement,SVGAltGlyphItemElement,SVGAnimationElement,SVGAnimateElement,SVGAnimateColorElement,SVGAnimateMotionElement,SVGAnimateTransformElement,SVGSetElement,SVGCircleElement,SVGClipPathElement,SVGColorProfileElement,SVGCursorElement,SVGDefsElement,SVGDescElement,SVGEllipseElement,SVGFilterElement,SVGFilterPrimitiveStandardAttributes,SVGFEBlendElement,SVGFEColorMatrixElement,SVGFEComponentTransferElement,SVGFECompositeElement,SVGFEConvolveMatrixElement,SVGFEDiffuseLightingElement,SVGFEDisplacementMapElement,SVGFEDistantLightElement,SVGFEFloodElement,SVGFEGaussianBlurElement,SVGFEImageElement,SVGFEMergeElement,SVGFEMergeNodeElement,SVGFEMorphologyElement,SVGFEOffsetElement,SVGFEPointLightElement,SVGFESpecularLightingElement,SVGFESpotLightElement,SVGFETileElement,SVGFETurbulenceElement,SVGComponentTransferFunctionElement,SVGFEFuncRElement,SVGFEFuncGElement,SVGFEFuncBElement,SVGFEFuncAElement,SVGFontElement,SVGFontFaceElement,SVGFontFaceFormatElement,SVGFontFaceNameElement,SVGFontFaceSrcElement,SVGFontFaceUriElement,SVGForeignObjectElement,SVGGElement,SVGGlyphElement,SVGGlyphRefElement,SVGGradientElement,SVGLinearGradientElement,SVGRadialGradientElement,SVGHKernElement,SVGImageElement,SVGLineElement,SVGMarkerElement,SVGMaskElement,SVGMetadataElement,SVGMissingGlyphElement,SVGMPathElement,SVGPathElement,SVGPatternElement,SVGPolylineElement,SVGPolygonElement,SVGRectElement,SVGScriptElement,SVGStopElement,SVGStyleElement,SVGSVGElement,SVGSwitchElement,SVGSymbolElement,SVGTextElement,SVGTextPathElement,SVGTitleElement,SVGTRefElement,SVGTSpanElement,SVGUseElement,SVGViewElement,SVGVKernElement,' +
+      'SVGAngle,SVGColor,SVGICCColor,SVGElementInstance,SVGElementInstanceList,SVGLength,SVGLengthList,SVGMatrix,SVGNumber,SVGNumberList,SVGPaint,SVGPoint,SVGPointList,SVGPreserveAspectRatio,SVGRect,SVGStringList,SVGTransform,SVGTransformList,' +
+      'SVGAnimatedAngle,SVGAnimatedBoolean,SVGAnimatedEnumeration,SVGAnimatedInteger,SVGAnimatedLength,SVGAnimatedLengthList,SVGAnimatedNumber,SVGAnimatedNumberList,SVGAnimatedPreserveAspectRatio,SVGAnimatedRect,SVGAnimatedString,SVGAnimatedTransformList,' +
+      'SVGPathSegList,SVGPathSeg,SVGPathSegArcAbs,SVGPathSegArcRel,SVGPathSegClosePath,SVGPathSegCurvetoCubicAbs,SVGPathSegCurvetoCubicRel,SVGPathSegCurvetoCubicSmoothAbs,SVGPathSegCurvetoCubicSmoothRel,SVGPathSegCurvetoQuadraticAbs,SVGPathSegCurvetoQuadraticRel,SVGPathSegCurvetoQuadraticSmoothAbs,SVGPathSegCurvetoQuadraticSmoothRel,SVGPathSegLinetoAbs,SVGPathSegLinetoHorizontalAbs,SVGPathSegLinetoHorizontalRel,SVGPathSegLinetoRel,SVGPathSegLinetoVerticalAbs,SVGPathSegLinetoVerticalRel,SVGPathSegMovetoAbs,SVGPathSegMovetoRel,ElementTimeControl,TimeEvent,SVGAnimatedPathData,' +
+      'SVGAnimatedPoints,SVGColorProfileRule,SVGCSSRule,SVGExternalResourcesRequired,SVGFitToViewBox,SVGLangSpace,SVGLocatable,SVGRenderingIntent,SVGStylable,SVGTests,SVGTextContentElement,SVGTextPositioningElement,SVGTransformable,SVGUnitTypes,SVGURIReference,SVGViewSpec,SVGZoomAndPan'
+  );
 
   /**
    * Order of operation ENUMs.
    * https://developer.mozilla.org/en/JavaScript/Reference/Operators/Operator_Precedence
    */
-  ScratchBlocks.JavaScript.ORDER_ATOMIC = 0;           // 0 "" ...
-  ScratchBlocks.JavaScript.ORDER_NEW = 1.1;            // new
-  ScratchBlocks.JavaScript.ORDER_MEMBER = 1.2;         // . []
-  ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL = 2;    // ()
-  ScratchBlocks.JavaScript.ORDER_INCREMENT = 3;        // ++
-  ScratchBlocks.JavaScript.ORDER_DECREMENT = 3;        // --
-  ScratchBlocks.JavaScript.ORDER_BITWISE_NOT = 4.1;    // ~
-  ScratchBlocks.JavaScript.ORDER_UNARY_PLUS = 4.2;     // +
+  ScratchBlocks.JavaScript.ORDER_ATOMIC = 0; // 0 "" ...
+  ScratchBlocks.JavaScript.ORDER_NEW = 1.1; // new
+  ScratchBlocks.JavaScript.ORDER_MEMBER = 1.2; // . []
+  ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL = 2; // ()
+  ScratchBlocks.JavaScript.ORDER_INCREMENT = 3; // ++
+  ScratchBlocks.JavaScript.ORDER_DECREMENT = 3; // --
+  ScratchBlocks.JavaScript.ORDER_BITWISE_NOT = 4.1; // ~
+  ScratchBlocks.JavaScript.ORDER_UNARY_PLUS = 4.2; // +
   ScratchBlocks.JavaScript.ORDER_UNARY_NEGATION = 4.3; // -
-  ScratchBlocks.JavaScript.ORDER_LOGICAL_NOT = 4.4;    // !
-  ScratchBlocks.JavaScript.ORDER_TYPEOF = 4.5;         // typeof
-  ScratchBlocks.JavaScript.ORDER_VOID = 4.6;           // void
-  ScratchBlocks.JavaScript.ORDER_DELETE = 4.7;         // delete
-  ScratchBlocks.JavaScript.ORDER_AWAIT = 4.8;          // await
+  ScratchBlocks.JavaScript.ORDER_LOGICAL_NOT = 4.4; // !
+  ScratchBlocks.JavaScript.ORDER_TYPEOF = 4.5; // typeof
+  ScratchBlocks.JavaScript.ORDER_VOID = 4.6; // void
+  ScratchBlocks.JavaScript.ORDER_DELETE = 4.7; // delete
+  ScratchBlocks.JavaScript.ORDER_AWAIT = 4.8; // await
   ScratchBlocks.JavaScript.ORDER_EXPONENTIATION = 5.0; // **
   ScratchBlocks.JavaScript.ORDER_MULTIPLICATION = 5.1; // *
-  ScratchBlocks.JavaScript.ORDER_DIVISION = 5.2;       // /
-  ScratchBlocks.JavaScript.ORDER_MODULUS = 5.3;        // %
-  ScratchBlocks.JavaScript.ORDER_SUBTRACTION = 6.1;    // -
-  ScratchBlocks.JavaScript.ORDER_ADDITION = 6.2;       // +
-  ScratchBlocks.JavaScript.ORDER_BITWISE_SHIFT = 7;    // << >> >>>
-  ScratchBlocks.JavaScript.ORDER_RELATIONAL = 8;       // < <= > >=
-  ScratchBlocks.JavaScript.ORDER_IN = 8;               // in
-  ScratchBlocks.JavaScript.ORDER_INSTANCEOF = 8;       // instanceof
-  ScratchBlocks.JavaScript.ORDER_EQUALITY = 9;         // == != === !==
-  ScratchBlocks.JavaScript.ORDER_BITWISE_AND = 10;     // &
-  ScratchBlocks.JavaScript.ORDER_BITWISE_XOR = 11;     // ^
-  ScratchBlocks.JavaScript.ORDER_BITWISE_OR = 12;      // |
-  ScratchBlocks.JavaScript.ORDER_LOGICAL_AND = 13;     // &&
-  ScratchBlocks.JavaScript.ORDER_LOGICAL_OR = 14;      // ||
-  ScratchBlocks.JavaScript.ORDER_CONDITIONAL = 15;     // ?:
-  ScratchBlocks.JavaScript.ORDER_ASSIGNMENT = 16;      // = += -= **= *= /= %= <<= >>= ...
-  ScratchBlocks.JavaScript.ORDER_YIELD = 17;         // yield
-  ScratchBlocks.JavaScript.ORDER_COMMA = 18;           // ,
-  ScratchBlocks.JavaScript.ORDER_NONE = 99;            // (...)
+  ScratchBlocks.JavaScript.ORDER_DIVISION = 5.2; // /
+  ScratchBlocks.JavaScript.ORDER_MODULUS = 5.3; // %
+  ScratchBlocks.JavaScript.ORDER_SUBTRACTION = 6.1; // -
+  ScratchBlocks.JavaScript.ORDER_ADDITION = 6.2; // +
+  ScratchBlocks.JavaScript.ORDER_BITWISE_SHIFT = 7; // << >> >>>
+  ScratchBlocks.JavaScript.ORDER_RELATIONAL = 8; // < <= > >=
+  ScratchBlocks.JavaScript.ORDER_IN = 8; // in
+  ScratchBlocks.JavaScript.ORDER_INSTANCEOF = 8; // instanceof
+  ScratchBlocks.JavaScript.ORDER_EQUALITY = 9; // == != === !==
+  ScratchBlocks.JavaScript.ORDER_BITWISE_AND = 10; // &
+  ScratchBlocks.JavaScript.ORDER_BITWISE_XOR = 11; // ^
+  ScratchBlocks.JavaScript.ORDER_BITWISE_OR = 12; // |
+  ScratchBlocks.JavaScript.ORDER_LOGICAL_AND = 13; // &&
+  ScratchBlocks.JavaScript.ORDER_LOGICAL_OR = 14; // ||
+  ScratchBlocks.JavaScript.ORDER_CONDITIONAL = 15; // ?:
+  ScratchBlocks.JavaScript.ORDER_ASSIGNMENT = 16; // = += -= **= *= /= %= <<= >>= ...
+  ScratchBlocks.JavaScript.ORDER_YIELD = 17; // yield
+  ScratchBlocks.JavaScript.ORDER_COMMA = 18; // ,
+  ScratchBlocks.JavaScript.ORDER_NONE = 99; // (...)
 
   /**
    * List of outer-inner pairings that do NOT require parentheses.
@@ -112,35 +110,62 @@ export function javascript(ScratchBlocks) {
   ScratchBlocks.JavaScript.ORDER_OVERRIDES = [
     // (foo()).bar -> foo().bar
     // (foo())[0] -> foo()[0]
-    [ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL, ScratchBlocks.JavaScript.ORDER_MEMBER],
+    [
+      ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL,
+      ScratchBlocks.JavaScript.ORDER_MEMBER,
+    ],
     // (foo())() -> foo()()
-    [ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL, ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL],
+    [
+      ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL,
+      ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL,
+    ],
     // (foo.bar).baz -> foo.bar.baz
     // (foo.bar)[0] -> foo.bar[0]
     // (foo[0]).bar -> foo[0].bar
     // (foo[0])[1] -> foo[0][1]
-    [ScratchBlocks.JavaScript.ORDER_MEMBER, ScratchBlocks.JavaScript.ORDER_MEMBER],
+    [
+      ScratchBlocks.JavaScript.ORDER_MEMBER,
+      ScratchBlocks.JavaScript.ORDER_MEMBER,
+    ],
     // (foo.bar)() -> foo.bar()
     // (foo[0])() -> foo[0]()
-    [ScratchBlocks.JavaScript.ORDER_MEMBER, ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL],
+    [
+      ScratchBlocks.JavaScript.ORDER_MEMBER,
+      ScratchBlocks.JavaScript.ORDER_FUNCTION_CALL,
+    ],
 
     // !(!foo) -> !!foo
-    [ScratchBlocks.JavaScript.ORDER_LOGICAL_NOT, ScratchBlocks.JavaScript.ORDER_LOGICAL_NOT],
+    [
+      ScratchBlocks.JavaScript.ORDER_LOGICAL_NOT,
+      ScratchBlocks.JavaScript.ORDER_LOGICAL_NOT,
+    ],
     // a * (b * c) -> a * b * c
-    [ScratchBlocks.JavaScript.ORDER_MULTIPLICATION, ScratchBlocks.JavaScript.ORDER_MULTIPLICATION],
+    [
+      ScratchBlocks.JavaScript.ORDER_MULTIPLICATION,
+      ScratchBlocks.JavaScript.ORDER_MULTIPLICATION,
+    ],
     // a + (b + c) -> a + b + c
-    [ScratchBlocks.JavaScript.ORDER_ADDITION, ScratchBlocks.JavaScript.ORDER_ADDITION],
+    [
+      ScratchBlocks.JavaScript.ORDER_ADDITION,
+      ScratchBlocks.JavaScript.ORDER_ADDITION,
+    ],
     // a && (b && c) -> a && b && c
-    [ScratchBlocks.JavaScript.ORDER_LOGICAL_AND, ScratchBlocks.JavaScript.ORDER_LOGICAL_AND],
+    [
+      ScratchBlocks.JavaScript.ORDER_LOGICAL_AND,
+      ScratchBlocks.JavaScript.ORDER_LOGICAL_AND,
+    ],
     // a || (b || c) -> a || b || c
-    [ScratchBlocks.JavaScript.ORDER_LOGICAL_OR, ScratchBlocks.JavaScript.ORDER_LOGICAL_OR]
+    [
+      ScratchBlocks.JavaScript.ORDER_LOGICAL_OR,
+      ScratchBlocks.JavaScript.ORDER_LOGICAL_OR,
+    ],
   ];
 
   /**
    * Initialise the database of variable names.
    * @param {!ScratchBlocks.Workspace} workspace Workspace to generate code from.
    */
-  ScratchBlocks.JavaScript.init = function (workspace) {
+  ScratchBlocks.JavaScript.init = function(workspace) {
     // Create a dictionary of definitions to be printed before the code.
     ScratchBlocks.JavaScript.definitions_ = Object.create(null);
     // Create a dictionary mapping desired function names in definitions_
@@ -148,21 +173,28 @@ export function javascript(ScratchBlocks) {
     ScratchBlocks.JavaScript.functionNames_ = Object.create(null);
 
     if (!ScratchBlocks.JavaScript.variableDB_) {
-      ScratchBlocks.JavaScript.variableDB_ =
-        new ScratchBlocks.Names(ScratchBlocks.JavaScript.RESERVED_WORDS_);
+      ScratchBlocks.JavaScript.variableDB_ = new ScratchBlocks.Names(
+        ScratchBlocks.JavaScript.RESERVED_WORDS_
+      );
     } else {
       ScratchBlocks.JavaScript.variableDB_.reset();
     }
 
-    ScratchBlocks.JavaScript.variableDB_.setVariableMap(workspace.getVariableMap());
+    ScratchBlocks.JavaScript.variableDB_.setVariableMap(
+      workspace.getVariableMap()
+    );
 
     var defvars = [];
 
     // Add developer variables (not created or named by the user).
     var devVarList = ScratchBlocks.Variables.allDeveloperVariables(workspace);
     for (let i = 0; i < devVarList.length; i++) {
-      defvars.push(ScratchBlocks.JavaScript.variableDB_.getName(devVarList[i],
-        ScratchBlocks.Names.DEVELOPER_VARIABLE_TYPE));
+      defvars.push(
+        ScratchBlocks.JavaScript.variableDB_.getName(
+          devVarList[i],
+          ScratchBlocks.Names.DEVELOPER_VARIABLE_TYPE
+        )
+      );
     }
 
     /*
@@ -186,7 +218,7 @@ export function javascript(ScratchBlocks) {
    * @param {string} code Generated code.
    * @return {string} Completed code.
    */
-  ScratchBlocks.JavaScript.finish = function (code) {
+  ScratchBlocks.JavaScript.finish = function(code) {
     // Convert the definitions dictionary into a list.
     var definitions = [];
     for (var name in ScratchBlocks.JavaScript.definitions_) {
@@ -205,7 +237,7 @@ export function javascript(ScratchBlocks) {
    * @param {string} line Line of generated code.
    * @return {string} Legal line of code.
    */
-  ScratchBlocks.JavaScript.scrubNakedValue = function (line) {
+  ScratchBlocks.JavaScript.scrubNakedValue = function(line) {
     return line + ';\n';
   };
 
@@ -216,13 +248,14 @@ export function javascript(ScratchBlocks) {
    * @return {string} JavaScript string.
    * @private
    */
-  ScratchBlocks.JavaScript.quote_ = function (string) {
+  ScratchBlocks.JavaScript.quote_ = function(string) {
     // Can't use goog.string.quote since Google's style guide recommends
     // JS string literals use single quotes.
-    string = string.replace(/\\/g, '\\\\')
+    string = string
+      .replace(/\\/g, '\\\\')
       .replace(/\n/g, '\\\n')
-      .replace(/'/g, '\\\'');
-    return '\'' + string + '\'';
+      .replace(/'/g, "\\'");
+    return "'" + string + "'";
   };
 
   /**
@@ -235,21 +268,28 @@ export function javascript(ScratchBlocks) {
    * @return {string} JavaScript code with comments and subsequent blocks added.
    * @private
    */
-  ScratchBlocks.JavaScript.scrub_ = function (block, code, opt_thisOnly) {
+  ScratchBlocks.JavaScript.scrub_ = function(block, code, opt_thisOnly) {
     var commentCode = '';
     // Only collect comments for blocks that aren't inline.
     if (!block.outputConnection || !block.outputConnection.targetConnection) {
       // Collect comment for this block.
       let comment = block.getCommentText();
-      comment = ScratchBlocks.utils.wrap(comment, ScratchBlocks.JavaScript.COMMENT_WRAP - 3);
+      comment = ScratchBlocks.utils.wrap(
+        comment,
+        ScratchBlocks.JavaScript.COMMENT_WRAP - 3
+      );
       if (comment) {
         if (block.getProcedureDef) {
           // Use a comment block for function comments.
-          commentCode += '/**\n' +
+          commentCode +=
+            '/**\n' +
             ScratchBlocks.JavaScript.prefixLines(comment + '\n', ' * ') +
             ' */\n';
         } else {
-          commentCode += ScratchBlocks.JavaScript.prefixLines(comment + '\n', '// ');
+          commentCode += ScratchBlocks.JavaScript.prefixLines(
+            comment + '\n',
+            '// '
+          );
         }
       }
       // Collect comments for all value arguments.
@@ -258,16 +298,23 @@ export function javascript(ScratchBlocks) {
         if (block.inputList[i].type == ScratchBlocks.INPUT_VALUE) {
           var childBlock = block.inputList[i].connection.targetBlock();
           if (childBlock) {
-            let comment = ScratchBlocks.JavaScript.allNestedComments(childBlock);
+            let comment = ScratchBlocks.JavaScript.allNestedComments(
+              childBlock
+            );
             if (comment) {
-              commentCode += ScratchBlocks.JavaScript.prefixLines(comment, '// ');
+              commentCode += ScratchBlocks.JavaScript.prefixLines(
+                comment,
+                '// '
+              );
             }
           }
         }
       }
     }
     var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-    var nextCode = opt_thisOnly ? '' : ScratchBlocks.JavaScript.blockToCode(nextBlock);
+    var nextCode = opt_thisOnly
+      ? ''
+      : ScratchBlocks.JavaScript.blockToCode(nextBlock);
     return commentCode + code + nextCode;
   };
 
@@ -280,8 +327,13 @@ export function javascript(ScratchBlocks) {
    * @param {number=} opt_order The highest order acting on this value.
    * @return {string|number}
    */
-  ScratchBlocks.JavaScript.getAdjusted = function (block, atId, opt_delta, opt_negate,
-                                                   opt_order) {
+  ScratchBlocks.JavaScript.getAdjusted = function(
+    block,
+    atId,
+    opt_delta,
+    opt_negate,
+    opt_order
+  ) {
     let at;
     let innerOrder;
     var delta = opt_delta || 0;
@@ -291,16 +343,29 @@ export function javascript(ScratchBlocks) {
     }
     var defaultAtIndex = block.workspace.options.oneBasedIndex ? '1' : '0';
     if (delta > 0) {
-      at = ScratchBlocks.JavaScript.valueToCode(block, atId,
-        ScratchBlocks.JavaScript.ORDER_ADDITION) || defaultAtIndex;
+      at =
+        ScratchBlocks.JavaScript.valueToCode(
+          block,
+          atId,
+          ScratchBlocks.JavaScript.ORDER_ADDITION
+        ) || defaultAtIndex;
     } else if (delta < 0) {
-      at = ScratchBlocks.JavaScript.valueToCode(block, atId,
-        ScratchBlocks.JavaScript.ORDER_SUBTRACTION) || defaultAtIndex;
+      at =
+        ScratchBlocks.JavaScript.valueToCode(
+          block,
+          atId,
+          ScratchBlocks.JavaScript.ORDER_SUBTRACTION
+        ) || defaultAtIndex;
     } else if (opt_negate) {
-      at = ScratchBlocks.JavaScript.valueToCode(block, atId,
-        ScratchBlocks.JavaScript.ORDER_UNARY_NEGATION) || defaultAtIndex;
+      at =
+        ScratchBlocks.JavaScript.valueToCode(
+          block,
+          atId,
+          ScratchBlocks.JavaScript.ORDER_UNARY_NEGATION
+        ) || defaultAtIndex;
     } else {
-      at = ScratchBlocks.JavaScript.valueToCode(block, atId, order) ||
+      at =
+        ScratchBlocks.JavaScript.valueToCode(block, atId, order) ||
         defaultAtIndex;
     }
 

@@ -1,3 +1,4 @@
+// @flow
 /* eslint-disable no-redeclare */
 import ScratchBlocks from 'scratch-blocks';
 
@@ -18,7 +19,6 @@ generator(ScratchBlocks);
 python(ScratchBlocks);
 python_control(ScratchBlocks);
 
-
 javascript(ScratchBlocks);
 javascript_control(ScratchBlocks);
 
@@ -28,7 +28,7 @@ ScratchBlocks.Scrollbar.scrollbarThickness = 8;
 ScratchBlocks.WorkspaceSvg.prototype.showContextMenu_ = function() {};
 
 export {
-  ScratchBlocks
+  ScratchBlocks,
   // makeToolBox,
   // allBlocks
 };

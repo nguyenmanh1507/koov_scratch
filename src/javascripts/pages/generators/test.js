@@ -1,5 +1,6 @@
 /* -*- indent-tabs-mode: nil; js-indent-level: 2 -*-
  */
+/* eslint-disable */
 
 'use strict';
 
@@ -7,9 +8,8 @@ const xmlserializer = require('xmlserializer');
 import { ScratchBlocks } from '../blocks/ScratchBlocks';
 
 const merge = (a, b) => Object.assign({}, a, b);
-const e = (tag) => (attrs, inner) => {
-  if (!inner instanceof Array)
-    inner = [ inner ]
+const e = tag => (attrs, inner) => {
+  if (!inner instanceof Array) inner = [inner];
   return { tag, attrs, inner };
 };
 
@@ -25,20 +25,19 @@ const j2e = j => {
     return document.createTextNode(String(j));
 
   const e = document.createElement(j.tag);
-  Object.keys(j.attrs || {}).
-    filter(k => j.attrs[k]).
-    forEach(k => e.setAttribute(k, j.attrs[k]));
+  Object.keys(j.attrs || {})
+    .filter(k => j.attrs[k])
+    .forEach(k => e.setAttribute(k, j.attrs[k]));
   (j.inner || []).forEach(j => e.appendChild(j2e(j)));
   return e;
 };
 
 const chain_blocks = (self, blks) => {
   const rec = (self, blks) => {
-    if (blks.length === 0)
-      return;
+    if (blks.length === 0) return;
     if (self.inner.some(x => x.tag === 'next'))
       throw new Error(`block ${self} already chained`);
-    self.inner.push(next({}, [ blks[0] ]));
+    self.inner.push(next({}, [blks[0]]));
     rec(blks[0], blks.slice(1));
   };
   rec(self, blks);
@@ -130,7 +129,7 @@ const uniop = (name, xname) => (x) => (
     value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")) ]));
 
 const Bplus = binop('plus');
-const Bminus = binop('minus');;
+const Bminus = binop('minus');
 const Bmultiply = binop('multiply');
 const Bdivide = binop('divide');
 const Bmod = binop('mod');
@@ -580,8 +579,7 @@ test('when_green_flag_clicked with empty blocks', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bstart() ]));
+    const dom = j2e(xml({}, [Bstart()]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -589,12 +587,13 @@ test('when_green_flag_clicked with empty blocks', () => {
     //console.log(pcode);
 
     expect(true).toBe(true);
-    expect(() => { throw new Error(3); }).toThrow();
+    expect(() => {
+      throw new Error(3);
+    }).toThrow();
   } finally {
     workspace.dispose();
   }
 });
-
 
 /*
  * Tests for + and *.
@@ -604,13 +603,12 @@ test('1 + 2', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bplus(1, 2) ]));
+    const dom = j2e(xml({}, [Bplus(1, 2)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 + 2' + "\n");
+    expect(pcode).toBe('1 + 2' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -620,13 +618,12 @@ test('1 + (2 + 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bplus(1, Bplus(2, 3)) ]));
+    const dom = j2e(xml({}, [Bplus(1, Bplus(2, 3))]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 + (2 + 3)' + "\n");
+    expect(pcode).toBe('1 + (2 + 3)' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -636,13 +633,12 @@ test('(1 + 2) + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bplus(Bplus(1, 2), 3) ]));
+    const dom = j2e(xml({}, [Bplus(Bplus(1, 2), 3)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('(1 + 2) + 3' + "\n");
+    expect(pcode).toBe('(1 + 2) + 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -652,13 +648,12 @@ test('1 + (2 * 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bplus(1, Bmultiply(2, 3)) ]));
+    const dom = j2e(xml({}, [Bplus(1, Bmultiply(2, 3))]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 + 2 * 3' + "\n");
+    expect(pcode).toBe('1 + 2 * 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -668,13 +663,12 @@ test('(1 * 2) + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bplus(Bmultiply(1, 2), 3) ]));
+    const dom = j2e(xml({}, [Bplus(Bmultiply(1, 2), 3)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 * 2 + 3' + "\n");
+    expect(pcode).toBe('1 * 2 + 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -684,13 +678,12 @@ test('(1 + 2) * 3', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bmultiply(Bplus(1, 2), 3) ]));
+    const dom = j2e(xml({}, [Bmultiply(Bplus(1, 2), 3)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('(1 + 2) * 3' + "\n");
+    expect(pcode).toBe('(1 + 2) * 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -736,13 +729,12 @@ test('1 - 2', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bminus(1, 2) ]));
+    const dom = j2e(xml({}, [Bminus(1, 2)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 - 2' + "\n");
+    expect(pcode).toBe('1 - 2' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -752,13 +744,12 @@ test('1 - (2 - 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bminus(1, Bminus(2, 3)) ]));
+    const dom = j2e(xml({}, [Bminus(1, Bminus(2, 3))]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 - (2 - 3)' + "\n");
+    expect(pcode).toBe('1 - (2 - 3)' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -768,13 +759,12 @@ test('(1 - 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bminus(Bminus(1, 2), 3) ]));
+    const dom = j2e(xml({}, [Bminus(Bminus(1, 2), 3)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('(1 - 2) - 3' + "\n");
+    expect(pcode).toBe('(1 - 2) - 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -784,13 +774,12 @@ test('1 - (2 / 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bminus(1, Bdivide(2, 3)) ]));
+    const dom = j2e(xml({}, [Bminus(1, Bdivide(2, 3))]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 - 2 / 3' + "\n");
+    expect(pcode).toBe('1 - 2 / 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -800,13 +789,12 @@ test('(1 / 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bminus(Bdivide(1, 2), 3) ]));
+    const dom = j2e(xml({}, [Bminus(Bdivide(1, 2), 3)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('1 / 2 - 3' + "\n");
+    expect(pcode).toBe('1 / 2 - 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -816,13 +804,12 @@ test('(1 - 2) / 3', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
-    const dom = j2e(
-      xml({}, [ Bdivide(Bminus(1, 2), 3) ]));
+    const dom = j2e(xml({}, [Bdivide(Bminus(1, 2), 3)]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('(1 - 2) / 3' + "\n");
+    expect(pcode).toBe('(1 - 2) / 3' + '\n');
   } finally {
     workspace.dispose();
   }
@@ -2032,7 +2019,8 @@ if 1 < 2:\n\
   time.sleep(4)\n\
   if 5 > 6:\n\
     time.sleep(7)\n\
-    time.sleep(8)\n');
+    time.sleep(8)\n'
+    );
   } finally {
     workspace.dispose();
   }
@@ -2120,7 +2108,8 @@ import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
 else:\n\
-  time.sleep(4)\n');
+  time.sleep(4)\n'
+    );
   } finally {
     workspace.dispose();
   }
@@ -2147,7 +2136,8 @@ if 1 < 2:\n\
   time.sleep(4)\n\
 else:\n\
   time.sleep(5)\n\
-  time.sleep(6)\n');
+  time.sleep(6)\n'
+    );
   } finally {
     workspace.dispose();
   }

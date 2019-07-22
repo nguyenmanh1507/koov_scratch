@@ -1,3 +1,4 @@
+// @flow
 const COLOUR = '#83ca32';
 
 export const motion_blocks = {
@@ -6,11 +7,11 @@ export const motion_blocks = {
     args0: [
       {
         type: 'input_value',
-        name: 'STEPS'
-      }
+        name: 'STEPS',
+      },
     ],
     extensions: ['shape_statement'],
-    colour: COLOUR
+    colour: COLOUR,
   },
   motion_turnright: {
     message0: 'turn %1 %2 degrees',
@@ -19,14 +20,14 @@ export const motion_blocks = {
         type: 'field_image',
         src: 'http://koov_scratch_gui.surge.sh/media/icons/rotate-right.svg',
         width: 24,
-        height: 24
+        height: 24,
       },
       {
         type: 'input_value',
-        name: 'DEGREES'
-      }
+        name: 'DEGREES',
+      },
     ],
     extensions: ['shape_statement'],
     colour: COLOUR,
-  }
+  },
 };

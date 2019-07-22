@@ -18,9 +18,7 @@
  * limitations under the License.
  */
 
-
 export function python(ScratchBlocks) {
-
   /**
    * Python code generator.
    * @type {!Blockly.Generator}
@@ -40,68 +38,68 @@ export function python(ScratchBlocks) {
     // https://docs.python.org/3/reference/lexical_analysis.html#keywords
     // https://docs.python.org/2/reference/lexical_analysis.html#keywords
     'False,None,True,and,as,assert,break,class,continue,def,del,elif,else,' +
-    'except,exec,finally,for,from,global,if,import,in,is,lambda,nonlocal,not,' +
-    'or,pass,print,raise,return,try,while,with,yield,' +
-    // https://docs.python.org/3/library/constants.html
-    // https://docs.python.org/2/library/constants.html
-    'NotImplemented,Ellipsis,__debug__,quit,exit,copyright,license,credits,' +
-    // >>> print(','.join(sorted(dir(__builtins__))))
-    // https://docs.python.org/3/library/functions.html
-    // https://docs.python.org/2/library/functions.html
-    'ArithmeticError,AssertionError,AttributeError,BaseException,' +
-    'BlockingIOError,BrokenPipeError,BufferError,BytesWarning,' +
-    'ChildProcessError,ConnectionAbortedError,ConnectionError,' +
-    'ConnectionRefusedError,ConnectionResetError,DeprecationWarning,EOFError,' +
-    'Ellipsis,EnvironmentError,Exception,FileExistsError,FileNotFoundError,' +
-    'FloatingPointError,FutureWarning,GeneratorExit,IOError,ImportError,' +
-    'ImportWarning,IndentationError,IndexError,InterruptedError,' +
-    'IsADirectoryError,KeyError,KeyboardInterrupt,LookupError,MemoryError,' +
-    'ModuleNotFoundError,NameError,NotADirectoryError,NotImplemented,' +
-    'NotImplementedError,OSError,OverflowError,PendingDeprecationWarning,' +
-    'PermissionError,ProcessLookupError,RecursionError,ReferenceError,' +
-    'ResourceWarning,RuntimeError,RuntimeWarning,StandardError,' +
-    'StopAsyncIteration,StopIteration,SyntaxError,SyntaxWarning,SystemError,' +
-    'SystemExit,TabError,TimeoutError,TypeError,UnboundLocalError,' +
-    'UnicodeDecodeError,UnicodeEncodeError,UnicodeError,' +
-    'UnicodeTranslateError,UnicodeWarning,UserWarning,ValueError,Warning,' +
-    'ZeroDivisionError,_,__build_class__,__debug__,__doc__,__import__,' +
-    '__loader__,__name__,__package__,__spec__,abs,all,any,apply,ascii,' +
-    'basestring,bin,bool,buffer,bytearray,bytes,callable,chr,classmethod,cmp,' +
-    'coerce,compile,complex,copyright,credits,delattr,dict,dir,divmod,' +
-    'enumerate,eval,exec,execfile,exit,file,filter,float,format,frozenset,' +
-    'getattr,globals,hasattr,hash,help,hex,id,input,int,intern,isinstance,' +
-    'issubclass,iter,len,license,list,locals,long,map,max,memoryview,min,' +
-    'next,object,oct,open,ord,pow,print,property,quit,range,raw_input,reduce,' +
-    'reload,repr,reversed,round,set,setattr,slice,sorted,staticmethod,str,' +
-    'sum,super,tuple,type,unichr,unicode,vars,xrange,zip'
+      'except,exec,finally,for,from,global,if,import,in,is,lambda,nonlocal,not,' +
+      'or,pass,print,raise,return,try,while,with,yield,' +
+      // https://docs.python.org/3/library/constants.html
+      // https://docs.python.org/2/library/constants.html
+      'NotImplemented,Ellipsis,__debug__,quit,exit,copyright,license,credits,' +
+      // >>> print(','.join(sorted(dir(__builtins__))))
+      // https://docs.python.org/3/library/functions.html
+      // https://docs.python.org/2/library/functions.html
+      'ArithmeticError,AssertionError,AttributeError,BaseException,' +
+      'BlockingIOError,BrokenPipeError,BufferError,BytesWarning,' +
+      'ChildProcessError,ConnectionAbortedError,ConnectionError,' +
+      'ConnectionRefusedError,ConnectionResetError,DeprecationWarning,EOFError,' +
+      'Ellipsis,EnvironmentError,Exception,FileExistsError,FileNotFoundError,' +
+      'FloatingPointError,FutureWarning,GeneratorExit,IOError,ImportError,' +
+      'ImportWarning,IndentationError,IndexError,InterruptedError,' +
+      'IsADirectoryError,KeyError,KeyboardInterrupt,LookupError,MemoryError,' +
+      'ModuleNotFoundError,NameError,NotADirectoryError,NotImplemented,' +
+      'NotImplementedError,OSError,OverflowError,PendingDeprecationWarning,' +
+      'PermissionError,ProcessLookupError,RecursionError,ReferenceError,' +
+      'ResourceWarning,RuntimeError,RuntimeWarning,StandardError,' +
+      'StopAsyncIteration,StopIteration,SyntaxError,SyntaxWarning,SystemError,' +
+      'SystemExit,TabError,TimeoutError,TypeError,UnboundLocalError,' +
+      'UnicodeDecodeError,UnicodeEncodeError,UnicodeError,' +
+      'UnicodeTranslateError,UnicodeWarning,UserWarning,ValueError,Warning,' +
+      'ZeroDivisionError,_,__build_class__,__debug__,__doc__,__import__,' +
+      '__loader__,__name__,__package__,__spec__,abs,all,any,apply,ascii,' +
+      'basestring,bin,bool,buffer,bytearray,bytes,callable,chr,classmethod,cmp,' +
+      'coerce,compile,complex,copyright,credits,delattr,dict,dir,divmod,' +
+      'enumerate,eval,exec,execfile,exit,file,filter,float,format,frozenset,' +
+      'getattr,globals,hasattr,hash,help,hex,id,input,int,intern,isinstance,' +
+      'issubclass,iter,len,license,list,locals,long,map,max,memoryview,min,' +
+      'next,object,oct,open,ord,pow,print,property,quit,range,raw_input,reduce,' +
+      'reload,repr,reversed,round,set,setattr,slice,sorted,staticmethod,str,' +
+      'sum,super,tuple,type,unichr,unicode,vars,xrange,zip'
   );
 
   /**
    * Order of operation ENUMs.
    * http://docs.python.org/reference/expressions.html#summary
    */
-  ScratchBlocks.Python.ORDER_ATOMIC = 0;            // 0 "" ...
-  ScratchBlocks.Python.ORDER_COLLECTION = 1;        // tuples, lists, dictionaries
+  ScratchBlocks.Python.ORDER_ATOMIC = 0; // 0 "" ...
+  ScratchBlocks.Python.ORDER_COLLECTION = 1; // tuples, lists, dictionaries
   ScratchBlocks.Python.ORDER_STRING_CONVERSION = 1; // `expression...`
-  ScratchBlocks.Python.ORDER_MEMBER = 2.1;          // . []
-  ScratchBlocks.Python.ORDER_FUNCTION_CALL = 2.2;   // ()
-  ScratchBlocks.Python.ORDER_EXPONENTIATION = 3;    // **
-  ScratchBlocks.Python.ORDER_UNARY_SIGN = 4;        // + -
-  ScratchBlocks.Python.ORDER_BITWISE_NOT = 4;       // ~
-  ScratchBlocks.Python.ORDER_MULTIPLICATIVE = 5;    // * / // %
-  ScratchBlocks.Python.ORDER_ADDITIVE = 6;          // + -
-  ScratchBlocks.Python.ORDER_BITWISE_SHIFT = 7;     // << >>
-  ScratchBlocks.Python.ORDER_BITWISE_AND = 8;       // &
-  ScratchBlocks.Python.ORDER_BITWISE_XOR = 9;       // ^
-  ScratchBlocks.Python.ORDER_BITWISE_OR = 10;       // |
-  ScratchBlocks.Python.ORDER_RELATIONAL = 11;       // in, not in, is, is not,
-                                              //     <, <=, >, >=, <>, !=, ==
-  ScratchBlocks.Python.ORDER_LOGICAL_NOT = 12;      // not
-  ScratchBlocks.Python.ORDER_LOGICAL_AND = 13;      // and
-  ScratchBlocks.Python.ORDER_LOGICAL_OR = 14;       // or
-  ScratchBlocks.Python.ORDER_CONDITIONAL = 15;      // if else
-  ScratchBlocks.Python.ORDER_LAMBDA = 16;           // lambda
-  ScratchBlocks.Python.ORDER_NONE = 99;             // (...)
+  ScratchBlocks.Python.ORDER_MEMBER = 2.1; // . []
+  ScratchBlocks.Python.ORDER_FUNCTION_CALL = 2.2; // ()
+  ScratchBlocks.Python.ORDER_EXPONENTIATION = 3; // **
+  ScratchBlocks.Python.ORDER_UNARY_SIGN = 4; // + -
+  ScratchBlocks.Python.ORDER_BITWISE_NOT = 4; // ~
+  ScratchBlocks.Python.ORDER_MULTIPLICATIVE = 5; // * / // %
+  ScratchBlocks.Python.ORDER_ADDITIVE = 6; // + -
+  ScratchBlocks.Python.ORDER_BITWISE_SHIFT = 7; // << >>
+  ScratchBlocks.Python.ORDER_BITWISE_AND = 8; // &
+  ScratchBlocks.Python.ORDER_BITWISE_XOR = 9; // ^
+  ScratchBlocks.Python.ORDER_BITWISE_OR = 10; // |
+  ScratchBlocks.Python.ORDER_RELATIONAL = 11; // in, not in, is, is not,
+  //     <, <=, >, >=, <>, !=, ==
+  ScratchBlocks.Python.ORDER_LOGICAL_NOT = 12; // not
+  ScratchBlocks.Python.ORDER_LOGICAL_AND = 13; // and
+  ScratchBlocks.Python.ORDER_LOGICAL_OR = 14; // or
+  ScratchBlocks.Python.ORDER_CONDITIONAL = 15; // if else
+  ScratchBlocks.Python.ORDER_LAMBDA = 16; // lambda
+  ScratchBlocks.Python.ORDER_NONE = 99; // (...)
 
   /**
    * List of outer-inner pairings that do NOT require parentheses.
@@ -110,9 +108,15 @@ export function python(ScratchBlocks) {
   ScratchBlocks.Python.ORDER_OVERRIDES = [
     // (foo()).bar -> foo().bar
     // (foo())[0] -> foo()[0]
-    [ScratchBlocks.Python.ORDER_FUNCTION_CALL, ScratchBlocks.Python.ORDER_MEMBER],
+    [
+      ScratchBlocks.Python.ORDER_FUNCTION_CALL,
+      ScratchBlocks.Python.ORDER_MEMBER,
+    ],
     // (foo())() -> foo()()
-    [ScratchBlocks.Python.ORDER_FUNCTION_CALL, ScratchBlocks.Python.ORDER_FUNCTION_CALL],
+    [
+      ScratchBlocks.Python.ORDER_FUNCTION_CALL,
+      ScratchBlocks.Python.ORDER_FUNCTION_CALL,
+    ],
     // (foo.bar).baz -> foo.bar.baz
     // (foo.bar)[0] -> foo.bar[0]
     // (foo[0]).bar -> foo[0].bar
@@ -120,21 +124,33 @@ export function python(ScratchBlocks) {
     [ScratchBlocks.Python.ORDER_MEMBER, ScratchBlocks.Python.ORDER_MEMBER],
     // (foo.bar)() -> foo.bar()
     // (foo[0])() -> foo[0]()
-    [ScratchBlocks.Python.ORDER_MEMBER, ScratchBlocks.Python.ORDER_FUNCTION_CALL],
+    [
+      ScratchBlocks.Python.ORDER_MEMBER,
+      ScratchBlocks.Python.ORDER_FUNCTION_CALL,
+    ],
 
     // not (not foo) -> not not foo
-    [ScratchBlocks.Python.ORDER_LOGICAL_NOT, ScratchBlocks.Python.ORDER_LOGICAL_NOT],
+    [
+      ScratchBlocks.Python.ORDER_LOGICAL_NOT,
+      ScratchBlocks.Python.ORDER_LOGICAL_NOT,
+    ],
     // a and (b and c) -> a and b and c
-    [ScratchBlocks.Python.ORDER_LOGICAL_AND, ScratchBlocks.Python.ORDER_LOGICAL_AND],
+    [
+      ScratchBlocks.Python.ORDER_LOGICAL_AND,
+      ScratchBlocks.Python.ORDER_LOGICAL_AND,
+    ],
     // a or (b or c) -> a or b or c
-    [ScratchBlocks.Python.ORDER_LOGICAL_OR, ScratchBlocks.Python.ORDER_LOGICAL_OR]
+    [
+      ScratchBlocks.Python.ORDER_LOGICAL_OR,
+      ScratchBlocks.Python.ORDER_LOGICAL_OR,
+    ],
   ];
 
   /**
    * Initialise the database of variable names.
    * @param {!ScratchBlocks.Workspace} workspace Workspace to generate code from.
    */
-  ScratchBlocks.Python.init = function (workspace) {
+  ScratchBlocks.Python.init = function(workspace) {
     var i;
     /**
      * Empty loops or conditionals are not allowed in Python.
@@ -152,8 +168,9 @@ export function python(ScratchBlocks) {
       () => ScratchBlocks.Python.prologueLineCount_);
 
     if (!ScratchBlocks.Python.variableDB_) {
-      ScratchBlocks.Python.variableDB_ =
-        new ScratchBlocks.Names(ScratchBlocks.Python.RESERVED_WORDS_);
+      ScratchBlocks.Python.variableDB_ = new ScratchBlocks.Names(
+        ScratchBlocks.Python.RESERVED_WORDS_
+      );
     } else {
       ScratchBlocks.Python.variableDB_.reset();
     }
@@ -164,8 +181,12 @@ export function python(ScratchBlocks) {
     // Add developer variables (not created or named by the user).
     var devVarList = ScratchBlocks.Variables.allDeveloperVariables(workspace);
     for (i = 0; i < devVarList.length; i++) {
-      defvars.push(ScratchBlocks.Python.variableDB_.getName(devVarList[i],
-        ScratchBlocks.Names.DEVELOPER_VARIABLE_TYPE) + ' = None');
+      defvars.push(
+        ScratchBlocks.Python.variableDB_.getName(
+          devVarList[i],
+          ScratchBlocks.Names.DEVELOPER_VARIABLE_TYPE
+        ) + ' = None'
+      );
     }
 
     // Add user variables, but only ones that are being used.
@@ -185,7 +206,7 @@ export function python(ScratchBlocks) {
    * @param {string} code Generated code.
    * @return {string} Completed code.
    */
-  ScratchBlocks.Python.finish = function (code) {
+  ScratchBlocks.Python.finish = function(code) {
     // Convert the definitions dictionary into a list.
     var imports = [];
     var definitions = [];
@@ -220,7 +241,7 @@ export function python(ScratchBlocks) {
    * @param {string} line Line of generated code.
    * @return {string} Legal line of code.
    */
-  ScratchBlocks.Python.scrubNakedValue = function (line) {
+  ScratchBlocks.Python.scrubNakedValue = function(line) {
     return line + '\n';
   };
 
@@ -230,18 +251,17 @@ export function python(ScratchBlocks) {
    * @return {string} Python string.
    * @private
    */
-  ScratchBlocks.Python.quote_ = function (string) {
+  ScratchBlocks.Python.quote_ = function(string) {
     // Can't use goog.string.quote since % must also be escaped.
-    string = string.replace(/\\/g, '\\\\')
-      .replace(/\n/g, '\\\n');
+    string = string.replace(/\\/g, '\\\\').replace(/\n/g, '\\\n');
 
     // Follow the CPython behaviour of repr() for a non-byte string.
-    var quote = '\'';
-    if (string.indexOf('\'') !== -1) {
+    var quote = "'";
+    if (string.indexOf("'") !== -1) {
       if (string.indexOf('"') === -1) {
         quote = '"';
       } else {
-        string = string.replace(/'/g, '\\\'');
+        string = string.replace(/'/g, "\\'");
       }
     }
 
@@ -258,13 +278,16 @@ export function python(ScratchBlocks) {
    * @return {string} Python code with comments and subsequent blocks added.
    * @private
    */
-  ScratchBlocks.Python.scrub_ = function (block, code, opt_thisOnly) {
+  ScratchBlocks.Python.scrub_ = function(block, code, opt_thisOnly) {
     var commentCode = '';
     // Only collect comments for blocks that aren't inline.
     if (!block.outputConnection || !block.outputConnection.targetConnection) {
       // Collect comment for this block.
       let comment = block.getCommentText();
-      comment = ScratchBlocks.utils.wrap(comment, ScratchBlocks.Python.COMMENT_WRAP - 3);
+      comment = ScratchBlocks.utils.wrap(
+        comment,
+        ScratchBlocks.Python.COMMENT_WRAP - 3
+      );
       if (comment) {
         if (block.getProcedureDef) {
           // Use a comment block for function comments.
@@ -288,7 +311,9 @@ export function python(ScratchBlocks) {
       }
     }
     var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-    var nextCode = opt_thisOnly ? '' : ScratchBlocks.Python.blockToCode(nextBlock);
+    var nextCode = opt_thisOnly
+      ? ''
+      : ScratchBlocks.Python.blockToCode(nextBlock);
     return commentCode + code + nextCode;
   };
 
@@ -301,15 +326,22 @@ export function python(ScratchBlocks) {
    * @param {boolean=} opt_negate Whether to negate the value.
    * @return {string|number}
    */
-  ScratchBlocks.Python.getAdjustedInt = function (block, atId, opt_delta, opt_negate) {
+  ScratchBlocks.Python.getAdjustedInt = function(
+    block,
+    atId,
+    opt_delta,
+    opt_negate
+  ) {
     var delta = opt_delta || 0;
     if (block.workspace.options.oneBasedIndex) {
       delta--;
     }
     var defaultAtIndex = block.workspace.options.oneBasedIndex ? '1' : '0';
-    var atOrder = delta ? ScratchBlocks.Python.ORDER_ADDITIVE :
-      ScratchBlocks.Python.ORDER_NONE;
-    var at = ScratchBlocks.Python.valueToCode(block, atId, atOrder) || defaultAtIndex;
+    var atOrder = delta
+      ? ScratchBlocks.Python.ORDER_ADDITIVE
+      : ScratchBlocks.Python.ORDER_NONE;
+    var at =
+      ScratchBlocks.Python.valueToCode(block, atId, atOrder) || defaultAtIndex;
 
     if (ScratchBlocks.isNumber(at)) {
       // If the index is a naked number, adjust it right now.

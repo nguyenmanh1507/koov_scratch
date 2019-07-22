@@ -1,3 +1,4 @@
+// @flow
 import ScratchBlocks from 'scratch-blocks';
 
 // Blocks definition
@@ -14,17 +15,17 @@ ScratchBlocks.Blocks['plus'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_number'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['minus'] = {
@@ -34,17 +35,17 @@ ScratchBlocks.Blocks['minus'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_number'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['multiply'] = {
@@ -54,17 +55,17 @@ ScratchBlocks.Blocks['multiply'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_number'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['divide'] = {
@@ -74,17 +75,17 @@ ScratchBlocks.Blocks['divide'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_number'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['pick_random'] = {
@@ -94,17 +95,17 @@ ScratchBlocks.Blocks['pick_random'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'FROM'
+          name: 'FROM',
         },
         {
           type: 'input_value',
-          name: 'TO'
-        }
+          name: 'TO',
+        },
       ],
       extensions: ['output_number'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['less_than'] = {
@@ -114,17 +115,17 @@ ScratchBlocks.Blocks['less_than'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['less_than_or_equal'] = {
@@ -134,17 +135,17 @@ ScratchBlocks.Blocks['less_than_or_equal'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['equal'] = {
@@ -154,17 +155,17 @@ ScratchBlocks.Blocks['equal'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['greater_than'] = {
@@ -174,17 +175,17 @@ ScratchBlocks.Blocks['greater_than'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['greater_than_or_equal'] = {
@@ -194,17 +195,17 @@ ScratchBlocks.Blocks['greater_than_or_equal'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['and'] = {
@@ -215,18 +216,18 @@ ScratchBlocks.Blocks['and'] = {
         {
           type: 'input_value',
           name: 'X',
-          check: 'Boolean'
+          check: 'Boolean',
         },
         {
           type: 'input_value',
           name: 'Y',
-          check: 'Boolean'
-        }
+          check: 'Boolean',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['or'] = {
@@ -237,18 +238,18 @@ ScratchBlocks.Blocks['or'] = {
         {
           type: 'input_value',
           name: 'X',
-          check: 'Boolean'
+          check: 'Boolean',
         },
         {
           type: 'input_value',
           name: 'Y',
-          check: 'Boolean'
-        }
+          check: 'Boolean',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['not'] = {
@@ -259,13 +260,13 @@ ScratchBlocks.Blocks['not'] = {
         {
           type: 'input_value',
           name: 'X',
-          check: 'Boolean'
-        }
+          check: 'Boolean',
+        },
       ],
       extensions: ['output_boolean'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['mod'] = {
@@ -275,17 +276,17 @@ ScratchBlocks.Blocks['mod'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
+          name: 'X',
         },
         {
           type: 'input_value',
-          name: 'Y'
-        }
+          name: 'Y',
+        },
       ],
       extensions: ['output_number'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
 
 ScratchBlocks.Blocks['round'] = {
@@ -295,11 +296,11 @@ ScratchBlocks.Blocks['round'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'X'
-        }
+          name: 'X',
+        },
       ],
       extensions: ['output_number'],
-      colour: COLOUR
+      colour: COLOUR,
     });
-  }
+  },
 };
