@@ -36,10 +36,22 @@ export function control(ScratchBlocks) {
     return [`${x} + ${y}`, ScratchBlocks.Python.ORDER_ADDITIVE];
   };
 
+  ScratchBlocks.Python['minus'] = (block) => {
+    const { x, y } = binop_values(
+      block, 'minus', ScratchBlocks.Python.ORDER_ADDITIVE);
+    return [`${x} - ${y}`, ScratchBlocks.Python.ORDER_ADDITIVE];
+  };
+
   ScratchBlocks.Python['multiply'] = (block) => {
     const { x, y } = binop_values(
       block, 'multiply', ScratchBlocks.Python.ORDER_MULTIPLICATIVE);
     return [`${x} * ${y}`, ScratchBlocks.Python.ORDER_MULTIPLICATIVE];
+  };
+
+  ScratchBlocks.Python['divide'] = (block) => {
+    const { x, y } = binop_values(
+      block, 'divide', ScratchBlocks.Python.ORDER_MULTIPLICATIVE);
+    return [`${x} / ${y}`, ScratchBlocks.Python.ORDER_MULTIPLICATIVE];
   };
 
   /*
