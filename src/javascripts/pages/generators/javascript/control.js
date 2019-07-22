@@ -3,7 +3,6 @@ export function control(ScratchBlocks) {
 
   //let indexes = ['i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's'];
 
-  console.info(ScratchBlocks);
   ScratchBlocks.JavaScript['when_green_flag_clicked'] = function (_block) {
     return "start();\n";
   };

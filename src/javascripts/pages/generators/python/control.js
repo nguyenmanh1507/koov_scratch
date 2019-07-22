@@ -1,6 +1,5 @@
 
 export function control(ScratchBlocks) {
-  console.info(ScratchBlocks);
   ScratchBlocks.Python['when_green_flag_clicked'] = function (_block) {
     return "start();\n";
   };
