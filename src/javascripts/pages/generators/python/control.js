@@ -155,6 +155,29 @@ export function control(ScratchBlocks) {
     return `for _ in range(${count}):\n${stmts}`;
   };
 
+  ScratchBlocks.Python['repeat_until'] = (block) => {
+    const stmts = ScratchBlocks.Python.statementToCode(
+      block, 'BLOCKS') || '  pass';
+    const cond = ScratchBlocks.Python.valueToCode(
+      block, 'CONDITION', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
+    const op = 'repeat_until';
+    if (!cond)
+      throw new Error(`${op}: no arguments`);
+
+    return `while not ${cond}:\n${stmts}`;
+  };
+
+  ScratchBlocks.Python['wait_until'] = (block) => {
+    const stmts = '  time.sleep(0.01)';
+    const cond = ScratchBlocks.Python.valueToCode(
+      block, 'CONDITION', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
+    const op = 'wait_until';
+    if (!cond)
+      throw new Error(`${op}: no arguments`);
+
+    return `while not ${cond}:\n${stmts}`;
+  };
+
   ScratchBlocks.Python['function'] = (block) => {
     const stmts = ScratchBlocks.Python.statementToCode(
       block, 'BLOCKS') || '  pass';
