@@ -140,6 +140,17 @@ export function control(ScratchBlocks) {
     return `for _ in range(${count}):\n${stmts}`;
   };
 
+  ScratchBlocks.Python['function'] = (block) => {
+    const stmts = ScratchBlocks.Python.statementToCode(
+      block, 'BLOCKS') || '  pass';
+    const fn = block.getFieldValue('FUNCTION');
+    const op = 'function';
+    if (!fn)
+      throw new Error(`${op}: no arguments`);
+
+    return `def ${fn}():\n${stmts}`;
+  };
+
   ScratchBlocks.Python['if_then'] = (block) => {
     const stmts = ScratchBlocks.Python.statementToCode(
       block, 'BLOCKS') || '  pass';
