@@ -48,67 +48,48 @@ const chain_blocks = (self, blks) => {
 const Bstart = (...blks) => (
   chain_blocks(block({ type: "when_green_flag_clicked" }, []), blks));
 
-const Bforever = (...blks) => {
-  if (blks.length === 0)
-    return block({ type: "forever" }, []);
-  return block({ type: "forever" }, [
-    statement({ name: "BLOCKS"}, [
-      chain_blocks(blks[0], blks.slice(1)) ])]);
-};
+const statements = (blks, name) => (
+  blks.length === 0 ? [] :
+    [ statement({ name: name ? name : "BLOCKS"}, [
+      chain_blocks(blks[0], blks.slice(1)) ])]
+);
 
-const Brepeat = (n, blks) => {
-  if (blks.length === 0)
-    return (
-      block({ type: "repeat" }, [
-        value({ name: "COUNT" }, Bnumber(n, "math_whole_number"))]));
-  return block({ type: "repeat" }, [
+const Bforever = (...blks) => (
+  block({ type: "forever" }, [ ...statements(blks) ]));
+
+const Brepeat = (n, blks) => (
+  block({ type: "repeat" }, [
     value({ name: "COUNT" }, Bnumber(n, "math_whole_number")),
-    statement({ name: "BLOCKS"}, [
-      chain_blocks(blks[0], blks.slice(1)) ])]);
-};
+      ...statements(blks)]));
 
-const Bif_then = (condition, blks) => {
-  if (blks.length === 0)
-    return (
-      block({ type: "if_then" }, [
-        value({ name: "CONDITION" }, [ condition ])]));
-  return block({ type: "if_then" }, [
-    value({ name: "CONDITION" }, [ condition ]),
-    statement({ name: "BLOCKS"}, [
-      chain_blocks(blks[0], blks.slice(1)) ])]);
-};
+const Bfunction = (name, blks) => (
+  block({ type: "function" }, [
+    field({ name: 'FUNCTION' }, [ ...name ]),
+      ...statements(blks)]));
 
-const Bif_then_else = (condition, then_blks, else_blks) => {
-  if (then_blks.length === 0 && else_blks.length === 0)
-    return (
-      block({ type: "if_then_else" }, [
-        value({ name: "CONDITION" }, [ condition ])]));
-  if (else_blks.length === 0)
-    return block({ type: "if_then_else" }, [
-      value({ name: "CONDITION" }, [ condition ]),
-      statement({ name: "THEN_BLOCKS"}, [
-        chain_blocks(then_blks[0], then_blks.slice(1)) ])]);
-  if (then_blks.length === 0)
-    return block({ type: "if_then_else" }, [
-      value({ name: "CONDITION" }, [ condition ]),
-      statement({ name: "ELSE_BLOCKS"}, [
-        chain_blocks(else_blks[0], else_blks.slice(1)) ])]);
-  return block({ type: "if_then_else" }, [
+const Bif_then = (condition, blks) => (
+  block({ type: "if_then" }, [
     value({ name: "CONDITION" }, [ condition ]),
-    statement({ name: "THEN_BLOCKS"}, [
-      chain_blocks(then_blks[0], then_blks.slice(1)) ]),
-    statement({ name: "ELSE_BLOCKS"}, [
-      chain_blocks(else_blks[0], else_blks.slice(1)) ])]);
-};
+      ...statements(blks)]));
+
+const Bif_then_else = (condition, then_blks, else_blks) => (
+  block({ type: "if_then_else" }, [
+    value({ name: "CONDITION" }, [ condition ]),
+      ...statements(then_blks, "THEN_BLOCKS"),
+      ...statements(else_blks, "ELSE_BLOCKS")]));
 
 const Bnumber = (n, type) => {
-  if (n === null)
-    return [ shadow({ type: type }, [ field({ name: "NUM"}, []) ])];
-  if (typeof n === 'number')
-    return [ shadow({ type: type }, [ field({ name: "NUM"}, [ n ]) ])];
+  const [ shadow_arg, block_arg ] = (() => {
+    if (n === null)
+      return [[], []];
+    if (typeof n === 'number')
+      return [[ n ], []];
+    return [[], [ n ]];
+  })();
+
   return [
-    shadow({ type: type }, [ field({ name: "NUM"}, []) ]),
-    n ];
+    shadow({ type: type }, [ field({ name: "NUM"}, [...shadow_arg]) ]),
+      ...block_arg ];
 };
 
 const Bwait = n => (
@@ -267,7 +248,7 @@ test('repeat notation (count == 1 and empty blocks)', () => {
   }
 });
 
-test('repeat notation (count == 1 and single blocks)', () => {
+test('repeat notation (count == 1 and single block)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom1 = j2e(
@@ -296,7 +277,7 @@ test('repeat notation (count == 1 and single blocks)', () => {
   }
 });
 
-test('repeat notation (count == 1 and single blocks)', () => {
+test('repeat notation (count == 1 and two blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom1 = j2e(
@@ -321,6 +302,109 @@ test('repeat notation (count == 1 and single blocks)', () => {
       xml({}, [
         Bstart(
           Brepeat(1, [ Bwait(2), Bwait(3) ]))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+    ScratchBlocks.Xml.workspaceToDom(workspace);
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function notation (no name and empty blocks)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        block({ type: "when_green_flag_clicked" }, [
+          next({}, [
+            block({ type: "function" }, [
+              field({ name: "FUNCTION" }, [])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        Bstart(
+          Bfunction([], []))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+    ScratchBlocks.Xml.workspaceToDom(workspace);
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function notation (name == "f" and empty blocks)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        block({ type: "when_green_flag_clicked" }, [
+          next({}, [
+            block({ type: "function" }, [
+              field({ name: "FUNCTION" }, [ 'f' ])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        Bstart(
+          Bfunction(['f'], []))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+    ScratchBlocks.Xml.workspaceToDom(workspace);
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function notation (name == "f" and single block)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        block({ type: "when_green_flag_clicked" }, [
+          next({}, [
+            block({ type: "function" }, [
+              field({ name: "FUNCTION" }, [ 'f' ]),
+              statement({ name: "BLOCKS" }, [
+                block({ type: "wait" }, [
+                  value({ name: "SECS" }, [
+                    shadow({ type: "math_positive_number" }, [
+                      field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        Bstart(
+          Bfunction(['f'], [ Bwait(2) ]))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+    ScratchBlocks.Xml.workspaceToDom(workspace);
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function notation (name == "f" and two blocks)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        block({ type: "when_green_flag_clicked" }, [
+          next({}, [
+            block({ type: "function" }, [
+              field({ name: "FUNCTION" }, [ 'f' ]),
+              statement({ name: "BLOCKS" }, [
+                block({ type: "wait" }, [
+                  value({ name: "SECS" }, [
+                    shadow({ type: "math_positive_number" }, [
+                      field({ name: "NUM"}, [ 2 ]) ])]),
+                  next({}, [
+                    block({ type: "wait" }, [
+                      value({ name: "SECS" }, [
+                        shadow({ type: "math_positive_number" }, [
+                          field({ name: "NUM"}, [ 3 ]) ])])])])])])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        Bstart(
+          Bfunction(['f'], [ Bwait(2), Bwait(3) ]))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -1162,6 +1246,58 @@ for _ in range(1):\n\
   for _ in range(2):\n\
     time.sleep(3)\n\
     time.sleep(4)\n');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for function block.
+ */
+
+test('function(empty)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bfunction('f', []) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('def f():\n  pass');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function(with single wait)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bfunction('f', [ Bwait(1) ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('def f():\n  time.sleep(1)\n');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function(with two waits)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bfunction('f', [ Bwait(1), Bwait(2) ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+def f():\n\
+  time.sleep(1)\n\
+  time.sleep(2)\n');
   } finally {
     workspace.dispose();
   }
