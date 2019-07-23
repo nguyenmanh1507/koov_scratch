@@ -990,6 +990,73 @@ test('1 * (round(1.5) * 2)', () => {
 });
 
 /*
+ * Test for pick_random().
+ */
+
+test('pick_random(1, 2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bpick_random(1, 2) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    const fn = (
+      'lambda x, y: int(random.random() * (int(y) - int(x) + 1)) + int(x)'
+    );
+    expect(pcode).toBe(`\
+import random\n\n\n\
+(${fn})(1, 2)\
+` + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('pick_random(1 + 2, 3 - 4)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bpick_random(Bplus(1, 2), Bminus(3, 4)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    const fn = (
+      'lambda x, y: int(random.random() * (int(y) - int(x) + 1)) + int(x)'
+    );
+    expect(pcode).toBe(`\
+import random\n\n\n\
+(${fn})(1 + 2, 3 - 4)\
+` + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('1 + pick_random(2, 3)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bplus(1, Bpick_random(2, 3)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    const fn = (
+      'lambda x, y: int(random.random() * (int(y) - int(x) + 1)) + int(x)'
+    );
+    expect(pcode).toBe(`\
+import random\n\n\n\
+1 + (${fn})(2, 3)\
+` + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
  * Comparators.
  */
 

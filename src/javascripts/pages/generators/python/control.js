@@ -72,6 +72,23 @@ export function control(ScratchBlocks) {
     return [`${x} % ${y}`, ScratchBlocks.Python.ORDER_MULTIPLICATIVE];
   };
 
+  ScratchBlocks.Python['pick_random'] = (block) => {
+    const x = ScratchBlocks.Python.valueToCode(
+      block, 'FROM', ScratchBlocks.Python.ORDER_NONE);
+    const y = ScratchBlocks.Python.valueToCode(
+      block, 'TO', ScratchBlocks.Python.ORDER_NONE);
+    const op = 'pick_random';
+    if (!y)
+      throw new Error(`${op}: no first argument`);
+    if (!y)
+      throw new Error(`${op}: no second argument`);
+    const fn = (
+      'lambda x, y: int(random.random() * (int(y) - int(x) + 1)) + int(x)'
+    );
+    use_module('random');
+    return [`(${fn})(${x}, ${y})`, ScratchBlocks.Python.ORDER_FUNCTION_CALL];
+  };
+
   ScratchBlocks.Python['less_than'] = (block) => {
     const { x, y } = binop_values(
       block, 'less_than', ScratchBlocks.Python.ORDER_RELATIONAL);
