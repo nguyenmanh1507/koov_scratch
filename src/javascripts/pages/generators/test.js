@@ -1308,7 +1308,9 @@ test('wait(1)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('time.sleep(1)\n');
+    expect(pcode).toBe('\
+import time\n\n\n\
+time.sleep(1)\n');
   } finally {
     workspace.dispose();
   }
@@ -1323,7 +1325,9 @@ test('wait(1 + 2)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('time.sleep(1 + 2)\n');
+    expect(pcode).toBe('\
+import time\n\n\n\
+time.sleep(1 + 2)\n');
   } finally {
     workspace.dispose();
   }
@@ -1357,7 +1361,10 @@ test('forever(with single wait)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('while True:\n  time.sleep(1)\n');
+    expect(pcode).toBe('\
+import time\n\n\n\
+while True:\n\
+  time.sleep(1)\n');
   } finally {
     workspace.dispose();
   }
@@ -1373,6 +1380,7 @@ test('forever(with two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 while True:\n\
   time.sleep(1)\n\
   time.sleep(2)\n');
@@ -1397,6 +1405,7 @@ test('nested forever(with two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 while True:\n\
   time.sleep(1)\n\
   time.sleep(2)\n\
@@ -1436,7 +1445,10 @@ test('repeat(with single wait)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('for _ in range(1 + 2):\n  time.sleep(1)\n');
+    expect(pcode).toBe('\
+import time\n\n\n\
+for _ in range(1 + 2):\n\
+  time.sleep(1)\n');
   } finally {
     workspace.dispose();
   }
@@ -1452,6 +1464,7 @@ test('repeat(with two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 for _ in range(1):\n\
   time.sleep(1)\n\
   time.sleep(2)\n');
@@ -1476,6 +1489,7 @@ test('nested repeat(with two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 for _ in range(1):\n\
   time.sleep(1)\n\
   time.sleep(2)\n\
@@ -1517,6 +1531,7 @@ test('repeat_until(with single wait)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 while not (1 == 0 and 2 == 3):\n\
   time.sleep(1)\n');
   } finally {
@@ -1534,6 +1549,7 @@ test('repeat_until(with two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 while not 1 == 0:\n\
   time.sleep(1)\n\
   time.sleep(2)\n');
@@ -1558,6 +1574,7 @@ test('nested repeat_until(with two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 while not 1 == 0:\n\
   time.sleep(1)\n\
   time.sleep(2)\n\
@@ -1597,7 +1614,10 @@ test('wait_until(non empty condition)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('while not 1 == 0:\n  time.sleep(0.01)');
+    expect(pcode).toBe('\
+import time\n\n\n\
+while not 1 == 0:\n\
+  time.sleep(0.01)');
   } finally {
     workspace.dispose();
   }
@@ -1631,7 +1651,10 @@ test('function(with single wait)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('def f():\n  time.sleep(1)\n');
+    expect(pcode).toBe('\
+import time\n\n\n\
+def f():\n\
+  time.sleep(1)\n');
   } finally {
     workspace.dispose();
   }
@@ -1647,6 +1670,7 @@ test('function(with two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 def f():\n\
   time.sleep(1)\n\
   time.sleep(2)\n');
@@ -1684,6 +1708,7 @@ test('if then(single wait)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n');
   } finally {
@@ -1701,6 +1726,7 @@ test('if then(two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
   time.sleep(4)\n');
@@ -1725,6 +1751,7 @@ test('if then(nested two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
   time.sleep(4)\n\
@@ -1769,6 +1796,7 @@ test('if then else(single wait in then clause)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
 else:\n\
@@ -1788,6 +1816,7 @@ test('if then else(single wait in else clause)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   pass\n\
 else:\n\
@@ -1808,6 +1837,7 @@ test('if then else(single wait in both clause)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
 else:\n\
@@ -1831,6 +1861,7 @@ test('if then else(two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
   time.sleep(4)\n\
@@ -1876,6 +1907,7 @@ test('if then else(nested two waits)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
+import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
   time.sleep(4)\n\

@@ -2,6 +2,11 @@
  */
 
 export function control(ScratchBlocks) {
+  const pass = () => ScratchBlocks.Python.INDENT + 'pass';
+  const use_module = (name) => {
+    ScratchBlocks.Python.definitions_[`import ${name}`] = `import ${name}`;
+  };
+
   ScratchBlocks.Python['math_number'] = (block) => {
     const n = block.getFieldValue('NUM');
     return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
@@ -133,19 +138,20 @@ export function control(ScratchBlocks) {
     const op = 'wait';
     if (!secs)
       throw new Error(`${op}: no arguments`);
+    use_module('time');
     return `time.sleep(${secs})\n`;
   };
 
   ScratchBlocks.Python['forever'] = (block) => {
     const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || '  pass';
+      block, 'BLOCKS') || pass();
 
     return `while True:\n${stmts}`;
   };
 
   ScratchBlocks.Python['repeat'] = (block) => {
     const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || '  pass';
+      block, 'BLOCKS') || pass();
     const count = ScratchBlocks.Python.valueToCode(
       block, 'COUNT', ScratchBlocks.Python.ORDER_NONE);
     const op = 'repeat';
@@ -157,7 +163,7 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['repeat_until'] = (block) => {
     const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || '  pass';
+      block, 'BLOCKS') || pass();
     const cond = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
     const op = 'repeat_until';
@@ -175,12 +181,13 @@ export function control(ScratchBlocks) {
     if (!cond)
       throw new Error(`${op}: no arguments`);
 
+    use_module('time');
     return `while not ${cond}:\n${stmts}`;
   };
 
   ScratchBlocks.Python['function'] = (block) => {
     const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || '  pass';
+      block, 'BLOCKS') || pass();
     const fn = block.getFieldValue('FUNCTION');
     const op = 'function';
     if (!fn)
@@ -191,7 +198,7 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['if_then'] = (block) => {
     const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || '  pass';
+      block, 'BLOCKS') || pass();
     const condition = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_NONE);
     const op = 'if_then';
@@ -203,9 +210,9 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['if_then_else'] = (block) => {
     const then_blocks = ScratchBlocks.Python.statementToCode(
-      block, 'THEN_BLOCKS') || '  pass\n';
+      block, 'THEN_BLOCKS') || pass() + '\n';
     const else_blocks = ScratchBlocks.Python.statementToCode(
-      block, 'ELSE_BLOCKS') || '  pass';
+      block, 'ELSE_BLOCKS') || pass();
     const condition = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_NONE);
     const op = 'if_then_else';
