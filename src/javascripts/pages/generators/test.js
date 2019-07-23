@@ -120,6 +120,10 @@ const binop = (name, xname, yname) => (x, y) => (
     value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")),
     value({ name: yname ? yname : "Y" }, Bnumber(y, "math_number")) ]));
 
+const uniop = (name, xname) => (x) => (
+  block({ type: name }, [
+    value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")) ]));
+
 const Bplus = binop('plus');
 const Bminus = binop('minus');;
 const Bmultiply = binop('multiply');
@@ -130,6 +134,9 @@ const Bless_than_or_equal = binop('less_than_or_equal');
 const Bequal = binop('equal');
 const Bgreater_than = binop('greater_than');
 const Bgreater_than_or_equal = binop('greater_than_or_equal');
+const Band = binop('and');
+const Bor = binop('or');
+const Bnot = uniop('not');
 
 test('wait notation', () => {
   const workspace = new ScratchBlocks.Workspace();
@@ -781,6 +788,188 @@ test('1 >= 2', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('1 >= 2' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('1 < 2 && 3 <= 4', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 < 2 and 3 <= 4' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('1 < 2 || 3 <= 4', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 < 2 or 3 <= 4' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 < 2 && 3 <= 4) || (5 > 6 && 7 <= 8)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bor(
+          Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
+          Band(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 < 2 and 3 <= 4 or 5 > 6 and 7 >= 8' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 < 2 || 3 <= 4) && (5 > 6 || 7 <= 8)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Band(
+          Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
+          Bor(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('(1 < 2 or 3 <= 4) and (5 > 6 or 7 >= 8)' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 < 2 && 3 <= 4) && (5 > 6 && 7 <= 8)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Band(
+          Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
+          Band(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 < 2 and 3 <= 4 and 5 > 6 and 7 >= 8' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('(1 < 2 || 3 <= 4) || (5 > 6 || 7 <= 8)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bor(
+          Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
+          Bor(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('1 < 2 or 3 <= 4 or 5 > 6 or 7 >= 8' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('not (1 < 2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bnot(Bless_than(1, 2)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('not 1 < 2' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('not (1 < 2) && not (3 <= 4)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Band(Bnot(Bless_than(1, 2)), Bnot(Bless_than_or_equal(3, 4))) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('not 1 < 2 and not 3 <= 4' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('not (1 < 2 && 3 <= 4)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bnot(Band(Bless_than(1, 2), Bless_than_or_equal(3, 4))) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('not (1 < 2 and 3 <= 4)' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('not (1 < 2) || not (3 <= 4)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bor(Bnot(Bless_than(1, 2)), Bnot(Bless_than_or_equal(3, 4))) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('not 1 < 2 or not 3 <= 4' + "\n");
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('not (1 < 2 || 3 <= 4)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bnot(Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4))) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('not (1 < 2 or 3 <= 4)' + "\n");
   } finally {
     workspace.dispose();
   }

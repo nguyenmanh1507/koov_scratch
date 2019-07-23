@@ -84,6 +84,27 @@ export function control(ScratchBlocks) {
     return [`${x} >= ${y}`, ScratchBlocks.Python.ORDER_RELATIONAL];
   };
 
+  ScratchBlocks.Python['and'] = (block) => {
+    const { x, y } = binop_values(
+      block, 'and', ScratchBlocks.Python.ORDER_LOGICAL_AND);
+    return [`${x} and ${y}`, ScratchBlocks.Python.ORDER_LOGICAL_AND];
+  };
+
+  ScratchBlocks.Python['or'] = (block) => {
+    const { x, y } = binop_values(
+      block, 'or', ScratchBlocks.Python.ORDER_LOGICAL_OR);
+    return [`${x} or ${y}`, ScratchBlocks.Python.ORDER_LOGICAL_OR];
+  };
+
+  ScratchBlocks.Python['not'] = (block) => {
+    const x = ScratchBlocks.Python.valueToCode(
+      block, 'X', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
+    const op = 'not';
+    if (!x)
+      throw new Error(`${op}: no argument`);
+    return [`not ${x}`, ScratchBlocks.Python.ORDER_LOGICAL_NOT];
+  };
+
   /*
    * Statements
    */
