@@ -30,6 +30,13 @@ export function control(ScratchBlocks) {
     return { x, y };
   };
 
+  const uniop_value = (block, op, order) => {
+    const x = ScratchBlocks.Python.valueToCode(block, 'X', order);
+    if (!x)
+      throw new Error(`${op}: no arguments`);
+    return x;
+  };
+
   ScratchBlocks.Python['plus'] = (block) => {
     const { x, y } = binop_values(
       block, 'plus', ScratchBlocks.Python.ORDER_ADDITIVE);
@@ -52,6 +59,12 @@ export function control(ScratchBlocks) {
     const { x, y } = binop_values(
       block, 'divide', ScratchBlocks.Python.ORDER_MULTIPLICATIVE);
     return [`${x} / ${y}`, ScratchBlocks.Python.ORDER_MULTIPLICATIVE];
+  };
+
+  ScratchBlocks.Python['mod'] = (block) => {
+    const { x, y } = binop_values(
+      block, 'mod', ScratchBlocks.Python.ORDER_MULTIPLICATIVE);
+    return [`${x} % ${y}`, ScratchBlocks.Python.ORDER_MULTIPLICATIVE];
   };
 
   ScratchBlocks.Python['less_than'] = (block) => {
@@ -97,12 +110,14 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['not'] = (block) => {
-    const x = ScratchBlocks.Python.valueToCode(
-      block, 'X', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
-    const op = 'not';
-    if (!x)
-      throw new Error(`${op}: no argument`);
+    const x = uniop_value(
+      block, 'round', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
     return [`not ${x}`, ScratchBlocks.Python.ORDER_LOGICAL_NOT];
+  };
+
+  ScratchBlocks.Python['round'] = (block) => {
+    const x = uniop_value(block, 'round', ScratchBlocks.Python.ORDER_ATOMIC);
+    return [`round(${x})`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
 
   /*
