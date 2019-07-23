@@ -62,6 +62,15 @@ const Brepeat = (n, blks) => (
     value({ name: "COUNT" }, Bnumber(n, "math_whole_number")),
       ...statements(blks)]));
 
+const Brepeat_until = (condition, blks) => (
+  block({ type: "repeat_until" }, [
+    value({ name: "CONDITION" }, [ ...condition ]),
+      ...statements(blks)]));
+
+const Bwait_until = (condition) => (
+  block({ type: "wait_until" }, [
+    value({ name: "CONDITION" }, [ ...condition ])]));
+
 const Bfunction = (name, blks) => (
   block({ type: "function" }, [
     field({ name: 'FUNCTION' }, [ ...name ]),
@@ -69,12 +78,12 @@ const Bfunction = (name, blks) => (
 
 const Bif_then = (condition, blks) => (
   block({ type: "if_then" }, [
-    value({ name: "CONDITION" }, [ condition ]),
+    value({ name: "CONDITION" }, [ ...condition ]),
       ...statements(blks)]));
 
 const Bif_then_else = (condition, then_blks, else_blks) => (
   block({ type: "if_then_else" }, [
-    value({ name: "CONDITION" }, [ condition ]),
+    value({ name: "CONDITION" }, [ ...condition ]),
       ...statements(then_blks, "THEN_BLOCKS"),
       ...statements(else_blks, "ELSE_BLOCKS")]));
 
@@ -1479,6 +1488,122 @@ for _ in range(1):\n\
 });
 
 /*
+ * Tests for repeat_until block.
+ */
+
+test('repeat_until(empty)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Brepeat_until([ Bequal(1, 0) ], []) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('while not 1 == 0:\n  pass');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('repeat_until(with single wait)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Brepeat_until([ Band(Bequal(1, 0), Bequal(2, 3)) ], [ Bwait(1) ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+while not (1 == 0 and 2 == 3):\n\
+  time.sleep(1)\n');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('repeat_until(with two waits)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Brepeat_until([ Bequal(1, 0) ], [ Bwait(1), Bwait(2) ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+while not 1 == 0:\n\
+  time.sleep(1)\n\
+  time.sleep(2)\n');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('nested repeat_until(with two waits)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [
+        Brepeat_until([ Bequal(1, 0) ], [
+          Bwait(1),
+          Bwait(2),
+          Brepeat_until([ Bequal(2, 3) ], [
+            Bwait(3),
+            Bwait(4) ])])]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+while not 1 == 0:\n\
+  time.sleep(1)\n\
+  time.sleep(2)\n\
+  while not 2 == 3:\n\
+    time.sleep(3)\n\
+    time.sleep(4)\n');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for wait_until block.
+ */
+
+test('wait_until(empty condition)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bwait_until([], []) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    expect(
+      () => ScratchBlocks.Python.workspaceToCode(workspace)).toThrow();
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('wait_until(non empty condition)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  try {
+    const dom = j2e(
+      xml({}, [ Bwait_until([ Bequal(1, 0) ], []) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('while not 1 == 0:\n  time.sleep(0.01)');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
  * Tests for function block.
  */
 
@@ -1538,7 +1663,7 @@ test('if then(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then(Bless_than(1, 2), []) ]));
+      xml({}, [ Bif_then([ Bless_than(1, 2) ], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1553,7 +1678,7 @@ test('if then(single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then(Bless_than(1, 2), [ Bwait(3) ]) ]));
+      xml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1570,7 +1695,7 @@ test('if then(two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then(Bless_than(1, 2), [ Bwait(3), Bwait(4) ]) ]));
+      xml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3), Bwait(4) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1589,10 +1714,10 @@ test('if then(nested two waits)', () => {
   try {
     const dom = j2e(
       xml({}, [
-        Bif_then(Bless_than(1, 2), [
+        Bif_then([ Bless_than(1, 2) ], [
           Bwait(3),
           Bwait(4),
-          Bif_then(Bgreater_than(5, 6), [
+          Bif_then([ Bgreater_than(5, 6) ], [
             Bwait(7),
             Bwait(8) ])]) ]));
 
@@ -1619,7 +1744,7 @@ test('if then else(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then_else(Bless_than(1, 2), [], []) ]));
+      xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1638,7 +1763,7 @@ test('if then else(single wait in then clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then_else(Bless_than(1, 2), [ Bwait(3) ], []) ]));
+      xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [ Bwait(3) ], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1657,7 +1782,7 @@ test('if then else(single wait in else clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then_else(Bless_than(1, 2), [], [ Bwait(3) ]) ]));
+      xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], [ Bwait(3) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1677,7 +1802,7 @@ test('if then else(single wait in both clause)', () => {
   try {
     const dom = j2e(
       xml({}, [
-        Bif_then_else(Bless_than(1, 2), [ Bwait(3) ], [ Bwait(4) ]) ]));
+        Bif_then_else([ Bless_than(1, 2) ], [ Bwait(3) ], [ Bwait(4) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1698,7 +1823,7 @@ test('if then else(two waits)', () => {
     const dom = j2e(
       xml({}, [
         Bif_then_else(
-          Bless_than(1, 2),
+          [ Bless_than(1, 2) ],
           [ Bwait(3), Bwait(4) ],
           [ Bwait(5), Bwait(6) ]) ]));
 
@@ -1723,12 +1848,12 @@ test('if then else(nested two waits)', () => {
     const dom = j2e(
       xml({}, [
         Bif_then_else(
-          Bless_than(1, 2),
+          [ Bless_than(1, 2) ],
           [
             Bwait(3),
             Bwait(4),
             Bif_then_else(
-              Bgreater_than(5, 6),
+              [ Bgreater_than(5, 6) ],
               [
                 Bwait(7),
                 Bwait(8) ],
@@ -1739,7 +1864,7 @@ test('if then else(nested two waits)', () => {
             Bwait(11),
             Bwait(12),
             Bif_then_else(
-              Bequal(13, 14),
+              [ Bequal(13, 14) ],
               [
                 Bwait(15),
                 Bwait(16) ],
