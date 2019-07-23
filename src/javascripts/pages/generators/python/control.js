@@ -111,7 +111,7 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['not'] = (block) => {
     const x = uniop_value(
-      block, 'round', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
+      block, 'not', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
     return [`not ${x}`, ScratchBlocks.Python.ORDER_LOGICAL_NOT];
   };
 
