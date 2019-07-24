@@ -13,8 +13,8 @@ const e = (tag) => (attrs, inner) => {
   return { tag, attrs, inner };
 };
 
-const { xml, block, next, value, shadow, field, statement } = [
-  'xml', 'block', 'next', 'value', 'shadow', 'field', 'statement'
+const { xml, block, next, value, shadow, field, statement, variables } = [
+  'xml', 'block', 'next', 'value', 'shadow', 'field', 'statement', 'variables'
 ].reduce((acc, x) => {
   acc[x] = e(x);
   return acc;
@@ -45,8 +45,23 @@ const chain_blocks = (self, blks) => {
   return self;
 };
 
+let id = 0;
+
+const Bblock = (attrs, inner) => {
+  if (!attrs.hasOwnProperty('id'))
+    attrs.id = `block${id++}`;
+  return block(attrs, inner);
+};
+
+const Bshadow = (attrs, inner) => {
+  if (!attrs.hasOwnProperty('id'))
+    attrs.id = `block${id++}`;
+  return shadow(attrs, inner);
+};
+
 const Bstart = (...blks) => (
-  chain_blocks(block({ type: "when_green_flag_clicked" }, []), blks));
+  chain_blocks(
+    Bblock({ type: "when_green_flag_clicked", x: 10, y: 10 }, []), blks));
 
 const statements = (blks, name) => (
   blks.length === 0 ? [] :
@@ -55,34 +70,34 @@ const statements = (blks, name) => (
 );
 
 const Bforever = (...blks) => (
-  block({ type: "forever" }, [ ...statements(blks) ]));
+  Bblock({ type: "forever" }, [ ...statements(blks) ]));
 
 const Brepeat = (n, blks) => (
-  block({ type: "repeat" }, [
+  Bblock({ type: "repeat" }, [
     value({ name: "COUNT" }, Bnumber(n, "math_whole_number")),
       ...statements(blks)]));
 
 const Brepeat_until = (condition, blks) => (
-  block({ type: "repeat_until" }, [
+  Bblock({ type: "repeat_until" }, [
     value({ name: "CONDITION" }, [ ...condition ]),
       ...statements(blks)]));
 
 const Bwait_until = (condition) => (
-  block({ type: "wait_until" }, [
+  Bblock({ type: "wait_until" }, [
     value({ name: "CONDITION" }, [ ...condition ])]));
 
 const Bfunction = (name, blks) => (
-  block({ type: "function" }, [
+  Bblock({ type: "function", x: 10, y: 10 }, [
     field({ name: 'FUNCTION' }, [ ...name ]),
       ...statements(blks)]));
 
 const Bif_then = (condition, blks) => (
-  block({ type: "if_then" }, [
+  Bblock({ type: "if_then" }, [
     value({ name: "CONDITION" }, [ ...condition ]),
       ...statements(blks)]));
 
 const Bif_then_else = (condition, then_blks, else_blks) => (
-  block({ type: "if_then_else" }, [
+  Bblock({ type: "if_then_else" }, [
     value({ name: "CONDITION" }, [ ...condition ]),
       ...statements(then_blks, "THEN_BLOCKS"),
       ...statements(else_blks, "ELSE_BLOCKS")]));
@@ -97,21 +112,21 @@ const Bnumber = (n, type) => {
   })();
 
   return [
-    shadow({ type: type }, [ field({ name: "NUM"}, [...shadow_arg]) ]),
+    Bshadow({ type: type }, [ field({ name: "NUM"}, [...shadow_arg]) ]),
       ...block_arg ];
 };
 
 const Bwait = n => (
-  block({ type: "wait" }, [
+  Bblock({ type: "wait" }, [
     value({ name: "SECS" }, Bnumber(n, "math_positive_number")) ]));
 
 const binop = (name, xname, yname) => (x, y) => (
-  block({ type: name }, [
+  Bblock({ type: name }, [
     value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")),
     value({ name: yname ? yname : "Y" }, Bnumber(y, "math_number")) ]));
 
 const uniop = (name, xname) => (x) => (
-  block({ type: name }, [
+  Bblock({ type: name }, [
     value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")) ]));
 
 const Bplus = binop('plus');
@@ -132,26 +147,30 @@ const Bround = uniop('round');
 
 test('wait notation', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "wait" }, [
-              value({ name: "SECS" }, [
-                shadow({ type: "math_positive_number" }, [
-                  field({ name: "NUM"}, [ 999 ]) ])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "wait", id: 'block1' }, [
+                value({ name: "SECS" }, [
+                  shadow({ type: "math_positive_number", id: 'block0' }, [
+                    field({ name: "NUM"}, [ 999 ]) ])])])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Bwait(999))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
 
-    // const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    // console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
   } finally {
     workspace.dispose();
   }
@@ -159,23 +178,26 @@ test('wait notation', () => {
 
 test('forever notation (empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "forever" }, [])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "forever", id: 'block0' }, [])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Bforever())]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
 
-    // const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    // console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -183,29 +205,32 @@ test('forever notation (empty)', () => {
 
 test('forever notation (non empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "forever" }, [
-              statement({ name: "BLOCKS"}, [
-                block({ type: "wait" }, [
-                  value({ name: "SECS" }, [
-                    shadow({ type: "math_positive_number" }, [
-                      field({ name: "NUM"}, [ 999 ]) ])])])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block3', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "forever", id: 'block2' }, [
+                statement({ name: "BLOCKS"}, [
+                  block({ type: "wait", id: 'block1' }, [
+                    value({ name: "SECS" }, [
+                      shadow({ type: "math_positive_number", id: 'block0' }, [
+                        field({ name: "NUM"}, [ 999 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Bforever(
             Bwait(999)))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
 
-    // const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    // console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -213,23 +238,29 @@ test('forever notation (non empty)', () => {
 
 test('repeat notation (no count and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "repeat" }, [
-              value({ name: "COUNT" }, [
-                shadow({ type: "math_whole_number" }, [
-                  field({ name: "NUM" })])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "repeat", id: 'block1' }, [
+                value({ name: "COUNT" }, [
+                  shadow({ type: "math_whole_number", id: 'block0' }, [
+                    field({ name: "NUM" })])])])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Brepeat(null, []))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -237,23 +268,29 @@ test('repeat notation (no count and empty blocks)', () => {
 
 test('repeat notation (count == 1 and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "repeat" }, [
-              value({ name: "COUNT" }, [
-                shadow({ type: "math_whole_number" }, [
-                  field({ name: "NUM" }, [1])])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "repeat", id: 'block1' }, [
+                value({ name: "COUNT" }, [
+                  shadow({ type: "math_whole_number", id: 'block0' }, [
+                    field({ name: "NUM" }, [1])])])])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Brepeat(1, []))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -261,28 +298,34 @@ test('repeat notation (count == 1 and empty blocks)', () => {
 
 test('repeat notation (count == 1 and single block)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "repeat" }, [
-              value({ name: "COUNT" }, [
-                shadow({ type: "math_whole_number" }, [
-                  field({ name: "NUM" }, [1])])]),
-              statement({ name: "BLOCKS" }, [
-                block({ type: "wait" }, [
-                  value({ name: "SECS" }, [
-                    shadow({ type: "math_positive_number" }, [
-                      field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block4', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "repeat", id: 'block3' }, [
+                value({ name: "COUNT" }, [
+                  shadow({ type: "math_whole_number", id: 'block2' }, [
+                    field({ name: "NUM" }, [1])])]),
+                statement({ name: "BLOCKS" }, [
+                  block({ type: "wait", id: 'block1' }, [
+                    value({ name: "SECS" }, [
+                      shadow({ type: "math_positive_number", id: 'block0' }, [
+                        field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Brepeat(1, [ Bwait(2) ]))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -290,33 +333,41 @@ test('repeat notation (count == 1 and single block)', () => {
 
 test('repeat notation (count == 1 and two blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "repeat" }, [
-              value({ name: "COUNT" }, [
-                shadow({ type: "math_whole_number" }, [
-                  field({ name: "NUM" }, [1])])]),
-              statement({ name: "BLOCKS" }, [
-                block({ type: "wait" }, [
-                  value({ name: "SECS" }, [
-                    shadow({ type: "math_positive_number" }, [
-                      field({ name: "NUM"}, [ 2 ]) ])]),
-                  next({}, [
-                    block({ type: "wait" }, [
-                      value({ name: "SECS" }, [
-                        shadow({ type: "math_positive_number" }, [
-                          field({ name: "NUM"}, [ 3 ]) ])])])])])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block6', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "repeat", id: 'block5' }, [
+                value({ name: "COUNT" }, [
+                  shadow({ type: "math_whole_number", id: 'block4' }, [
+                    field({ name: "NUM" }, [1])])]),
+                statement({ name: "BLOCKS" }, [
+                  block({ type: "wait", id: 'block1' }, [
+                    value({ name: "SECS" }, [
+                      shadow({ type: "math_positive_number", id: 'block0' }, [
+                        field({ name: "NUM"}, [ 2 ]) ])]),
+                    next({}, [
+                      block({ type: "wait", id: 'block3' }, [
+                        value({ name: "SECS" }, [
+                          shadow(
+                            { type: "math_positive_number", id: 'block2' }, [
+                              field({ name: "NUM"}, [ 3 ])
+                            ])])])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Brepeat(1, [ Bwait(2), Bwait(3) ]))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -324,21 +375,26 @@ test('repeat notation (count == 1 and two blocks)', () => {
 
 test('function notation (no name and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "function" }, [
-              field({ name: "FUNCTION" }, [])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({ type: "function", id: 'block1', x: 10, y: 10 }, [
+          field({ name: "FUNCTION" }, [])])]));
     const dom2 = j2e(
       xml({}, [
-        Bstart(
-          Bfunction([], []))]));
+        variables({}, []),
+        Bstart(),
+        Bfunction([], [])]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -346,21 +402,26 @@ test('function notation (no name and empty blocks)', () => {
 
 test('function notation (name == "f" and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "function" }, [
-              field({ name: "FUNCTION" }, [ 'f' ])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({ type: "function", id: 'block1', x: 10, y: 10 }, [
+          field({ name: "FUNCTION" }, [ 'f' ])])]));
     const dom2 = j2e(
       xml({}, [
-        Bstart(
-          Bfunction(['f'], []))]));
+        variables({}, []),
+        Bstart(),
+        Bfunction(['f'], [])]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -368,26 +429,32 @@ test('function notation (name == "f" and empty blocks)', () => {
 
 test('function notation (name == "f" and single block)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "function" }, [
-              field({ name: "FUNCTION" }, [ 'f' ]),
-              statement({ name: "BLOCKS" }, [
-                block({ type: "wait" }, [
-                  value({ name: "SECS" }, [
-                    shadow({ type: "math_positive_number" }, [
-                      field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block(
+          { type: "function", id: 'block3', x: 10, y: 10 }, [
+            field({ name: "FUNCTION" }, [ 'f' ]),
+            statement({ name: "BLOCKS" }, [
+              block({ type: "wait", id: 'block2' }, [
+                value({ name: "SECS" }, [
+                  shadow({ type: "math_positive_number", id: 'block1' }, [
+                    field({ name: "NUM"}, [ 2 ]) ])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        Bstart(
-          Bfunction(['f'], [ Bwait(2) ]))]));
+        variables({}, []),
+        Bstart(),
+        Bfunction(['f'], [ Bwait(2) ])]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -395,31 +462,37 @@ test('function notation (name == "f" and single block)', () => {
 
 test('function notation (name == "f" and two blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "function" }, [
-              field({ name: "FUNCTION" }, [ 'f' ]),
-              statement({ name: "BLOCKS" }, [
-                block({ type: "wait" }, [
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({ type: "function", id: 'block5', x: 10, y: 10 }, [
+          field({ name: "FUNCTION" }, [ 'f' ]),
+          statement({ name: "BLOCKS" }, [
+            block({ type: "wait", id: 'block2' }, [
+              value({ name: "SECS" }, [
+                shadow({ type: "math_positive_number", id: 'block1' }, [
+                  field({ name: "NUM"}, [ 2 ]) ])]),
+              next({}, [
+                block({ type: "wait", id: 'block4' }, [
                   value({ name: "SECS" }, [
-                    shadow({ type: "math_positive_number" }, [
-                      field({ name: "NUM"}, [ 2 ]) ])]),
-                  next({}, [
-                    block({ type: "wait" }, [
-                      value({ name: "SECS" }, [
-                        shadow({ type: "math_positive_number" }, [
-                          field({ name: "NUM"}, [ 3 ]) ])])])])])])])])])]));
+                    shadow(
+                      { type: "math_positive_number", id: 'block3' }, [
+                        field({ name: "NUM"}, [ 3 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
-        Bstart(
-          Bfunction(['f'], [ Bwait(2), Bwait(3) ]))]));
+        variables({}, []),
+        Bstart(),
+        Bfunction(['f'], [ Bwait(2), Bwait(3) ])]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -427,34 +500,37 @@ test('function notation (name == "f" and two blocks)', () => {
 
 test('wait(1 + 2) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "wait" }, [
-              value({ name: "SECS" }, [
-                shadow({ type: "math_positive_number" }, [
-                  field({ name: "NUM"}, []) ]),
-                block({ type: "plus" }, [
-                  value({ name: "X" }, [
-                    shadow({ type: "math_number" }, [
-                      field({ name: "NUM"}, [ 1 ]) ]) ]),
-                  value({ name: "Y" }, [
-                    shadow({ type: "math_number" }, [
-                      field({ name: "NUM"}, [ 2 ]) ]) ])]) ])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block5', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "wait", id: 'block4' }, [
+                value({ name: "SECS" }, [
+                  shadow({ type: "math_positive_number", id: 'block3' }, [
+                    field({ name: "NUM"}, []) ]),
+                  block({ type: "plus", id: 'block2' }, [
+                    value({ name: "X" }, [
+                      shadow({ type: "math_number", id: 'block0' }, [
+                        field({ name: "NUM"}, [ 1 ]) ]) ]),
+                    value({ name: "Y" }, [
+                      shadow({ type: "math_number", id: 'block1' }, [
+                        field({ name: "NUM"}, [ 2 ]) ]) ])]) ])])])])]));
 
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Bwait(Bplus(1, 2)))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
-    ScratchBlocks.Xml.workspaceToDom(workspace);
 
-    // const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    // console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -462,28 +538,35 @@ test('wait(1 + 2) notation', () => {
 
 test('when_green_flag_clicked notation', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom1 = j2e(
       xml({}, [
-        block({ type: "when_green_flag_clicked" }, [
-          next({}, [
-            block({ type: "wait" }, [
-              value({ name: "SECS" }, [
-                shadow({ type: "math_positive_number" }, [
-                  field({ name: "NUM"}, [ 1 ]) ])]),
-              next({}, [
-                block({ type: "wait" }, [
-                  value({ name: "SECS" }, [
-                    shadow({ type: "math_positive_number" }, [
-                      field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block4', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "wait", id: 'block1' }, [
+                value({ name: "SECS" }, [
+                  shadow({ type: "math_positive_number", id: 'block0' }, [
+                    field({ name: "NUM"}, [ 1 ]) ])]),
+                next({}, [
+                  block({ type: "wait", id: 'block3' }, [
+                    value({ name: "SECS" }, [
+                      shadow({ type: "math_positive_number", id: 'block2' }, [
+                        field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
+        variables({}, []),
         Bstart(
           Bwait(1),
           Bwait(2) )]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
   } finally {
     workspace.dispose();
   }
@@ -495,6 +578,7 @@ test('when_green_flag_clicked notation', () => {
 
 test('when_green_flag_clicked with empty blocks', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bstart() ]));
@@ -518,6 +602,7 @@ test('when_green_flag_clicked with empty blocks', () => {
 
 test('1 + 2', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(1, 2) ]));
@@ -533,6 +618,7 @@ test('1 + 2', () => {
 
 test('1 + (2 + 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(1, Bplus(2, 3)) ]));
@@ -548,6 +634,7 @@ test('1 + (2 + 3)', () => {
 
 test('(1 + 2) + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(Bplus(1, 2), 3) ]));
@@ -563,6 +650,7 @@ test('(1 + 2) + 3', () => {
 
 test('1 + (2 * 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(1, Bmultiply(2, 3)) ]));
@@ -578,6 +666,7 @@ test('1 + (2 * 3)', () => {
 
 test('(1 * 2) + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(Bmultiply(1, 2), 3) ]));
@@ -593,6 +682,7 @@ test('(1 * 2) + 3', () => {
 
 test('(1 + 2) * 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmultiply(Bplus(1, 2), 3) ]));
@@ -608,6 +698,7 @@ test('(1 + 2) * 3', () => {
 
 test('1 * (2 * 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmultiply(1, Bmultiply(2, 3)) ]));
@@ -623,6 +714,7 @@ test('1 * (2 * 3)', () => {
 
 test('(1 * 2) * 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmultiply(Bmultiply(1, 2), 3) ]));
@@ -642,6 +734,7 @@ test('(1 * 2) * 3', () => {
 
 test('1 - 2', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(1, 2) ]));
@@ -657,6 +750,7 @@ test('1 - 2', () => {
 
 test('1 - (2 - 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(1, Bminus(2, 3)) ]));
@@ -672,6 +766,7 @@ test('1 - (2 - 3)', () => {
 
 test('(1 - 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(Bminus(1, 2), 3) ]));
@@ -687,6 +782,7 @@ test('(1 - 2) - 3', () => {
 
 test('1 - (2 / 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(1, Bdivide(2, 3)) ]));
@@ -702,6 +798,7 @@ test('1 - (2 / 3)', () => {
 
 test('(1 / 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(Bdivide(1, 2), 3) ]));
@@ -717,6 +814,7 @@ test('(1 / 2) - 3', () => {
 
 test('(1 - 2) / 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bdivide(Bminus(1, 2), 3) ]));
@@ -732,6 +830,7 @@ test('(1 - 2) / 3', () => {
 
 test('1 / (2 / 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bdivide(1, Bdivide(2, 3)) ]));
@@ -747,6 +846,7 @@ test('1 / (2 / 3)', () => {
 
 test('(1 / 2) / 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bdivide(Bdivide(1, 2), 3) ]));
@@ -762,6 +862,7 @@ test('(1 / 2) / 3', () => {
 
 test('1 - (2 % 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(1, Bmod(2, 3)) ]));
@@ -777,6 +878,7 @@ test('1 - (2 % 3)', () => {
 
 test('(1 % 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(Bmod(1, 2), 3) ]));
@@ -792,6 +894,7 @@ test('(1 % 2) - 3', () => {
 
 test('(1 - 2) % 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmod(Bminus(1, 2), 3) ]));
@@ -807,6 +910,7 @@ test('(1 - 2) % 3', () => {
 
 test('1 * (2 % 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmultiply(1, Bmod(2, 3)) ]));
@@ -822,6 +926,7 @@ test('1 * (2 % 3)', () => {
 
 test('(1 % 2) * 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmultiply(Bmod(1, 2), 3) ]));
@@ -837,6 +942,7 @@ test('(1 % 2) * 3', () => {
 
 test('(1 * 2) % 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmod(Bmultiply(1, 2), 3) ]));
@@ -856,6 +962,7 @@ test('(1 * 2) % 3', () => {
 
 test('1 + (2 - 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(1, Bminus(2, 3)) ]));
@@ -871,6 +978,7 @@ test('1 + (2 - 3)', () => {
 
 test('(1 + 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(Bplus(1, 2), 3) ]));
@@ -886,6 +994,7 @@ test('(1 + 2) - 3', () => {
 
 test('1 * (2 / 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmultiply(1, Bdivide(2, 3)) ]));
@@ -901,6 +1010,7 @@ test('1 * (2 / 3)', () => {
 
 test('(1 * 2) / 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bdivide(Bmultiply(1, 2), 3) ]));
@@ -916,6 +1026,7 @@ test('(1 * 2) / 3', () => {
 
 test('round(1.5)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bround(1.5) ]));
@@ -931,6 +1042,7 @@ test('round(1.5)', () => {
 
 test('1 + round(1.5)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(1, Bround(1.5)) ]));
@@ -946,6 +1058,7 @@ test('1 + round(1.5)', () => {
 
 test('round(1.5) - 1', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bminus(Bround(1.5), 1) ]));
@@ -961,6 +1074,7 @@ test('round(1.5) - 1', () => {
 
 test('1 / (round(1.5) - 1)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bdivide(1, Bminus(Bround(1.5), 1)) ]));
@@ -976,6 +1090,7 @@ test('1 / (round(1.5) - 1)', () => {
 
 test('1 * (round(1.5) * 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bmultiply(1, Bmultiply(Bround(1.5), 2)) ]));
@@ -995,6 +1110,7 @@ test('1 * (round(1.5) * 2)', () => {
 
 test('pick_random(1, 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bpick_random(1, 2) ]));
@@ -1016,6 +1132,7 @@ import random\n\n\n\
 
 test('pick_random(1 + 2, 3 - 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bpick_random(Bplus(1, 2), Bminus(3, 4)) ]));
@@ -1037,6 +1154,7 @@ import random\n\n\n\
 
 test('1 + pick_random(2, 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bplus(1, Bpick_random(2, 3)) ]));
@@ -1062,6 +1180,7 @@ import random\n\n\n\
 
 test('1 < 2', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bless_than(1, 2) ]));
@@ -1077,6 +1196,7 @@ test('1 < 2', () => {
 
 test('1 + 2 < 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bless_than(Bplus(1, 2), 3) ]));
@@ -1092,6 +1212,7 @@ test('1 + 2 < 3', () => {
 
 test('1 < 2 + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bless_than(1, Bplus(2, 3)) ]));
@@ -1107,6 +1228,7 @@ test('1 < 2 + 3', () => {
 
 test('1 + 2 < 3 - 4', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bless_than(Bplus(1, 2), Bminus(3, 4)) ]));
@@ -1122,6 +1244,7 @@ test('1 + 2 < 3 - 4', () => {
 
 test('1 <= 2', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bless_than_or_equal(1, 2) ]));
@@ -1137,6 +1260,7 @@ test('1 <= 2', () => {
 
 test('1 == 2', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bequal(1, 2) ]));
@@ -1152,6 +1276,7 @@ test('1 == 2', () => {
 
 test('1 > 2', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bgreater_than(1, 2) ]));
@@ -1167,6 +1292,7 @@ test('1 > 2', () => {
 
 test('1 >= 2', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bgreater_than_or_equal(1, 2) ]));
@@ -1182,6 +1308,7 @@ test('1 >= 2', () => {
 
 test('1 < 2 && 3 <= 4', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
@@ -1197,6 +1324,7 @@ test('1 < 2 && 3 <= 4', () => {
 
 test('1 < 2 || 3 <= 4', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
@@ -1212,6 +1340,7 @@ test('1 < 2 || 3 <= 4', () => {
 
 test('(1 < 2 && 3 <= 4) || (5 > 6 && 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1230,6 +1359,7 @@ test('(1 < 2 && 3 <= 4) || (5 > 6 && 7 <= 8)', () => {
 
 test('(1 < 2 || 3 <= 4) && (5 > 6 || 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1248,6 +1378,7 @@ test('(1 < 2 || 3 <= 4) && (5 > 6 || 7 <= 8)', () => {
 
 test('(1 < 2 && 3 <= 4) && (5 > 6 && 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1266,6 +1397,7 @@ test('(1 < 2 && 3 <= 4) && (5 > 6 && 7 <= 8)', () => {
 
 test('(1 < 2 || 3 <= 4) || (5 > 6 || 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1284,6 +1416,7 @@ test('(1 < 2 || 3 <= 4) || (5 > 6 || 7 <= 8)', () => {
 
 test('not (1 < 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1300,6 +1433,7 @@ test('not (1 < 2)', () => {
 
 test('not (1 < 2) && not (3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1316,6 +1450,7 @@ test('not (1 < 2) && not (3 <= 4)', () => {
 
 test('not (1 < 2 && 3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1332,6 +1467,7 @@ test('not (1 < 2 && 3 <= 4)', () => {
 
 test('not (1 < 2) || not (3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1348,6 +1484,7 @@ test('not (1 < 2) || not (3 <= 4)', () => {
 
 test('not (1 < 2 || 3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1368,6 +1505,7 @@ test('not (1 < 2 || 3 <= 4)', () => {
 
 test('wait(1)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bwait(1) ]));
@@ -1385,6 +1523,7 @@ time.sleep(1)\n');
 
 test('wait(1 + 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bwait(Bplus(1, 2)) ]));
@@ -1406,6 +1545,7 @@ time.sleep(1 + 2)\n');
 
 test('forever(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bforever() ]));
@@ -1421,6 +1561,7 @@ test('forever(empty)', () => {
 
 test('forever(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bforever(Bwait(1)) ]));
@@ -1439,6 +1580,7 @@ while True:\n\
 
 test('forever(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bforever(Bwait(1), Bwait(2)) ]));
@@ -1458,6 +1600,7 @@ while True:\n\
 
 test('nested forever(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1490,6 +1633,7 @@ while True:\n\
 
 test('repeat(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Brepeat(1, []) ]));
@@ -1505,6 +1649,7 @@ test('repeat(empty)', () => {
 
 test('repeat(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Brepeat(Bplus(1, 2), [ Bwait(1) ]) ]));
@@ -1523,6 +1668,7 @@ for _ in range(1 + 2):\n\
 
 test('repeat(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Brepeat(1, [ Bwait(1), Bwait(2) ]) ]));
@@ -1542,6 +1688,7 @@ for _ in range(1):\n\
 
 test('nested repeat(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1574,6 +1721,7 @@ for _ in range(1):\n\
 
 test('repeat_until(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Brepeat_until([ Bequal(1, 0) ], []) ]));
@@ -1589,6 +1737,7 @@ test('repeat_until(empty)', () => {
 
 test('repeat_until(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1608,6 +1757,7 @@ while not (1 == 0 and 2 == 3):\n\
 
 test('repeat_until(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Brepeat_until([ Bequal(1, 0) ], [ Bwait(1), Bwait(2) ]) ]));
@@ -1627,6 +1777,7 @@ while not 1 == 0:\n\
 
 test('nested repeat_until(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1659,6 +1810,7 @@ while not 1 == 0:\n\
 
 test('wait_until(empty condition)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bwait_until([], []) ]));
@@ -1674,6 +1826,7 @@ test('wait_until(empty condition)', () => {
 
 test('wait_until(non empty condition)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bwait_until([ Bequal(1, 0) ], []) ]));
@@ -1696,6 +1849,7 @@ while not 1 == 0:\n\
 
 test('function(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bfunction('f', []) ]));
@@ -1711,6 +1865,7 @@ test('function(empty)', () => {
 
 test('function(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bfunction('f', [ Bwait(1) ]) ]));
@@ -1729,6 +1884,7 @@ def f():\n\
 
 test('function(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bfunction('f', [ Bwait(1), Bwait(2) ]) ]));
@@ -1752,6 +1908,7 @@ def f():\n\
 
 test('if then(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bif_then([ Bless_than(1, 2) ], []) ]));
@@ -1767,6 +1924,7 @@ test('if then(empty)', () => {
 
 test('if then(single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3) ]) ]));
@@ -1785,6 +1943,7 @@ if 1 < 2:\n\
 
 test('if then(two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3), Bwait(4) ]) ]));
@@ -1804,6 +1963,7 @@ if 1 < 2:\n\
 
 test('if then(nested two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1836,6 +1996,7 @@ if 1 < 2:\n\
 
 test('if then else(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], []) ]));
@@ -1855,6 +2016,7 @@ else:\n\
 
 test('if then else(single wait in then clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [ Bwait(3) ], []) ]));
@@ -1875,6 +2037,7 @@ else:\n\
 
 test('if then else(single wait in else clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], [ Bwait(3) ]) ]));
@@ -1895,6 +2058,7 @@ else:\n\
 
 test('if then else(single wait in both clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1916,6 +2080,7 @@ else:\n\
 
 test('if then else(two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
@@ -1942,6 +2107,7 @@ else:\n\
 
 test('if then else(nested two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
+  id = 0;
   try {
     const dom = j2e(
       xml({}, [
