@@ -82,7 +82,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,json,md}": [
+    "!(src/javascripts/pages/generators/**/*).{js,css,json,md}": [
       "prettier --write",
       "git add"
     ],

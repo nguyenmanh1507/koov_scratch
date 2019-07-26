@@ -45,6 +45,23 @@ ScratchBlocks.Blocks['function'] = {
   },
 };
 
+ScratchBlocks.Blocks['call_function'] = {
+  init: function() {
+    this.jsonInit({
+      message0: 'call function %1',
+      args0: [
+        {
+          type: 'field_dropdown',
+          name: 'FUNCTION',
+          options: [['NAME', 'NAME']],
+        },
+      ],
+      extensions: ['shape_statement'],
+      colour: COLOUR,
+    });
+  },
+};
+
 ScratchBlocks.Blocks['wait'] = {
   init: function() {
     this.jsonInit({
@@ -240,6 +257,42 @@ ScratchBlocks.Blocks['repeat_until'] = {
   },
 };
 
+ScratchBlocks.Blocks['servomotor_synchronized_motion'] = {
+  init: function() {
+    this.jsonInit({
+      message0: 'servo motor synchro motion (speed %1)',
+      message1: '%1',
+      message2: '%1',
+      lastDummyAlign2: 'RIGHT',
+      args0: [
+        {
+          type: 'input_value',
+          name: 'SPEED',
+          check: 'Boolean',
+        },
+      ],
+      args1: [
+        {
+          type: 'input_statement',
+          name: 'BLOCKS',
+        },
+      ],
+      args2: [
+        {
+          type: 'field_image',
+          src: PATH_TO_MEDIA + 'repeat.svg',
+          width: 24,
+          height: 24,
+          alt: '*',
+          flip_rtl: true,
+        },
+      ],
+      extensions: ['shape_statement'],
+      colour: COLOUR,
+    });
+  },
+};
+
 ScratchBlocks.Blocks['breakpoint'] = {
   init: function() {
     this.jsonInit({
@@ -255,210 +308,3 @@ ScratchBlocks.Blocks['breakpoint'] = {
     });
   },
 };
-
-// export const control_blocks = {
-//   when_green_flag_clicked: {
-//     enableContextMenu: false,
-//     message0: '%1',
-//     args0: [
-//       {
-//         type: 'field_label',
-//         text: 'Start',
-//         class: 'event-blocks-text'
-//       }
-//     ],
-//     nextStatement: null,
-//     colour: COLOUR
-//   },
-//   // wait: {
-//   //   enableContextMenu: false,
-//   //   message0: 'wait %1 secs',
-//   //   args0: [
-//   //     {
-//   //       type: 'field_number',
-//   //       name: 'secs',
-//   //       check: 'Number',
-//   //       value: '3'
-//   //     }
-//   //   ],
-//   //   previousStatement: null,
-//   //   nextStatement: null,
-//   //   colour: COLOUR
-//   // },
-//   control_wait: {
-//     id: 'control_wait',
-//     message0: 'wait %1 secs',
-//     args0: [
-//       {
-//         type: 'input_value',
-//         name: 'DURATION'
-//       }
-//     ],
-//     extensions: ['shape_statement'],
-//     colour: COLOUR
-//   },
-//   control_wait_until: {
-//     message0: 'wait until %1',
-//     args0: [
-//       {
-//         type: 'input_value',
-//         name: 'CONDITION',
-//         check: 'Boolean'
-//       }
-//     ],
-//     extensions: ['shape_statement'],
-//     colour: COLOUR
-//   },
-//   function: {
-//     enableContextMenu: false,
-//     message0: '%1 %2',
-//     args0: [
-//       {
-//         type: 'field_label',
-//         text: 'function'
-//       },
-//       {
-//         type: 'field_input',
-//         name: 'function',
-//         text: 'name'
-//       }
-//     ],
-//     nextStatement: null,
-//     colour: COLOUR
-//   },
-//   forever: {
-//     id: 'control_forever',
-//     message0: 'forever',
-//     message1: '%1', // Statement
-//     message2: '%1', // Icon
-//     lastDummyAlign2: 'RIGHT',
-//     args1: [
-//       {
-//         type: 'input_statement',
-//         name: 'SUBSTACK'
-//       }
-//     ],
-//     args2: [
-//       {
-//         type: 'field_image',
-//         src: 'http://koov_scratch_gui.surge.sh/media/icons/control_repeat.svg',
-//         width: 24,
-//         height: 24,
-//         alt: '*',
-//         flip_rtl: true
-//       }
-//     ],
-//     extensions: ['shape_end'],
-//     colour: COLOUR
-//   },
-//   repeat: {
-//     id: 'control_repeat',
-//     message0: 'repeat %1',
-//     message1: '%1', // Statement
-//     message2: '%1', // Icon
-//     lastDummyAlign2: 'RIGHT',
-//     args0: [
-//       {
-//         type: 'input_value',
-//         name: 'TIMES'
-//       }
-//     ],
-//     args1: [
-//       {
-//         type: 'input_statement',
-//         name: 'SUBSTACK'
-//       }
-//     ],
-//     args2: [
-//       {
-//         type: 'field_image',
-//         src: 'http://koov_scratch_gui.surge.sh/media/icons/control_repeat.svg',
-//         width: 24,
-//         height: 24,
-//         alt: '*',
-//         flip_rtl: true
-//       }
-//     ],
-//     extensions: ['shape_statement'],
-//     colour: COLOUR
-//   },
-//   control_if: {
-//     type: 'control_if',
-//     message0: 'if %1 then',
-//     message1: '%1', // Statement
-//     args0: [
-//       {
-//         type: 'input_value',
-//         name: 'CONDITION',
-//         check: 'Boolean'
-//       }
-//     ],
-//     args1: [
-//       {
-//         type: 'input_statement',
-//         name: 'SUBSTACK'
-//       }
-//     ],
-//     extensions: ['shape_statement'],
-//     colour: COLOUR
-//   },
-//   control_if_else: {
-//     type: 'control_if_else',
-//     message0: 'if %1 then',
-//     message1: '%1',
-//     message2: 'else',
-//     message3: '%1',
-//     args0: [
-//       {
-//         type: 'input_value',
-//         name: 'CONDITION',
-//         check: 'Boolean'
-//       }
-//     ],
-//     args1: [
-//       {
-//         type: 'input_statement',
-//         name: 'SUBSTACK'
-//       }
-//     ],
-//     args3: [
-//       {
-//         type: 'input_statement',
-//         name: 'SUBSTACK2'
-//       }
-//     ],
-//     extensions: ['shape_statement'],
-//     colour: COLOUR
-//   },
-//   control_repeat_util: {
-//     message0: 'repeat until %1',
-//     message1: '%1',
-//     message2: '%1',
-//     lastDummyAlign2: 'RIGHT',
-//     args0: [
-//       {
-//         type: 'input_value',
-//         name: 'CONDITION',
-//         check: 'Boolean'
-//       }
-//     ],
-//     args1: [
-//       {
-//         type: 'input_statement',
-//         name: 'SUBSTACK'
-//       }
-//     ],
-//     args2: [
-//       {
-//         type: 'field_image',
-//         src: 'http://koov_scratch_gui.surge.sh/media/icons/control_repeat.svg',
-//         width: 24,
-//         height: 24,
-//         alt: '*',
-//         flip_rtl: true
-//       }
-//     ],
-//     extensions: ['shape_statement'],
-//     colour: COLOUR
-//   }
-// };

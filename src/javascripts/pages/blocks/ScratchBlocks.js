@@ -11,6 +11,9 @@ import { control as javascript_control } from '../generators/javascript/control'
 
 import './control';
 import './operators';
+import './motion';
+import './sensing';
+import './variable';
 // import { operator_blocks } from './operators';
 // import { motion_blocks } from './motion';
 // import { variable_blocks } from './variable';

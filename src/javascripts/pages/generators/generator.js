@@ -27,18 +27,18 @@
  */
 'use strict';
 
-export function generator(ScratchBlocks) {
+export function generator(ScratchBlocks)
+{
+
   /**
    * Class for a code generator that translates the blocks into a language.
    * @param {string} name Language name of this generator.
    * @constructor
    */
-  ScratchBlocks.Generator = function(name) {
+  ScratchBlocks.Generator = function (name) {
     this.name_ = name;
-    this.FUNCTION_NAME_PLACEHOLDER_REGEXP_ = new RegExp(
-      this.FUNCTION_NAME_PLACEHOLDER_,
-      'g'
-    );
+    this.FUNCTION_NAME_PLACEHOLDER_REGEXP_ =
+      new RegExp(this.FUNCTION_NAME_PLACEHOLDER_, 'g');
   };
 
   /**
@@ -87,12 +87,10 @@ export function generator(ScratchBlocks) {
    * @param {ScratchBlocks.Workspace} workspace Workspace to generate code from.
    * @return {string} Generated code.
    */
-  ScratchBlocks.Generator.prototype.workspaceToCode = function(workspace) {
+  ScratchBlocks.Generator.prototype.workspaceToCode = function (workspace) {
     if (!workspace) {
       // Backwards compatibility from before there could be multiple workspaces.
-      console.warn(
-        'No workspace specified in workspaceToCode call.  Guessing.'
-      );
+      console.warn('No workspace specified in workspaceToCode call.  Guessing.');
       workspace = ScratchBlocks.getMainWorkspace();
     }
     var code = [];
@@ -127,8 +125,8 @@ export function generator(ScratchBlocks) {
     return code;
   };
 
-  // The following are some helpful functions which can be used by multiple
-  // languages.
+// The following are some helpful functions which can be used by multiple
+// languages.
 
   /**
    * Prepend a common prefix onto each line of code.
@@ -136,7 +134,7 @@ export function generator(ScratchBlocks) {
    * @param {string} prefix The common prefix.
    * @return {string} The prefixed lines of code.
    */
-  ScratchBlocks.Generator.prototype.prefixLines = function(text, prefix) {
+  ScratchBlocks.Generator.prototype.prefixLines = function (text, prefix) {
     return prefix + text.replace(/(?!\n$)\n/g, '\n' + prefix);
   };
 
@@ -145,7 +143,7 @@ export function generator(ScratchBlocks) {
    * @param {!ScratchBlocks.Block} block The block from which to start spidering.
    * @return {string} Concatenated list of comments.
    */
-  ScratchBlocks.Generator.prototype.allNestedComments = function(block) {
+  ScratchBlocks.Generator.prototype.allNestedComments = function (block) {
     var comments = [];
     var blocks = block.getDescendants(true);
     for (var i = 0; i < blocks.length; i++) {
@@ -169,10 +167,7 @@ export function generator(ScratchBlocks) {
    *     For value blocks, an array containing the generated code and an
    *     operator order value.  Returns '' if block is null.
    */
-  ScratchBlocks.Generator.prototype.blockToCode = function(
-    block,
-    opt_thisOnly
-  ) {
+  ScratchBlocks.Generator.prototype.blockToCode = function (block, opt_thisOnly) {
     if (!block) {
       return '';
     }
@@ -183,14 +178,8 @@ export function generator(ScratchBlocks) {
 
     var func = this[block.type];
     if (typeof func != 'function') {
-      throw Error(
-        'Language "' +
-          this.name_ +
-          '" does not know how to generate ' +
-          ' code for block type "' +
-          block.type +
-          '".'
-      );
+      throw Error('Language "' + this.name_ + '" does not know how to generate ' +
+        ' code for block type "' + block.type + '".');
     }
     this.addLineNumberDb_(block);
     // First argument to func.call is the value of 'this' in the generator.
@@ -205,9 +194,9 @@ export function generator(ScratchBlocks) {
       }
       return [this.scrub_(block, code[0], opt_thisOnly), code[1]];
     } else if (typeof code == 'string') {
-      var id = block.id.replace(/\$/g, '$$$$'); // Issue 251.
+      var id = block.id.replace(/\$/g, '$$$$');  // Issue 251.
       if (this.STATEMENT_PREFIX) {
-        code = this.STATEMENT_PREFIX.replace(/%1/g, "'" + id + "'") + code;
+        code = this.STATEMENT_PREFIX.replace(/%1/g, '\'' + id + '\'') + code;
       }
       return this.scrub_(block, code, opt_thisOnly);
     } else if (code === null) {
@@ -227,11 +216,7 @@ export function generator(ScratchBlocks) {
    * @return {string} Generated code or '' if no blocks are connected or the
    *     specified input does not exist.
    */
-  ScratchBlocks.Generator.prototype.valueToCode = function(
-    block,
-    name,
-    outerOrder
-  ) {
+  ScratchBlocks.Generator.prototype.valueToCode = function (block, name, outerOrder) {
     if (isNaN(outerOrder)) {
       throw TypeError('Expecting valid order from block: ' + block.type);
     }
@@ -252,9 +237,8 @@ export function generator(ScratchBlocks) {
     var code = tuple[0];
     var innerOrder = tuple[1];
     if (isNaN(innerOrder)) {
-      throw TypeError(
-        'Expecting valid order from value block: ' + targetBlock.type
-      );
+      throw TypeError('Expecting valid order from value block: ' +
+        targetBlock.type);
     }
     if (!code) {
       return '';
@@ -265,10 +249,8 @@ export function generator(ScratchBlocks) {
     var outerOrderClass = Math.floor(outerOrder);
     var innerOrderClass = Math.floor(innerOrder);
     if (outerOrderClass <= innerOrderClass) {
-      if (
-        outerOrderClass == innerOrderClass &&
-        (outerOrderClass == 0 || outerOrderClass == 99)
-      ) {
+      if (outerOrderClass == innerOrderClass &&
+        (outerOrderClass == 0 || outerOrderClass == 99)) {
         // Don't generate parens around NONE-NONE and ATOMIC-ATOMIC pairs.
         // 0 is the atomic order, 99 is the none order.  No parentheses needed.
         // In all known languages multiple such code blocks are not order
@@ -280,10 +262,8 @@ export function generator(ScratchBlocks) {
         parensNeeded = true;
         // Check for special exceptions.
         for (var i = 0; i < this.ORDER_OVERRIDES.length; i++) {
-          if (
-            this.ORDER_OVERRIDES[i][0] == outerOrder &&
-            this.ORDER_OVERRIDES[i][1] == innerOrder
-          ) {
+          if (this.ORDER_OVERRIDES[i][0] == outerOrder &&
+            this.ORDER_OVERRIDES[i][1] == innerOrder) {
             parensNeeded = false;
             break;
           }
@@ -304,16 +284,14 @@ export function generator(ScratchBlocks) {
    * @param {string} name The name of the input.
    * @return {string} Generated code or '' if no blocks are connected.
    */
-  ScratchBlocks.Generator.prototype.statementToCode = function(block, name) {
+  ScratchBlocks.Generator.prototype.statementToCode = function (block, name) {
     var targetBlock = block.getInputTargetBlock(name);
     var code = this.blockToCode(targetBlock);
     // Value blocks must return code and order of operations info.
     // Statement blocks must only return code.
     if (typeof code != 'string') {
-      throw TypeError(
-        'Expecting code from statement block: ' +
-          (targetBlock && targetBlock.type)
-      );
+      throw TypeError('Expecting code from statement block: ' +
+        (targetBlock && targetBlock.type));
     }
     if (code) {
       code = this.prefixLines(/** @type {string} */ (code), this.INDENT);
@@ -328,16 +306,14 @@ export function generator(ScratchBlocks) {
    * @param {string} id ID of enclosing block.
    * @return {string} Loop contents, with infinite loop trap added.
    */
-  ScratchBlocks.Generator.prototype.addLoopTrap = function(branch, id) {
-    id = id.replace(/\$/g, '$$$$'); // Issue 251.
+  ScratchBlocks.Generator.prototype.addLoopTrap = function (branch, id) {
+    id = id.replace(/\$/g, '$$$$');  // Issue 251.
     if (this.INFINITE_LOOP_TRAP) {
-      branch = this.INFINITE_LOOP_TRAP.replace(/%1/g, "'" + id + "'") + branch;
+      branch = this.INFINITE_LOOP_TRAP.replace(/%1/g, '\'' + id + '\'') + branch;
     }
     if (this.STATEMENT_PREFIX) {
-      branch += this.prefixLines(
-        this.STATEMENT_PREFIX.replace(/%1/g, "'" + id + "'"),
-        this.INDENT
-      );
+      branch += this.prefixLines(this.STATEMENT_PREFIX.replace(/%1/g,
+        '\'' + id + '\''), this.INDENT);
     }
     return branch;
   };
@@ -354,7 +330,7 @@ export function generator(ScratchBlocks) {
    * @param {string} words Comma-separated list of words to add to the list.
    *     No spaces.  Duplicates are ok.
    */
-  ScratchBlocks.Generator.prototype.addReservedWords = function(words) {
+  ScratchBlocks.Generator.prototype.addReservedWords = function (words) {
     this.RESERVED_WORDS_ += words + ',';
   };
 
@@ -366,8 +342,7 @@ export function generator(ScratchBlocks) {
    * @type {string}
    * @private
    */
-  ScratchBlocks.Generator.prototype.FUNCTION_NAME_PLACEHOLDER_ =
-    '{leCUI8hutHZI4480Dc}';
+  ScratchBlocks.Generator.prototype.FUNCTION_NAME_PLACEHOLDER_ = '{leCUI8hutHZI4480Dc}';
 
   /**
    * Define a function to be included in the generated code.
@@ -386,19 +361,13 @@ export function generator(ScratchBlocks) {
    *     from desiredName if the former has already been taken by the user.
    * @private
    */
-  ScratchBlocks.Generator.prototype.provideFunction_ = function(
-    desiredName,
-    code
-  ) {
+  ScratchBlocks.Generator.prototype.provideFunction_ = function (desiredName, code) {
     if (!this.definitions_[desiredName]) {
-      var functionName = this.variableDB_.getDistinctName(
-        desiredName,
-        ScratchBlocks.Procedures.NAME_TYPE
-      );
+      var functionName = this.variableDB_.getDistinctName(desiredName,
+        ScratchBlocks.Procedures.NAME_TYPE);
       this.functionNames_[desiredName] = functionName;
-      var codeText = code
-        .join('\n')
-        .replace(this.FUNCTION_NAME_PLACEHOLDER_REGEXP_, functionName);
+      var codeText = code.join('\n').replace(
+        this.FUNCTION_NAME_PLACEHOLDER_REGEXP_, functionName);
       // Change all '  ' indents into the desired indent.
       // To avoid an infinite loop of replacements, change all indents to '\0'
       // character first, then replace them all with the indent.
@@ -420,7 +389,7 @@ export function generator(ScratchBlocks) {
    * names.
    * @param {!ScratchBlocks.Workspace} _workspace Workspace to generate code from.
    */
-  ScratchBlocks.Generator.prototype.init = function(_workspace) {
+  ScratchBlocks.Generator.prototype.init = function (_workspace) {
     // Optionally override
   };
 
@@ -435,7 +404,7 @@ export function generator(ScratchBlocks) {
    * @return {string} JavaScript code with comments and subsequent blocks added.
    * @private
    */
-  ScratchBlocks.Generator.prototype.scrub_ = function(_block, code) {
+  ScratchBlocks.Generator.prototype.scrub_ = function (_block, code) {
     // Optionally override
     return code;
   };
@@ -447,7 +416,7 @@ export function generator(ScratchBlocks) {
    * @param {string} code Generated code.
    * @return {string} Completed code.
    */
-  ScratchBlocks.Generator.prototype.finish = function(code) {
+  ScratchBlocks.Generator.prototype.finish = function (code) {
     // Optionally override
     return code;
   };
@@ -460,7 +429,7 @@ export function generator(ScratchBlocks) {
    * @param {string} line Line of generated code.
    * @return {string} Legal line of code.
    */
-  ScratchBlocks.Generator.prototype.scrubNakedValue = function(line) {
+  ScratchBlocks.Generator.prototype.scrubNakedValue = function (line) {
     // Optionally override
     return line;
   };

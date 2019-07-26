@@ -9,6 +9,7 @@ const control = () => {
   <category name="%{BKY_CATEGORY_CONTROL}" id="control" colour="#2cc3ea" secondaryColour="#2cc3ea">
     <block type="when_green_flag_clicked"></block>
     <block type="function"></block>
+    <block type="call_function"></block>
     <block type="wait">
       <value name="SECS">
         <shadow type="math_positive_number">
@@ -28,6 +29,7 @@ const control = () => {
     <block type="if_then_else"/>
     <block type="wait_until"/>
     <block type="repeat_until"/>
+    <block type="servomotor_synchronized_motion"/>
     <block type="breakpoint"/>
   </category>
   `;
@@ -182,11 +184,124 @@ const operator = () => {
   `;
 };
 
+const motion = () => {
+  return `
+  <category name="%{BKY_CATEGORY_MOTION}" id="motion" colour="#83ca32" secondaryColour="#83ca32">
+    <block type="set_servomotor_degree"></block>
+    <block type="set_dcmotor_power"></block>
+    <block type="turn_dcmotor_on"></block>
+    <block type="turn_dcmotor_off"></block>
+    <block type="buzzer_on"></block>
+    <block type="buzzer_off"></block>
+    <block type="turn_led"></block>
+    <block type="multi_led">
+      <field name="R">0</field>
+      <field name="R">0</field>
+      <field name="R">0</field>
+    </block>
+  </category>
+  `;
+};
+
+const sensing = () => {
+  return `
+  <category name="%{BKY_CATEGORY_SENSING}" id="sensing" colour="#20b583" secondaryColour="#20b583">
+    <block type="light_sensor_value"></block>
+    <block type="sound_sensor_value"></block>
+    <block type="touch_sensor_value"></block>
+    <block type="ir_photo_reflector_value"></block>
+    <block type="3_axis_digital_accelerometer_value"></block>
+    <block type="button_value"></block>
+    <block type="reset_timer"></block>
+    <block type="timer"></block>
+    <block type="color_sensor_value"></block>
+    <block type="ultrasonic_distance_sensor"></block>
+  </category>
+  `;
+};
+
+const variable = () => {
+  return `
+  <category name="Variables" id="variable" colour="#f27f62" secondaryColour="#f27f62">
+    <block type="variable_ref"></block>
+    <block type="set_variable_to">
+      <value name="VALUE">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+    </block>
+    <block type="change_variable_by">
+      <value name="VALUE">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+    </block>
+    <block type="list_add">
+      <value name="VALUE">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+    </block>
+    <block type="list_delete">
+      <value name="POSITION">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+    </block>
+    <block type="list_insert">
+      <value name="VALUE">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+      <value name="POSITION">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+    </block>
+    <block type="list_replace">      
+      <value name="POSITION">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+      <value name="VALUE">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+    </block>
+    <block type="list_ref">
+      <value name="VALUE">
+        <shadow type="math_number">
+          <field name="NUM"/>
+        </shadow>
+      </value>
+    </block>
+    <block type="list_length"></block>
+    <block type="list_matrix"></block>
+  </category>
+  `;
+};
+
 const xmlOpen = '<xml style="display: none">';
 const xmlClose = '</xml>';
 
 const makeToolboxXML = () => {
-  return [xmlOpen, control(), operator(), xmlClose].join('\n');
+  return [
+    xmlOpen,
+    control(),
+    motion(),
+    sensing(),
+    operator(),
+    variable(),
+    xmlClose,
+  ].join('\n');
 };
 
 export default makeToolboxXML;
