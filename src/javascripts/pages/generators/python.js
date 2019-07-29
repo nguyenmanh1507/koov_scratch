@@ -146,6 +146,11 @@ export function python(ScratchBlocks) {
     // to actual function names (to avoid collisions with user functions).
     ScratchBlocks.Python.functionNames_ = Object.create(null);
 
+    ScratchBlocks.Python.lineNumberDb_ = Object.create(null);
+    ScratchBlocks.Python.prologueLineCount_ = 0;
+    ScratchBlocks.Python.currentLine_ = (
+      () => ScratchBlocks.Python.prologueLineCount_);
+
     if (!ScratchBlocks.Python.variableDB_) {
       ScratchBlocks.Python.variableDB_ =
         new ScratchBlocks.Names(ScratchBlocks.Python.RESERVED_WORDS_);
@@ -192,12 +197,21 @@ export function python(ScratchBlocks) {
         definitions.push(def);
       }
     }
+
     // Clean up temporary data.
     delete ScratchBlocks.Python.definitions_;
     delete ScratchBlocks.Python.functionNames_;
     ScratchBlocks.Python.variableDB_.reset();
-    var allDefs = imports.join('\n') + '\n\n' + definitions.join('\n\n');
-    return allDefs.replace(/\n\n+/g, '\n\n').replace(/\n*$/, '\n\n\n') + code;
+    var allDefs = '';
+    if (imports.length > 0)
+      allDefs += imports.join('\n') + '\n\n\n';
+    if (definitions.length > 0)
+      allDefs += definitions.join('\n\n');
+
+    ScratchBlocks.Python.prologueLineCount_ = (
+      (allDefs.match(/\n/g) || []).length);
+
+    return allDefs + code;
   };
 
   /**
