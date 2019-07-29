@@ -1,10 +1,15 @@
 module.exports = {
-  extends: ['eslint:recommended', 'plugin:react/recommended', 'plugin:flowtype/recommended'],
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:flowtype/recommended',
+  ],
   env: {
     browser: true,
     es6: true,
     amd: true,
     node: true,
+    jest: true,
   },
   parser: 'babel-eslint',
   plugins: ['babel', 'react', 'flowtype'],
@@ -20,9 +25,9 @@ module.exports = {
     },
   },
   globals: {
-    "__DEV__": false, /* read only */
-    "__STAGING__": false, /* read only */
-    "__PRODUCTION__": false, /* read only */
-    "API_ENDPOINT": false, /* read only */
-  }
+    __DEV__: false /* read only */,
+    __STAGING__: false /* read only */,
+    __PRODUCTION__: false /* read only */,
+    API_ENDPOINT: false /* read only */,
+  },
 };

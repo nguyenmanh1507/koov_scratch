@@ -1,3 +1,4 @@
+// @flow
 /* eslint-disable no-redeclare */
 import ScratchBlocks from 'scratch-blocks';
 
@@ -10,6 +11,9 @@ import { control as javascript_control } from '../generators/javascript/control'
 
 import './control';
 import './operators';
+import './motion';
+import './sensing';
+import './variable';
 // import { operator_blocks } from './operators';
 // import { motion_blocks } from './motion';
 // import { variable_blocks } from './variable';
@@ -17,7 +21,6 @@ import './operators';
 generator(ScratchBlocks);
 python(ScratchBlocks);
 python_control(ScratchBlocks);
-
 
 javascript(ScratchBlocks);
 javascript_control(ScratchBlocks);
@@ -28,7 +31,7 @@ ScratchBlocks.Scrollbar.scrollbarThickness = 8;
 ScratchBlocks.WorkspaceSvg.prototype.showContextMenu_ = function() {};
 
 export {
-  ScratchBlocks
+  ScratchBlocks,
   // makeToolBox,
   // allBlocks
 };

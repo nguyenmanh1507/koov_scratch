@@ -1,11 +1,17 @@
+// @flow
 import * as React from 'react';
 import {
-  ScratchBlocks
+  ScratchBlocks,
   // makeToolBox
 } from './blocks/ScratchBlocks';
 import makeToolboxXML from '../../lib/makeToolboxXML';
 
-class App extends React.Component {
+type Props = {};
+class App extends React.Component<Props> {
+  blockDiv = null;
+  workspace: ScratchBlocks = null;
+  startBlock = null;
+
   componentDidMount() {
     this.workspace = ScratchBlocks.inject(this.blockDiv, {
       toolbox: makeToolboxXML(),
@@ -14,7 +20,7 @@ class App extends React.Component {
       trashcan: true,
       sounds: false,
       media: 'http://koov_scratch_gui.surge.sh/media/',
-      readOnly: false
+      readOnly: false,
     });
 
     // Add start block
@@ -30,7 +36,7 @@ class App extends React.Component {
     return ScratchBlocks.Xml.workspaceToDom(this.workspace);
   }
 
-  fromDom(dom) {
+  fromDom(dom: string) {
     if (typeof dom === 'string') {
       dom = ScratchBlocks.Xml.textToDom(dom);
     }
