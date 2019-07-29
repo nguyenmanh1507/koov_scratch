@@ -1,3 +1,5 @@
+/* -*- indent-tabs-mode: nil; js-indent-level: 2 -*-
+ */
 /**
  * @license
  * Visual Blocks Editor
@@ -109,13 +111,15 @@ export function generator(ScratchBlocks)
           line = this.scrubNakedValue(line);
         }
         code.push(line);
+        this.adjustCurrentLine_(1);
       }
     }
-    block = blocks[x];
     code = code.join('\n');  // Blank line between each section.
     code = this.finish(code);
     // Final scrubbing of whitespace.
-    code = code.replace(/^\s+\n/, '');
+    //
+    // But, don't delete newlines as it changes line numbers.
+    code = code.replace(/^\s+\n/, '\n');
     code = code.replace(/\n\s+$/, '\n');
     code = code.replace(/[ \t]+\n/g, '\n');
     return code;
@@ -177,6 +181,7 @@ export function generator(ScratchBlocks)
       throw Error('Language "' + this.name_ + '" does not know how to generate ' +
         ' code for block type "' + block.type + '".');
     }
+    this.addLineNumberDb_(block);
     // First argument to func.call is the value of 'this' in the generator.
     // Prior to 24 September 2013 'this' was the only way to access the block.
     // The current prefered method of accessing the block is through the second
@@ -427,5 +432,28 @@ export function generator(ScratchBlocks)
   ScratchBlocks.Generator.prototype.scrubNakedValue = function (line) {
     // Optionally override
     return line;
+  };
+
+  ScratchBlocks.Generator.prototype.prologueLineCount_ = 0;
+  ScratchBlocks.Generator.prototype.currentLine_ = () => 0;
+
+  ScratchBlocks.Generator.prototype.lineNumberDb_ = Object.create(null);
+  ScratchBlocks.Generator.prototype.addLineNumberDb_ = function (block) {
+    this.lineNumberDb_[block.id] = this.currentLine_;
+  };
+  ScratchBlocks.Generator.prototype.adjustCurrentLine_ = function (n) {
+    const lineFn = this.currentLine_;
+    this.currentLine_ = () => lineFn() + n;
+  };
+
+  ScratchBlocks.Generator.prototype.blockIdToLineNumberMap = function (ws) {
+    const v = Object.create(null);
+    for (var id in this.lineNumberDb_) {
+      v[id] = {
+        type: ws.getBlockById(id).type,
+        line: this.lineNumberDb_[id]()
+      };
+    }
+    return v;
   };
 }

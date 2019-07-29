@@ -586,7 +586,7 @@ test('when_green_flag_clicked with empty blocks', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-//    console.log(pcode);
+    //console.log(pcode);
 
     expect(true).toBe(true);
     expect(() => { throw new Error(3); }).toThrow();
@@ -1856,8 +1856,56 @@ test('function(empty)', () => {
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
+    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('def f():\n  pass');
+    expect(pcode).toBe('\
+def f():\n\
+  pass');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'function', line: 0 } });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function(empty) and start', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bwait(1),
+          Bwait(2) ),
+        Bfunction('f', []) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import time\n\
+\n\
+\n\
+time.sleep(1)\n\
+time.sleep(2)\n\
+\n\
+def f():\n\
+  pass');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block4: { type: 'when_green_flag_clicked', line: 3 },
+      block1: { type: 'wait', line: 3 },
+      block0: { type: 'math_positive_number', line: 3 },
+      block3: { type: 'wait', line: 4 },
+      block2: { type: 'math_positive_number', line: 4 },
+      block5: { type: 'function', line: 6 } });
   } finally {
     workspace.dispose();
   }
@@ -2137,10 +2185,14 @@ test('if then else(nested two waits)', () => {
                 Bwait(18) ])]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
-import time\n\n\n\
+import time\n\
+\n\
+\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
   time.sleep(4)\n\
@@ -2159,6 +2211,44 @@ else:\n\
   else:\n\
     time.sleep(17)\n\
     time.sleep(18)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block35: { type: 'if_then_else', line: 3 },
+      block2: { type: 'less_than', line: 3 },
+      block0: { type: 'math_number', line: 3 },
+      block1: { type: 'math_number', line: 3 },
+      block4: { type: 'wait', line: 4 },
+      block3: { type: 'math_positive_number', line: 4 },
+      block6: { type: 'wait', line: 5 },
+      block5: { type: 'math_positive_number', line: 5 },
+      block18: { type: 'if_then_else', line: 6 },
+      block9: { type: 'greater_than', line: 6 },
+      block7: { type: 'math_number', line: 6 },
+      block8: { type: 'math_number', line: 6 },
+      block11: { type: 'wait', line: 7 },
+      block10: { type: 'math_positive_number', line: 7 },
+      block13: { type: 'wait', line: 8 },
+      block12: { type: 'math_positive_number', line: 8 },
+      block15: { type: 'wait', line: 10 },
+      block14: { type: 'math_positive_number', line: 10 },
+      block17: { type: 'wait', line: 11 },
+      block16: { type: 'math_positive_number', line: 11 },
+      block20: { type: 'wait', line: 13 },
+      block19: { type: 'math_positive_number', line: 13 },
+      block22: { type: 'wait', line: 14 },
+      block21: { type: 'math_positive_number', line: 14 },
+      block34: { type: 'if_then_else', line: 15 },
+      block25: { type: 'equal', line: 15 },
+      block23: { type: 'math_number', line: 15 },
+      block24: { type: 'math_number', line: 15 },
+      block27: { type: 'wait', line: 16 },
+      block26: { type: 'math_positive_number', line: 16 },
+      block29: { type: 'wait', line: 17 },
+      block28: { type: 'math_positive_number', line: 17 },
+      block31: { type: 'wait', line: 19 },
+      block30: { type: 'math_positive_number', line: 19 },
+      block33: { type: 'wait', line: 20 },
+      block32: { type: 'math_positive_number', line: 20 } });
   } finally {
     workspace.dispose();
   }
