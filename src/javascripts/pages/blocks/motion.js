@@ -3,6 +3,9 @@ import ScratchBlocks from 'scratch-blocks';
 
 const COLOUR = '#83ca32';
 
+// ScratchBlocks.FieldNote.MIN_NOTE = 48;
+ScratchBlocks.FieldNote.MAX_NOTE = 108;
+
 ScratchBlocks.Blocks['set_servomotor_degree'] = {
   init: function() {
     this.jsonInit({
@@ -20,9 +23,8 @@ ScratchBlocks.Blocks['set_servomotor_degree'] = {
           ],
         },
         {
-          type: 'field_angle',
+          type: 'input_value',
           name: 'DEGREE',
-          angle: 0,
         },
       ],
       extensions: ['shape_statement'],
@@ -111,9 +113,9 @@ ScratchBlocks.Blocks['buzzer_on'] = {
           options: [['V2', 'V2'], ['V9', 'V9']],
         },
         {
-          type: 'field_dropdown',
+          type: 'input_value',
           name: 'FREQUENCY',
-          options: [['COAST', 'COAST'], ['BREAK', 'BREAK']],
+          value: 60,
         },
       ],
       extensions: ['shape_statement'],

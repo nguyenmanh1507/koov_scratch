@@ -187,11 +187,23 @@ const operator = () => {
 const motion = () => {
   return `
   <category name="%{BKY_CATEGORY_MOTION}" id="motion" colour="#83ca32" secondaryColour="#83ca32">
-    <block type="set_servomotor_degree"></block>
+    <block type="set_servomotor_degree">
+      <value name="DEGREE">
+        <shadow type="math_angle">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
     <block type="set_dcmotor_power"></block>
     <block type="turn_dcmotor_on"></block>
     <block type="turn_dcmotor_off"></block>
-    <block type="buzzer_on"></block>
+    <block type="buzzer_on">
+      <value name="FREQUENCY">
+        <shadow type="note">
+          <field name="NOTE">60</field>
+        </shadow>
+      </value>
+    </block>
     <block type="buzzer_off"></block>
     <block type="turn_led"></block>
     <block type="multi_led">
@@ -222,7 +234,7 @@ const sensing = () => {
 
 const variable = () => {
   return `
-  <category name="Variables" id="variable" colour="#f27f62" secondaryColour="#f27f62">
+  <category name="Variables" id="variable" colour="#f27f62" secondaryColour="#f27f62" custom="VARIABLE">
     <block type="variable_ref"></block>
     <block type="set_variable_to">
       <value name="VALUE">
