@@ -29,6 +29,11 @@ export function control(ScratchBlocks) {
     return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
 
+  ScratchBlocks.Python['math_angle'] = (block) => {
+    const n = block.getFieldValue('NUM');
+    return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
   /*
    * Operators
    */
@@ -285,9 +290,8 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['set_servomotor_degree'] = (block) => {
     const port = block.getFieldValue('PORT');
-    // const degree = ScratchBlocks.Python.valueToCode(
-    //   block, 'DEGREE', ScratchBlocks.Python.ORDER_NONE);
-    const degree = block.getFieldValue('DEGREE');
+    const degree = ScratchBlocks.Python.valueToCode(
+      block, 'DEGREE', ScratchBlocks.Python.ORDER_NONE);
 
     use_module('koov');
     use_port(port, 'servo_motor');
