@@ -187,17 +187,47 @@ const operator = () => {
 const motion = () => {
   return `
   <category name="%{BKY_CATEGORY_MOTION}" id="motion" colour="#83ca32" secondaryColour="#83ca32">
-    <block type="set_servomotor_degree"></block>
-    <block type="set_dcmotor_power"></block>
+    <block type="set_servomotor_degree">
+      <value name="DEGREE">
+        <shadow type="math_angle">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="set_dcmotor_power">
+      <value name="POWER">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
     <block type="turn_dcmotor_on"></block>
     <block type="turn_dcmotor_off"></block>
-    <block type="buzzer_on"></block>
+    <block type="buzzer_on">
+      <value name="FREQUENCY">
+        <shadow type="note">
+          <field name="NOTE">60</field>
+        </shadow>
+      </value>
+    </block>
     <block type="buzzer_off"></block>
     <block type="turn_led"></block>
     <block type="multi_led">
-      <field name="R">0</field>
-      <field name="R">0</field>
-      <field name="R">0</field>
+      <value name="R">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="B">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="G">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
     </block>
   </category>
   `;
@@ -284,7 +314,23 @@ const variable = () => {
       </value>
     </block>
     <block type="list_length"></block>
-    <block type="list_matrix"></block>
+    <block type="led_matrix">
+      <value name="X">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="Y">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="IMAGE">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
   </category>
   `;
 };
