@@ -66,7 +66,7 @@ const Bstart = (...blks) => (
 
 const statements = (blks, name) => (
   blks.length === 0 ? [] :
-    [ statement({ name: name ? name : "BLOCKS"}, [
+    [ statement({ name: name ? name : "BLOCKS" }, [
       chain_blocks(blks[0], blks.slice(1)) ])]
 );
 
@@ -117,7 +117,7 @@ const Bnumber = (n, type) => {
   })();
 
   return [
-    Bshadow({ type: type }, [ field({ name: "NUM"}, [...shadow_arg]) ]),
+    Bshadow({ type: type }, [ field({ name: "NUM" }, [...shadow_arg]) ]),
       ...block_arg ];
 };
 
@@ -168,7 +168,7 @@ test('wait notation', () => {
               block({ type: "wait", id: 'block1' }, [
                 value({ name: "SECS" }, [
                   shadow({ type: "math_positive_number", id: 'block0' }, [
-                    field({ name: "NUM"}, [ 999 ]) ])])])])])]));
+                    field({ name: "NUM" }, [ 999 ]) ])])])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
@@ -200,7 +200,7 @@ test('set_servomotor_degree notation', () => {
                 field({ name: "PORT" }, [ 'V2' ]),
                 value({ name: "DEGREE" }, [
                   shadow({ type: "math_angle", id: 'block0' }, [
-                    field({ name: "NUM"}, [ 0 ]) ])]) ])])])]));
+                    field({ name: "NUM" }, [ 0 ]) ])]) ])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
@@ -256,11 +256,11 @@ test('forever notation (non empty)', () => {
           { type: "when_green_flag_clicked", id: 'block3', x: 10, y: 10 }, [
             next({}, [
               block({ type: "forever", id: 'block2' }, [
-                statement({ name: "BLOCKS"}, [
+                statement({ name: "BLOCKS" }, [
                   block({ type: "wait", id: 'block1' }, [
                     value({ name: "SECS" }, [
                       shadow({ type: "math_positive_number", id: 'block0' }, [
-                        field({ name: "NUM"}, [ 999 ]) ])])])])])])])]));
+                        field({ name: "NUM" }, [ 999 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
@@ -356,7 +356,7 @@ test('repeat notation (count == 1 and single block)', () => {
                   block({ type: "wait", id: 'block1' }, [
                     value({ name: "SECS" }, [
                       shadow({ type: "math_positive_number", id: 'block0' }, [
-                        field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
+                        field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
@@ -391,13 +391,13 @@ test('repeat notation (count == 1 and two blocks)', () => {
                   block({ type: "wait", id: 'block1' }, [
                     value({ name: "SECS" }, [
                       shadow({ type: "math_positive_number", id: 'block0' }, [
-                        field({ name: "NUM"}, [ 2 ]) ])]),
+                        field({ name: "NUM" }, [ 2 ]) ])]),
                     next({}, [
                       block({ type: "wait", id: 'block3' }, [
                         value({ name: "SECS" }, [
                           shadow(
                             { type: "math_positive_number", id: 'block2' }, [
-                              field({ name: "NUM"}, [ 3 ])
+                              field({ name: "NUM" }, [ 3 ])
                             ])])])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
@@ -485,7 +485,7 @@ test('function notation (name == "f" and single block)', () => {
               block({ type: "wait", id: 'block2' }, [
                 value({ name: "SECS" }, [
                   shadow({ type: "math_positive_number", id: 'block1' }, [
-                    field({ name: "NUM"}, [ 2 ]) ])])])])])]));
+                    field({ name: "NUM" }, [ 2 ]) ])])])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
@@ -517,13 +517,13 @@ test('function notation (name == "f" and two blocks)', () => {
             block({ type: "wait", id: 'block2' }, [
               value({ name: "SECS" }, [
                 shadow({ type: "math_positive_number", id: 'block1' }, [
-                  field({ name: "NUM"}, [ 2 ]) ])]),
+                  field({ name: "NUM" }, [ 2 ]) ])]),
               next({}, [
                 block({ type: "wait", id: 'block4' }, [
                   value({ name: "SECS" }, [
                     shadow(
                       { type: "math_positive_number", id: 'block3' }, [
-                        field({ name: "NUM"}, [ 3 ]) ])])])])])])])]));
+                        field({ name: "NUM" }, [ 3 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
@@ -580,14 +580,14 @@ test('wait(1 + 2) notation', () => {
               block({ type: "wait", id: 'block4' }, [
                 value({ name: "SECS" }, [
                   shadow({ type: "math_positive_number", id: 'block3' }, [
-                    field({ name: "NUM"}, []) ]),
+                    field({ name: "NUM" }, []) ]),
                   block({ type: "plus", id: 'block2' }, [
                     value({ name: "X" }, [
                       shadow({ type: "math_number", id: 'block0' }, [
-                        field({ name: "NUM"}, [ 1 ]) ]) ]),
+                        field({ name: "NUM" }, [ 1 ]) ]) ]),
                     value({ name: "Y" }, [
                       shadow({ type: "math_number", id: 'block1' }, [
-                        field({ name: "NUM"}, [ 2 ]) ]) ])]) ])])])])]));
+                        field({ name: "NUM" }, [ 2 ]) ]) ])]) ])])])])]));
 
     const dom2 = j2e(
       xml({}, [
@@ -618,12 +618,12 @@ test('when_green_flag_clicked notation', () => {
               block({ type: "wait", id: 'block1' }, [
                 value({ name: "SECS" }, [
                   shadow({ type: "math_positive_number", id: 'block0' }, [
-                    field({ name: "NUM"}, [ 1 ]) ])]),
+                    field({ name: "NUM" }, [ 1 ]) ])]),
                 next({}, [
                   block({ type: "wait", id: 'block3' }, [
                     value({ name: "SECS" }, [
                       shadow({ type: "math_positive_number", id: 'block2' }, [
-                        field({ name: "NUM"}, [ 2 ]) ])])])])])])])]));
+                        field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
