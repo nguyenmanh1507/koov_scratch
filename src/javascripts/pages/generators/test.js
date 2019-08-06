@@ -128,7 +128,7 @@ const Bwait = n => (
 const Bset_servomotor_degree = (port, degree) => (
   Bblock({ type: "set_servomotor_degree" }, [
     field({ name: 'PORT' }, [ port ]),
-    field({ name: 'DEGREE' }, [ degree ]) ]));
+    value({ name: "DEGREE" }, Bnumber(degree, "math_angle")) ]));
 
 const binop = (name, xname, yname) => (x, y) => (
   Bblock({ type: name }, [
@@ -194,11 +194,13 @@ test('set_servomotor_degree notation', () => {
       xml({}, [
         variables({}, []),
         block(
-          { type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
+          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
             next({}, [
-              block({ type: "set_servomotor_degree", id: 'block0' }, [
+              block({ type: "set_servomotor_degree", id: 'block1' }, [
                 field({ name: "PORT" }, [ 'V2' ]),
-                field({ name: "DEGREE" }, [ 0 ]) ])])])]));
+                value({ name: "DEGREE" }, [
+                  shadow({ type: "math_angle", id: 'block0' }, [
+                    field({ name: "NUM"}, [ 0 ]) ])]) ])])])]));
     const dom2 = j2e(
       xml({}, [
         variables({}, []),
@@ -1642,14 +1644,15 @@ V2 = koov.servo_motor(koov.V2)\n\
 V2.set_degree(1)\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'set_servomotor_degree', line: 6 }
+      block0: { type: 'math_angle', line: 6 },
+      block1: { type: 'set_servomotor_degree', line: 6 }
     });
   } finally {
     workspace.dispose();
   }
 });
 
-test.skip('set_servomotor_degree(V2, 1 + 2)', () => {
+test('set_servomotor_degree(V2, 1 + 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
@@ -1669,7 +1672,10 @@ V2 = koov.servo_motor(koov.V2)\n\
 V2.set_degree(1 + 2)\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'set_servomotor_degree', line: 3 }
+      block0: { type: 'math_number', line: 6, },
+      block1: { type: 'math_number', line: 6, },
+      block2: { type: 'plus', line: 6, },
+      block4: { type: 'set_servomotor_degree', line: 6 }
     });
   } finally {
     workspace.dispose();
