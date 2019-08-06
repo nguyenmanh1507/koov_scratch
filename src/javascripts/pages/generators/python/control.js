@@ -298,4 +298,41 @@ export function control(ScratchBlocks) {
     ScratchBlocks.Python.adjustCurrentLine_(1);
     return `${port}.set_degree(${degree})\n`;
   };
+
+  ScratchBlocks.Python['set_dcmotor_power'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const power = ScratchBlocks.Python.valueToCode(
+      block, 'POWER', ScratchBlocks.Python.ORDER_NONE);
+
+    use_module('koov');
+    use_port(port, 'dc_motor');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${port}.set_power(${power})\n`;
+  };
+
+  ScratchBlocks.Python['turn_dcmotor_on'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const direction = block.getFieldValue('DIRECTION');
+
+    if (!['NORMAL', 'REVERSE'].includes(direction))
+      throw new Error(`turn_dcmotor_on: invalid direction: ${direction}`);
+
+    use_module('koov');
+    use_port(port, 'dc_motor');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${port}.set_mode(koov.dc_motor.${direction})\n`;
+  };
+
+  ScratchBlocks.Python['turn_dcmotor_off'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const mode = block.getFieldValue('MODE');
+
+    if (!['COAST', 'BRAKE'].includes(mode))
+      throw new Error(`turn_dcmotor_off: invalid mode: ${mode}`);
+
+    use_module('koov');
+    use_port(port, 'dc_motor');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${port}.set_mode(koov.dc_motor.${mode})\n`;
+  };
 }
