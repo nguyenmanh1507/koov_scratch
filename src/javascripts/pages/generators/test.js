@@ -1885,12 +1885,12 @@ V0.set_mode(koov.dc_motor.NORMAL)\n');
  * Tests for turn_dcmotor_off block.
  */
 
-test('turn_dcmotor_off(V0, NORMAL)', () => {
+test('turn_dcmotor_off(V0, COAST)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
     const dom = j2e(
-      xml({}, [ Bturn_dcmotor_off('V0', 'NORMAL') ]));
+      xml({}, [ Bturn_dcmotor_off('V0', 'COAST') ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1902,7 +1902,7 @@ import koov\n\
 V0 = koov.dc_motor(koov.V0)\n\
 \n\
 \n\
-V0.set_mode(koov.dc_motor.NORMAL)\n');
+V0.set_mode(koov.dc_motor.COAST)\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'turn_dcmotor_off', line: 6 }

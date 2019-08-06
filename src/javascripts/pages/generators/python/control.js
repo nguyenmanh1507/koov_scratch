@@ -314,6 +314,9 @@ export function control(ScratchBlocks) {
     const port = block.getFieldValue('PORT');
     const direction = block.getFieldValue('DIRECTION');
 
+    if (!['NORMAL', 'REVERSE'].includes(direction))
+      throw new Error(`turn_dcmotor_on: invalid direction: ${direction}`);
+
     use_module('koov');
     use_port(port, 'dc_motor');
     ScratchBlocks.Python.adjustCurrentLine_(1);
@@ -323,6 +326,9 @@ export function control(ScratchBlocks) {
   ScratchBlocks.Python['turn_dcmotor_off'] = (block) => {
     const port = block.getFieldValue('PORT');
     const mode = block.getFieldValue('MODE');
+
+    if (!['COAST', 'BRAKE'].includes(mode))
+      throw new Error(`turn_dcmotor_off: invalid mode: ${mode}`);
 
     use_module('koov');
     use_port(port, 'dc_motor');
