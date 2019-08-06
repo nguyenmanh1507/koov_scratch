@@ -125,9 +125,24 @@ const Bwait = n => (
     value({ name: "SECS" }, Bnumber(n, "math_positive_number")) ]));
 
 const Bset_servomotor_degree = (port, degree) => (
-  Bblock({ type: "set_servomotor_degree" }, [
+  Bblock({ type: 'set_servomotor_degree' }, [
     field({ name: 'PORT' }, [ port ]),
-    value({ name: "DEGREE" }, Bnumber(degree, "math_angle")) ]));
+    value({ name: 'DEGREE' }, Bnumber(degree, 'math_angle')) ]));
+
+const Bset_dcmotor_power = (port, power) => (
+  Bblock({ type: 'set_dcmotor_power' }, [
+    field({ name: 'PORT' }, [ port ]),
+    value({ name: 'POWER' }, Bnumber(power, 'math_number')) ]));
+
+const Bturn_dcmotor_on = (port, direction) => (
+  Bblock({ type: 'turn_dcmotor_on' }, [
+    field({ name: 'PORT' }, [ port ]),
+    field({ name: 'DIRECTION' }, [ direction ]) ]));
+
+const Bturn_dcmotor_off = (port, mode) => (
+  Bblock({ type: 'turn_dcmotor_off' }, [
+    field({ name: 'PORT' }, [ port ]),
+    field({ name: 'MODE' }, [ mode ]) ]));
 
 const binop = (name, xname, yname) => (x, y) => (
   Bblock({ type: name }, [
@@ -205,6 +220,98 @@ test('set_servomotor_degree notation', () => {
         variables({}, []),
         Bstart(
           Bset_servomotor_degree('V2', 0))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('set_dcmotor_power notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "set_dcmotor_power", id: 'block1' }, [
+                field({ name: "PORT" }, [ 'V0' ]),
+                value({ name: "POWER" }, [
+                  shadow({ type: "math_number", id: 'block0' }, [
+                    field({ name: "NUM" }, [ 0 ]) ])]) ])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bset_dcmotor_power('V0', 0))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('turn_dcmotor_on notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "turn_dcmotor_on", id: 'block0' }, [
+                field({ name: "PORT" }, [ 'V0' ]),
+                field({ name: "DIRECTION" }, [ 'NORMAL' ]) ])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bturn_dcmotor_on('V0', 'NORMAL'))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('turn_dcmotor_off notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "turn_dcmotor_off", id: 'block0' }, [
+                field({ name: "PORT" }, [ 'V0' ]),
+                field({ name: "MODE" }, [ 'COAST' ]) ])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bturn_dcmotor_off('V0', 'COAST'))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -1675,6 +1782,130 @@ V2.set_degree(1 + 2)\n');
       block1: { type: 'math_number', line: 6, },
       block2: { type: 'plus', line: 6, },
       block4: { type: 'set_servomotor_degree', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for set_dcmotor_power block.
+ */
+
+test('set_dcmotor_power(V0, 1)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bset_dcmotor_power('V0', 1) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V0 = koov.dc_motor(koov.V0)\n\
+\n\
+\n\
+V0.set_power(1)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_number', line: 6 },
+      block1: { type: 'set_dcmotor_power', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('set_dcmotor_power(V0, 1 + 2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bset_dcmotor_power('V0', Bplus(1, 2)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V0 = koov.dc_motor(koov.V0)\n\
+\n\
+\n\
+V0.set_power(1 + 2)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_number', line: 6, },
+      block1: { type: 'math_number', line: 6, },
+      block2: { type: 'plus', line: 6, },
+      block4: { type: 'set_dcmotor_power', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for turn_dcmotor_on block.
+ */
+
+test('turn_dcmotor_on(V0, NORMAL)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bturn_dcmotor_on('V0', 'NORMAL') ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V0 = koov.dc_motor(koov.V0)\n\
+\n\
+\n\
+V0.set_mode(koov.dc_motor.NORMAL)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'turn_dcmotor_on', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for turn_dcmotor_off block.
+ */
+
+test('turn_dcmotor_off(V0, NORMAL)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bturn_dcmotor_off('V0', 'NORMAL') ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V0 = koov.dc_motor(koov.V0)\n\
+\n\
+\n\
+V0.set_mode(koov.dc_motor.NORMAL)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'turn_dcmotor_off', line: 6 }
     });
   } finally {
     workspace.dispose();
