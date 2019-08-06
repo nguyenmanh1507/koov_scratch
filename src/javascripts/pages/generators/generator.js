@@ -437,6 +437,11 @@ export function generator(ScratchBlocks)
   ScratchBlocks.Generator.prototype.prologueLineCount_ = 0;
   ScratchBlocks.Generator.prototype.currentLine_ = () => 0;
 
+  ScratchBlocks.Generator.prototype.startLineDb_ = Object.create(null);
+  ScratchBlocks.Generator.prototype.setStartLine_ = function (tag) {
+    this.startLineDb_[tag] = 0;
+    this.currentLine_ = () => this.startLineDb_[tag];
+  };
   ScratchBlocks.Generator.prototype.lineNumberDb_ = Object.create(null);
   ScratchBlocks.Generator.prototype.addLineNumberDb_ = function (block) {
     this.lineNumberDb_[block.id] = this.currentLine_;

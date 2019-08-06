@@ -1,3 +1,6 @@
+/* -*- indent-tabs-mode: nil; js-indent-level: 2 -*-
+ */
+
 /**
  * @license
  * Visual Blocks Language
@@ -188,12 +191,19 @@ export function python(ScratchBlocks) {
   ScratchBlocks.Python.finish = function (code) {
     // Convert the definitions dictionary into a list.
     var imports = [];
+    var ports = [];
     var definitions = [];
+    var names = [];
     for (var name in ScratchBlocks.Python.definitions_) {
       var def = ScratchBlocks.Python.definitions_[name];
+      if (def.match(/^\s*$/))
+	continue;
       if (def.match(/^(from\s+\S+\s+)?import\s+\S+/)) {
         imports.push(def);
+      } else if (name.match(/^port\s+\S+$/)) {
+        ports.push(def);
       } else {
+        names.push(name);
         definitions.push(def);
       }
     }
@@ -203,13 +213,18 @@ export function python(ScratchBlocks) {
     delete ScratchBlocks.Python.functionNames_;
     ScratchBlocks.Python.variableDB_.reset();
     var allDefs = '';
+    const countLines = (x) => (x.match(/\n/g) || []).length;
     if (imports.length > 0)
       allDefs += imports.join('\n') + '\n\n\n';
-    if (definitions.length > 0)
-      allDefs += definitions.join('\n\n');
+    if (ports.length > 0)
+      allDefs += ports.join('\n') + '\n\n\n';
 
-    ScratchBlocks.Python.prologueLineCount_ = (
-      (allDefs.match(/\n/g) || []).length);
+    for (var i = 0; i < definitions.length; i++) {
+      this.startLineDb_[names[i]] = countLines(allDefs);
+      allDefs += definitions[i] + '\n\n';
+    }
+
+    ScratchBlocks.Python.prologueLineCount_ = countLines(allDefs);
 
     return allDefs + code;
   };
