@@ -65,10 +65,9 @@ const Bstart = (...blks) => (
     Bblock({ type: "when_green_flag_clicked", x: 10, y: 10 }, []), blks));
 
 const statements = (blks, name) => (
-  blks.length === 0 ? [] :
-    [ statement({ name: name ? name : "BLOCKS" }, [
-      chain_blocks(blks[0], blks.slice(1)) ])]
-);
+  blks.length === 0 ? [] : [
+    statement({ name: name ? name : "BLOCKS" }, [
+      chain_blocks(blks[0], blks.slice(1)) ])]);
 
 const Bforever = (...blks) => (
   Bblock({ type: "forever" }, [ ...statements(blks) ]));
@@ -162,8 +161,8 @@ test('wait notation', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
             next({}, [
               block({ type: "wait", id: 'block1' }, [
                 value({ name: "SECS" }, [
@@ -193,8 +192,8 @@ test('set_servomotor_degree notation', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
             next({}, [
               block({ type: "set_servomotor_degree", id: 'block1' }, [
                 field({ name: "PORT" }, [ 'V2' ]),
@@ -225,8 +224,8 @@ test('forever notation (empty)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
             next({}, [
               block({ type: "forever", id: 'block0' }, [])])])]));
     const dom2 = j2e(
@@ -252,8 +251,8 @@ test('forever notation (non empty)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block3', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block3', x: 10, y: 10 }, [
             next({}, [
               block({ type: "forever", id: 'block2' }, [
                 statement({ name: "BLOCKS" }, [
@@ -285,8 +284,8 @@ test('repeat notation (no count and empty blocks)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
             next({}, [
               block({ type: "repeat", id: 'block1' }, [
                 value({ name: "COUNT" }, [
@@ -315,8 +314,8 @@ test('repeat notation (count == 1 and empty blocks)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
             next({}, [
               block({ type: "repeat", id: 'block1' }, [
                 value({ name: "COUNT" }, [
@@ -345,8 +344,8 @@ test('repeat notation (count == 1 and single block)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block4', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block4', x: 10, y: 10 }, [
             next({}, [
               block({ type: "repeat", id: 'block3' }, [
                 value({ name: "COUNT" }, [
@@ -380,8 +379,8 @@ test('repeat notation (count == 1 and two blocks)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block6', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block6', x: 10, y: 10 }, [
             next({}, [
               block({ type: "repeat", id: 'block5' }, [
                 value({ name: "COUNT" }, [
@@ -395,8 +394,8 @@ test('repeat notation (count == 1 and two blocks)', () => {
                     next({}, [
                       block({ type: "wait", id: 'block3' }, [
                         value({ name: "SECS" }, [
-                          shadow(
-                            { type: "math_positive_number", id: 'block2' }, [
+                          shadow({
+                            type: "math_positive_number", id: 'block2' }, [
                               field({ name: "NUM" }, [ 3 ])
                             ])])])])])])])])])]));
     const dom2 = j2e(
@@ -422,8 +421,8 @@ test('function notation (no name and empty blocks)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
         block({ type: "function", id: 'block1', x: 10, y: 10 }, [
           field({ name: "FUNCTION" }, [])])]));
     const dom2 = j2e(
@@ -449,8 +448,8 @@ test('function notation (name == "f" and empty blocks)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
         block({ type: "function", id: 'block1', x: 10, y: 10 }, [
           field({ name: "FUNCTION" }, [ 'f' ])])]));
     const dom2 = j2e(
@@ -476,10 +475,10 @@ test('function notation (name == "f" and single block)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
-        block(
-          { type: "function", id: 'block3', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({
+          type: "function", id: 'block3', x: 10, y: 10 }, [
             field({ name: "FUNCTION" }, [ 'f' ]),
             statement({ name: "BLOCKS" }, [
               block({ type: "wait", id: 'block2' }, [
@@ -509,8 +508,8 @@ test('function notation (name == "f" and two blocks)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
         block({ type: "function", id: 'block5', x: 10, y: 10 }, [
           field({ name: "FUNCTION" }, [ 'f' ]),
           statement({ name: "BLOCKS" }, [
@@ -521,8 +520,8 @@ test('function notation (name == "f" and two blocks)', () => {
               next({}, [
                 block({ type: "wait", id: 'block4' }, [
                   value({ name: "SECS" }, [
-                    shadow(
-                      { type: "math_positive_number", id: 'block3' }, [
+                    shadow({
+                      type: "math_positive_number", id: 'block3' }, [
                         field({ name: "NUM" }, [ 3 ]) ])])])])])])])]));
     const dom2 = j2e(
       xml({}, [
@@ -547,8 +546,8 @@ test('call_function notation (no name)', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
         block({ type: "call_function", id: 'block1', x: 10, y: 10 }, [
           field({ name: "FUNCTION" }, [ "NAME" ])])]));
     const dom2 = j2e(
@@ -574,8 +573,8 @@ test('wait(1 + 2) notation', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block5', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block5', x: 10, y: 10 }, [
             next({}, [
               block({ type: "wait", id: 'block4' }, [
                 value({ name: "SECS" }, [
@@ -612,8 +611,8 @@ test('when_green_flag_clicked notation', () => {
     const dom1 = j2e(
       xml({}, [
         variables({}, []),
-        block(
-          { type: "when_green_flag_clicked", id: 'block4', x: 10, y: 10 }, [
+        block({
+          type: "when_green_flag_clicked", id: 'block4', x: 10, y: 10 }, [
             next({}, [
               block({ type: "wait", id: 'block1' }, [
                 value({ name: "SECS" }, [
