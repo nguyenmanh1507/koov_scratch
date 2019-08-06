@@ -202,29 +202,29 @@ ScratchBlocks.Blocks['list_length'] = {
   },
 };
 
-ScratchBlocks.Blocks['list_matrix'] = {
+ScratchBlocks.Blocks['led_matrix'] = {
   init: function() {
     this.jsonInit({
       message0: 'show x%1, y%2 of %3 on multi color matrix %4',
       args0: [
         {
-          type: 'field_number',
+          type: 'input_value',
           name: 'X',
-          value: 0,
-          min: 0,
-          max: 100,
-          precision: 1,
+          // value: 0,
+          // min: 0,
+          // max: 100,
+          // precision: 1,
         },
         {
-          type: 'field_number',
+          type: 'input_value',
           name: 'Y',
-          value: 0,
-          min: 0,
-          max: 100,
-          precision: 1,
+          // value: 0,
+          // min: 0,
+          // max: 100,
+          // precision: 1,
         },
         {
-          type: 'field_input',
+          type: 'input_value',
           name: 'IMAGE',
           text: '',
         },
@@ -243,7 +243,7 @@ ScratchBlocks.Blocks['list_matrix'] = {
           ],
         },
       ],
-      extensions: ['output_number'],
+      extensions: ['shape_statement'],
       colour: COLOUR,
     });
   },
