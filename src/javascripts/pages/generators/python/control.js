@@ -2,9 +2,16 @@
  */
 
 export function control(ScratchBlocks) {
-  const pass = () => ScratchBlocks.Python.INDENT + 'pass';
+  const pass = () => ScratchBlocks.Python.INDENT + 'pass\n';
   const use_module = (name) => {
     ScratchBlocks.Python.definitions_[`import ${name}`] = `import ${name}`;
+  };
+  const use_port = (port, type) => {
+    const init = `${port} = koov.${type}(koov.${port})`;
+    if (ScratchBlocks.Python.definitions_[`port ${port}`] &&
+       ScratchBlocks.Python.definitions_[`port ${port}`] != init)
+      throw new Error(`${port} is already used for ${init}`);
+    ScratchBlocks.Python.definitions_[`port ${port}`] = init;
   };
 
   ScratchBlocks.Python['math_number'] = (block) => {
@@ -145,7 +152,20 @@ export function control(ScratchBlocks) {
   /*
    * Statements
    */
-  ScratchBlocks.Python['when_green_flag_clicked'] = (_block) => {
+  ScratchBlocks.Python['when_green_flag_clicked'] = (block) => {
+    const tag = `def main`;
+    ScratchBlocks.Python.setStartLine_(tag);
+    ScratchBlocks.Python.addLineNumberDb_(block);
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    const code = ScratchBlocks.Python.prefixLines(
+      ScratchBlocks.Python.blockToCode(
+        block.getNextBlock()), ScratchBlocks.Python.INDENT);
+
+    ScratchBlocks.Python.definitions_[tag] = `def main():\n${code}`;
+    return null;
+  };
+
+  ScratchBlocks.Python['breakpoint'] = (_block) => {
     return "";
   };
 
@@ -207,15 +227,31 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['function'] = (block) => {
+    const fn = block.getFieldValue('FUNCTION');
+    if (fn === 'main')
+      throw new Error(`Function name 'main' is reserved`);
+    const tag = `def ${fn}`;
+    ScratchBlocks.Python.setStartLine_(tag);
+    ScratchBlocks.Python.addLineNumberDb_(block);
     ScratchBlocks.Python.adjustCurrentLine_(1);
     const stmts = ScratchBlocks.Python.statementToCode(
       block, 'BLOCKS') || pass();
-    const fn = block.getFieldValue('FUNCTION');
     const op = 'function';
     if (!fn)
       throw new Error(`${op}: no arguments`);
 
-    return `def ${fn}():\n${stmts}`;
+    ScratchBlocks.Python.definitions_[tag] = `def ${fn}():\n${stmts}`;
+    return null;
+  };
+
+  ScratchBlocks.Python['call_function'] = (block) => {
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    const fn = block.getFieldValue('FUNCTION');
+    const op = 'call_function';
+    if (!fn)
+      throw new Error(`${op}: no arguments`);
+
+    return `${fn}()\n`;
   };
 
   ScratchBlocks.Python['if_then'] = (block) => {
@@ -236,7 +272,7 @@ export function control(ScratchBlocks) {
       block, 'CONDITION', ScratchBlocks.Python.ORDER_NONE);
     ScratchBlocks.Python.adjustCurrentLine_(1);
     const then_blocks = ScratchBlocks.Python.statementToCode(
-      block, 'THEN_BLOCKS') || pass() + '\n';
+      block, 'THEN_BLOCKS') || pass();
     ScratchBlocks.Python.adjustCurrentLine_(1);
     const else_blocks = ScratchBlocks.Python.statementToCode(
       block, 'ELSE_BLOCKS') || pass();
@@ -245,5 +281,17 @@ export function control(ScratchBlocks) {
       throw new Error(`${op}: no arguments`);
 
     return `if ${condition}:\n${then_blocks}else:\n${else_blocks}`;
+  };
+
+  ScratchBlocks.Python['set_servomotor_degree'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    // const degree = ScratchBlocks.Python.valueToCode(
+    //   block, 'DEGREE', ScratchBlocks.Python.ORDER_NONE);
+    const degree = block.getFieldValue('DEGREE');
+
+    use_module('koov');
+    use_port(port, 'servo_motor');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${port}.set_degree(${degree})\n`;
   };
 }

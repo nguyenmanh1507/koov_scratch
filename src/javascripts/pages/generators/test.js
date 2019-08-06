@@ -92,6 +92,10 @@ const Bfunction = (name, blks) => (
     field({ name: 'FUNCTION' }, [ ...name ]),
       ...statements(blks)]));
 
+const Bcall_function = (name) => (
+  Bblock({ type: "call_function", x: 10, y: 10 }, [
+    field({ name: 'FUNCTION' }, [ ...name ])]));
+
 const Bif_then = (condition, blks) => (
   Bblock({ type: "if_then" }, [
     value({ name: "CONDITION" }, [ ...condition ]),
@@ -120,6 +124,11 @@ const Bnumber = (n, type) => {
 const Bwait = n => (
   Bblock({ type: "wait" }, [
     value({ name: "SECS" }, Bnumber(n, "math_positive_number")) ]));
+
+const Bset_servomotor_degree = (port, degree) => (
+  Bblock({ type: "set_servomotor_degree" }, [
+    field({ name: 'PORT' }, [ port ]),
+    field({ name: 'DEGREE' }, [ degree ]) ]));
 
 const binop = (name, xname, yname) => (x, y) => (
   Bblock({ type: name }, [
@@ -165,6 +174,36 @@ test('wait notation', () => {
         variables({}, []),
         Bstart(
           Bwait(999))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('set_servomotor_degree notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "set_servomotor_degree", id: 'block0' }, [
+                field({ name: "PORT" }, [ 'V2' ]),
+                field({ name: "DEGREE" }, [ 0 ]) ])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bset_servomotor_degree('V2', 0))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -488,6 +527,33 @@ test('function notation (name == "f" and two blocks)', () => {
         variables({}, []),
         Bstart(),
         Bfunction(['f'], [ Bwait(2), Bwait(3) ])]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('call_function notation (no name)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block(
+          { type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+        block({ type: "call_function", id: 'block1', x: 10, y: 10 }, [
+          field({ name: "FUNCTION" }, [ "NAME" ])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(),
+        Bcall_function([ "NAME" ])]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -1517,6 +1583,11 @@ test('wait(1)', () => {
     expect(pcode).toBe('\
 import time\n\n\n\
 time.sleep(1)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_positive_number', line: 3, },
+      block1: { type: 'wait', line: 3, },
+    });
   } finally {
     workspace.dispose();
   }
@@ -1535,6 +1606,71 @@ test('wait(1 + 2)', () => {
     expect(pcode).toBe('\
 import time\n\n\n\
 time.sleep(1 + 2)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_number', line: 3, },
+      block1: { type: 'math_number', line: 3, },
+      block2: { type: 'plus', line: 3, },
+      block4: { type: 'wait', line: 3, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for set_servomotor_degree block.
+ */
+
+test('set_servomotor_degree(V2, 1)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bset_servomotor_degree('V2', 1) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V2 = koov.servo_motor(koov.V2)\n\
+\n\
+\n\
+V2.set_degree(1)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'set_servomotor_degree', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test.skip('set_servomotor_degree(V2, 1 + 2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bset_servomotor_degree('V2', Bplus(1, 2)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V2 = koov.servo_motor(koov.V2)\n\
+\n\
+\n\
+V2.set_degree(1 + 2)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'set_servomotor_degree', line: 3 }
+    });
   } finally {
     workspace.dispose();
   }
@@ -1554,7 +1690,7 @@ test('forever(empty)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('while True:\n  pass');
+    expect(pcode).toBe('while True:\n  pass\n');
   } finally {
     workspace.dispose();
   }
@@ -1642,7 +1778,7 @@ test('repeat(empty)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('for _ in range(1):\n  pass');
+    expect(pcode).toBe('for _ in range(1):\n  pass\n');
   } finally {
     workspace.dispose();
   }
@@ -1730,7 +1866,7 @@ test('repeat_until(empty)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('while not 1 == 0:\n  pass');
+    expect(pcode).toBe('while not 1 == 0:\n  pass\n');
   } finally {
     workspace.dispose();
   }
@@ -1863,7 +1999,7 @@ test('function(empty)', () => {
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
 def f():\n\
-  pass');
+  pass\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'function', line: 0 } });
@@ -1894,19 +2030,21 @@ test('function(empty) and start', () => {
 import time\n\
 \n\
 \n\
-time.sleep(1)\n\
-time.sleep(2)\n\
+def main():\n\
+  time.sleep(1)\n\
+  time.sleep(2)\n\
+\n\
 \n\
 def f():\n\
-  pass');
+  pass\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block4: { type: 'when_green_flag_clicked', line: 3 },
-      block1: { type: 'wait', line: 3 },
-      block0: { type: 'math_positive_number', line: 3 },
-      block3: { type: 'wait', line: 4 },
-      block2: { type: 'math_positive_number', line: 4 },
-      block5: { type: 'function', line: 6 } });
+      block1: { type: 'wait', line: 4 },
+      block0: { type: 'math_positive_number', line: 4 },
+      block3: { type: 'wait', line: 5 },
+      block2: { type: 'math_positive_number', line: 5 },
+      block5: { type: 'function', line: 8 } });
   } finally {
     workspace.dispose();
   }
@@ -1951,6 +2089,62 @@ def f():\n\
   }
 });
 
+test('function(empty) and call_function', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bcall_function('f') ),
+        Bfunction('f', []) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+def main():\n\
+  f()\n\
+\n\
+\n\
+def f():\n\
+  pass\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'call_function', line: 1 },
+      block1: { type: 'when_green_flag_clicked', line: 0 },
+      block2: { type: 'function', line: 4 } });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function contains call_function', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        variables({}, []),
+        Bfunction('f', [
+          Bcall_function('f') ])]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+def f():\n\
+  f()\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'call_function', line: 1 },
+      block1: { type: 'function', line: 0 } });
+  } finally {
+    workspace.dispose();
+  }
+});
+
 /*
  * Tests for if then.
  */
@@ -1965,7 +2159,7 @@ test('if then(empty)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('if 1 < 2:\n  pass');
+    expect(pcode).toBe('if 1 < 2:\n  pass\n');
   } finally {
     workspace.dispose();
   }
@@ -2057,7 +2251,7 @@ test('if then else(empty)', () => {
 if 1 < 2:\n\
   pass\n\
 else:\n\
-  pass');
+  pass\n');
   } finally {
     workspace.dispose();
   }
@@ -2078,7 +2272,7 @@ import time\n\n\n\
 if 1 < 2:\n\
   time.sleep(3)\n\
 else:\n\
-  pass');
+  pass\n');
   } finally {
     workspace.dispose();
   }
