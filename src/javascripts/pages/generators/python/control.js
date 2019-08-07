@@ -42,9 +42,9 @@ export function control(ScratchBlocks) {
   /*
    * Operators
    */
-  const binop_values = (block, op, order) => {
-    const x = ScratchBlocks.Python.valueToCode(block, 'X', order);
-    const y = ScratchBlocks.Python.valueToCode(block, 'Y', order);
+  const binop_values = (block, op, order, xname = 'X', yname = 'Y') => {
+    const x = ScratchBlocks.Python.valueToCode(block, xname, order);
+    const y = ScratchBlocks.Python.valueToCode(block, yname, order);
     if (!x)
       throw new Error(`${op}: no first argument`);
     if (!y)
@@ -90,18 +90,10 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['pick_random'] = (block) => {
-    const x = ScratchBlocks.Python.valueToCode(
-      block, 'FROM', ScratchBlocks.Python.ORDER_NONE);
-    const y = ScratchBlocks.Python.valueToCode(
-      block, 'TO', ScratchBlocks.Python.ORDER_NONE);
-    const op = 'pick_random';
-    if (!y)
-      throw new Error(`${op}: no first argument`);
-    if (!y)
-      throw new Error(`${op}: no second argument`);
+    const { x, y } = binop_values(
+      block, 'pick_random', ScratchBlocks.Python.ORDER_NONE, 'FROM', 'TO');
     const fn = (
-      'lambda x, y: int(random.random() * (int(y) - int(x) + 1)) + int(x)'
-    );
+      'lambda x, y: int(random.random() * (int(y) - int(x) + 1)) + int(x)' );
     use_module('random');
     return [`(${fn})(${x}, ${y})`, ScratchBlocks.Python.ORDER_FUNCTION_CALL];
   };
