@@ -980,7 +980,7 @@ test('when_green_flag_clicked with empty blocks', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    //console.log(pcode);
+    expect(pcode).toBe('def main():\n  pass\n');
 
     expect(true).toBe(true);
     expect(() => { throw new Error(3); }).toThrow();
@@ -2675,6 +2675,36 @@ def f_f():\n\
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'function', line: 0 } });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function(reserved symbol name)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        variables({}, []),
+        Bfunction('main', []),
+        Bstart() ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+def f_main():\n\
+  pass\n\n\n\
+def main():\n\
+  pass\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'function', line: 0 },
+      block1: { type: 'when_green_flag_clicked', line: 4 }});
   } finally {
     workspace.dispose();
   }
