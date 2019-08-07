@@ -34,6 +34,11 @@ export function control(ScratchBlocks) {
     return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
 
+  ScratchBlocks.Python['note'] = (block) => {
+    const n = block.getFieldValue('NOTE');
+    return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
   /*
    * Operators
    */
@@ -334,5 +339,25 @@ export function control(ScratchBlocks) {
     use_port(port, 'dc_motor');
     ScratchBlocks.Python.adjustCurrentLine_(1);
     return `${port}.set_mode(koov.dc_motor.${mode})\n`;
+  };
+
+  ScratchBlocks.Python['buzzer_on'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const frequency = ScratchBlocks.Python.valueToCode(
+      block, 'FREQUENCY', ScratchBlocks.Python.ORDER_NONE);
+
+    use_module('koov');
+    use_port(port, 'buzzer');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${port}.on(${frequency})\n`;
+  };
+
+  ScratchBlocks.Python['buzzer_off'] = (block) => {
+    const port = block.getFieldValue('PORT');
+
+    use_module('koov');
+    use_port(port, 'buzzer');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${port}.off()\n`;
   };
 }

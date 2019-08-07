@@ -106,17 +106,18 @@ const Bif_then_else = (condition, then_blks, else_blks) => (
       ...statements(then_blks, "THEN_BLOCKS"),
       ...statements(else_blks, "ELSE_BLOCKS")]));
 
-const Bnumber = (n, type) => {
+const Bnumber = (n, type, num) => {
   const [ shadow_arg, block_arg ] = (() => {
     if (n === null)
       return [[], []];
     if (typeof n === 'number')
       return [[ n ], []];
-    return [[], [ n ]];
+    return [[ 0 ], [ n ]];
   })();
 
   return [
-    Bshadow({ type: type }, [ field({ name: "NUM" }, [...shadow_arg]) ]),
+    Bshadow({ type: type }, [
+      field({ name: num ? num : "NUM" }, [...shadow_arg]) ]),
       ...block_arg ];
 };
 
@@ -143,6 +144,15 @@ const Bturn_dcmotor_off = (port, mode) => (
   Bblock({ type: 'turn_dcmotor_off' }, [
     field({ name: 'PORT' }, [ port ]),
     field({ name: 'MODE' }, [ mode ]) ]));
+
+const Bbuzzer_on = (port, frequency) => (
+  Bblock({ type: 'buzzer_on' }, [
+    field({ name: 'PORT' }, [ port ]),
+    value({ name: 'FREQUENCY' }, Bnumber(frequency, 'note', 'NOTE')) ]));
+
+const Bbuzzer_off = (port) => (
+  Bblock({ type: 'buzzer_off' }, [
+    field({ name: 'PORT' }, [ port ]) ]));
 
 const binop = (name, xname, yname) => (x, y) => (
   Bblock({ type: name }, [
@@ -200,7 +210,7 @@ test('wait notation', () => {
   }
 });
 
-test('set_servomotor_degree notation', () => {
+test('set_servomotor_degree (empty) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
@@ -220,6 +230,45 @@ test('set_servomotor_degree notation', () => {
         variables({}, []),
         Bstart(
           Bset_servomotor_degree('V2', 0))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('set_servomotor_degree (1 + 2) notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block5', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "set_servomotor_degree", id: 'block4' }, [
+                field({ name: "PORT" }, [ 'V2' ]),
+                value({ name: "DEGREE" }, [
+                  shadow({ type: "math_angle", id: 'block3' }, [
+                    field({ name: "NUM" }, [ 0 ]) ]),
+                  block({ type: "plus", id: 'block2' }, [
+                    value({ name: "X" }, [
+                      shadow({ type: "math_number", id: 'block0' }, [
+                        field({ name: "NUM" }, [ 1 ]) ])]),
+                    value({ name: "Y" }, [
+                      shadow({ type: "math_number", id: 'block1' }, [
+                        field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bset_servomotor_degree('V2', Bplus(1, 2)))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -312,6 +361,77 @@ test('turn_dcmotor_off notation', () => {
         variables({}, []),
         Bstart(
           Bturn_dcmotor_off('V0', 'COAST'))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('buzzer_on (empty) notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block2', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "buzzer_on", id: 'block1' }, [
+                field({ name: "PORT" }, [ 'V2' ]),
+                value({ name: "FREQUENCY" }, [
+                  shadow({ type: "note", id: 'block0' }, [
+                    field({ name: "NOTE" }, [ 0 ]) ])]) ])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bbuzzer_on('V2', 0))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('buzzer_on (1 + 2) notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block5', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "buzzer_on", id: 'block4' }, [
+                field({ name: "PORT" }, [ 'V2' ]),
+                value({ name: "FREQUENCY" }, [
+                  shadow({ type: "note", id: 'block3' }, [
+                    field({ name: "NOTE" }, [ 0 ]) ]),
+                  block({ type: "plus", id: 'block2' }, [
+                    value({ name: "X" }, [
+                      shadow({ type: "math_number", id: 'block0' }, [
+                        field({ name: "NUM" }, [ 1 ]) ])]),
+                    value({ name: "Y" }, [
+                      shadow({ type: "math_number", id: 'block1' }, [
+                        field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bbuzzer_on('V2', Bplus(1, 2)))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -686,7 +806,7 @@ test('wait(1 + 2) notation', () => {
               block({ type: "wait", id: 'block4' }, [
                 value({ name: "SECS" }, [
                   shadow({ type: "math_positive_number", id: 'block3' }, [
-                    field({ name: "NUM" }, []) ]),
+                    field({ name: "NUM" }, [ 0 ]) ]),
                   block({ type: "plus", id: 'block2' }, [
                     value({ name: "X" }, [
                       shadow({ type: "math_number", id: 'block0' }, [
@@ -1906,6 +2026,99 @@ V0.set_mode(koov.dc_motor.COAST)\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'turn_dcmotor_off', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for buzzer_on block.
+ */
+
+test('buzzer_on(V2, 1)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bbuzzer_on('V2', 1) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V2 = koov.buzzer(koov.V2)\n\
+\n\
+\n\
+V2.on(1)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'note', line: 6 },
+      block1: { type: 'buzzer_on', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('buzzer_on(V2, 1 + 2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bbuzzer_on('V2', Bplus(1, 2)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V2 = koov.buzzer(koov.V2)\n\
+\n\
+\n\
+V2.on(1 + 2)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_number', line: 6, },
+      block1: { type: 'math_number', line: 6, },
+      block2: { type: 'plus', line: 6, },
+      block4: { type: 'buzzer_on', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for buzzer_off block.
+ */
+
+test('buzzer_off(V2, 1)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bbuzzer_off('V2') ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V2 = koov.buzzer(koov.V2)\n\
+\n\
+\n\
+V2.off()\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'buzzer_off', line: 6 }
     });
   } finally {
     workspace.dispose();
