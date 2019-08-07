@@ -449,8 +449,8 @@ export function generator(ScratchBlocks)
     return this.reservedSymbols_.includes(value) ||
       Object.values(this.symbolDb_).includes(value);
   };
-  ScratchBlocks.Generator.prototype.internSymbol_ = function (prefix, key) {
-    return `${prefix}${key}`;
+  ScratchBlocks.Generator.prototype.internSymbol_ = function (prefix, name) {
+    return `${prefix}${name}`;
   };
   ScratchBlocks.Generator.prototype.prologueLineCount_ = 0;
   ScratchBlocks.Generator.prototype.currentLine_ = () => 0;
