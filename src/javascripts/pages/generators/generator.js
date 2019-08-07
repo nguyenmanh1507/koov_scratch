@@ -435,6 +435,7 @@ export function generator(ScratchBlocks)
   };
 
   ScratchBlocks.Generator.prototype.symbolDb_ = Object.create(null);
+  ScratchBlocks.Generator.prototype.reservedSymbols_ = [];
   ScratchBlocks.Generator.prototype.defineSymbol_ = function (key, value) {
     if (this.symbolDb_[key] && this.symbolDb_[key] !== value)
       throw new Error(
@@ -445,7 +446,8 @@ export function generator(ScratchBlocks)
     return this.symbolDb_[key];
   };
   ScratchBlocks.Generator.prototype.existingSymbol_ = function (value) {
-    return Object.values(this.symbolDb_).includes(value);
+    return this.reservedSymbols_.includes(value) ||
+      Object.values(this.symbolDb_).includes(value);
   };
   ScratchBlocks.Generator.prototype.internSymbol_ = function (prefix, key) {
     return `${prefix}${key}`;

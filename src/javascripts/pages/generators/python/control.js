@@ -168,8 +168,8 @@ export function control(ScratchBlocks) {
     ScratchBlocks.Python.addLineNumberDb_(block);
     ScratchBlocks.Python.adjustCurrentLine_(1);
     const code = ScratchBlocks.Python.prefixLines(
-      ScratchBlocks.Python.blockToCode(
-        block.getNextBlock()), ScratchBlocks.Python.INDENT);
+      ScratchBlocks.Python.blockToCode(block.getNextBlock()) || 'pass',
+      ScratchBlocks.Python.INDENT);
 
     ScratchBlocks.Python.definitions_[tag] = `def main():\n${code}`;
     return null;
@@ -241,14 +241,14 @@ export function control(ScratchBlocks) {
     const fn = block.getFieldValue('FUNCTION');
     if (!fn)
       throw new Error(`${op}: no arguments`);
-    const tag = `def ${fn}`;
+    const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
+    const tag = `def ${symbol}`;
     ScratchBlocks.Python.setStartLine_(tag);
     ScratchBlocks.Python.addLineNumberDb_(block);
     ScratchBlocks.Python.adjustCurrentLine_(1);
     const stmts = ScratchBlocks.Python.statementToCode(
       block, 'BLOCKS') || pass();
 
-    const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
     ScratchBlocks.Python.definitions_[tag] = `def ${symbol}():\n${stmts}`;
     return null;
   };

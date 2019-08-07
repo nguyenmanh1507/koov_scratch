@@ -150,6 +150,7 @@ export function python(ScratchBlocks) {
     ScratchBlocks.Python.functionNames_ = Object.create(null);
 
     ScratchBlocks.Python.symbolDb_ = Object.create(null);
+    ScratchBlocks.Python.reservedSymbols_ = [];
     ScratchBlocks.Python.internSymbol_ = function (prefix, key) {
       if (this.referSymbol_(key))
         return this.referSymbol_(key);
@@ -163,10 +164,10 @@ export function python(ScratchBlocks) {
       }
     };
     this.RESERVED_WORDS_.split(',').forEach(x => {
-      this.defineSymbol_(x, x);
+      this.reservedSymbols_.push(x);
     });
-    this.defineSymbol_('_', '_');
-    this.defineSymbol_('main', 'main');
+    this.reservedSymbols_.push('_');
+    this.reservedSymbols_.push('main');
 
     ScratchBlocks.Python.lineNumberDb_ = Object.create(null);
     ScratchBlocks.Python.startLineDb_ = Object.create(null);
