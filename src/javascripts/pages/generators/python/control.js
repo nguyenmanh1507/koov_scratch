@@ -360,4 +360,33 @@ export function control(ScratchBlocks) {
     ScratchBlocks.Python.adjustCurrentLine_(1);
     return `${port}.off()\n`;
   };
+
+  ScratchBlocks.Python['turn_led'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const mode = block.getFieldValue('MODE');
+
+    use_module('koov');
+    use_port(port, 'led');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    if (mode === 'ON')
+      return `${port}.on()\n`;
+    if (mode === 'OFF')
+      return `${port}.off()\n`;
+    throw new Error(`turn_led: invalid mode: ${mode}`);
+  };
+
+  ScratchBlocks.Python['multi_led'] = (block) => {
+    const port = 'RGB';
+    const r = ScratchBlocks.Python.valueToCode(
+      block, 'R', ScratchBlocks.Python.ORDER_NONE);
+    const g = ScratchBlocks.Python.valueToCode(
+      block, 'G', ScratchBlocks.Python.ORDER_NONE);
+    const b = ScratchBlocks.Python.valueToCode(
+      block, 'B', ScratchBlocks.Python.ORDER_NONE);
+
+    use_module('koov');
+    use_port(port, 'multi_led');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${port}.on(${r}, ${g}, ${b})\n`;
+  };
 }
