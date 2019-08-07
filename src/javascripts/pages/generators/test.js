@@ -154,6 +154,17 @@ const Bbuzzer_off = (port) => (
   Bblock({ type: 'buzzer_off' }, [
     field({ name: 'PORT' }, [ port ]) ]));
 
+const Bturn_led = (port, mode) => (
+  Bblock({ type: 'turn_led' }, [
+    field({ name: 'PORT' }, [ port ]),
+    field({ name: 'MODE' }, [ mode ]) ]));
+
+const Bmulti_led = (r, g, b) => (
+  Bblock({ type: 'multi_led' }, [
+    value({ name: 'R' }, Bnumber(r, 'math_number')),
+    value({ name: 'G' }, Bnumber(g, 'math_number')),
+    value({ name: 'B' }, Bnumber(b, 'math_number')) ]));
+
 const binop = (name, xname, yname) => (x, y) => (
   Bblock({ type: name }, [
     value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")),
@@ -432,6 +443,94 @@ test('buzzer_on (1 + 2) notation', () => {
         variables({}, []),
         Bstart(
           Bbuzzer_on('V2', Bplus(1, 2)))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('turn_led notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block1', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "turn_led", id: 'block0' }, [
+                field({ name: "PORT" }, [ 'V2' ]),
+                field({ name: "MODE" }, [ 'ON' ]) ])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bturn_led('V2', 'ON'))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('multi_led (1 + 2, 3 + 4, 5 + 6) notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block13', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "multi_led", id: 'block12' }, [
+                value({ name: "R" }, [
+                  shadow({ type: "math_number", id: 'block9' }, [
+                    field({ name: "NUM" }, [ 0 ]) ]),
+                  block({ type: "plus", id: 'block2' }, [
+                    value({ name: "X" }, [
+                      shadow({ type: "math_number", id: 'block0' }, [
+                        field({ name: "NUM" }, [ 1 ]) ])]),
+                    value({ name: "Y" }, [
+                      shadow({ type: "math_number", id: 'block1' }, [
+                        field({ name: "NUM" }, [ 2 ]) ])])])]),
+                value({ name: "G" }, [
+                  shadow({ type: "math_number", id: 'block10' }, [
+                    field({ name: "NUM" }, [ 0 ]) ]),
+                  block({ type: "plus", id: 'block5' }, [
+                    value({ name: "X" }, [
+                      shadow({ type: "math_number", id: 'block3' }, [
+                        field({ name: "NUM" }, [ 3 ]) ])]),
+                    value({ name: "Y" }, [
+                      shadow({ type: "math_number", id: 'block4' }, [
+                        field({ name: "NUM" }, [ 4 ]) ])])])]),
+                value({ name: "B" }, [
+                  shadow({ type: "math_number", id: 'block11' }, [
+                    field({ name: "NUM" }, [ 0 ]) ]),
+                  block({ type: "plus", id: 'block8' }, [
+                    value({ name: "X" }, [
+                      shadow({ type: "math_number", id: 'block6' }, [
+                        field({ name: "NUM" }, [ 5 ]) ])]),
+                    value({ name: "Y" }, [
+                      shadow({ type: "math_number", id: 'block7' }, [
+                        field({ name: "NUM" }, [ 6 ]) ])])])])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bmulti_led(Bplus(1, 2), Bplus(3, 4), Bplus(5, 6)))]));
 
     expect(dom1).toEqual(dom2);
     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
@@ -2119,6 +2218,130 @@ V2.off()\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'buzzer_off', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for turn_led block.
+ */
+
+test('turn_led(V2, ON)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bturn_led('V2', 'ON') ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V2 = koov.led(koov.V2)\n\
+\n\
+\n\
+V2.on()\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'turn_led', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('turn_led(V2, OFF)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bturn_led('V2', 'OFF') ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+V2 = koov.led(koov.V2)\n\
+\n\
+\n\
+V2.off()\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'turn_led', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('multi_led(0, 1, 2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bmulti_led(0, 1, 2) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+RGB = koov.multi_led(koov.RGB)\n\
+\n\
+\n\
+RGB.on(0, 1, 2)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_number', line: 6 },
+      block1: { type: 'math_number', line: 6 },
+      block2: { type: 'math_number', line: 6 },
+      block3: { type: 'multi_led', line: 6 }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('multi_led(1 + 2, 3 + 4, 5 + 6)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [ Bmulti_led(Bplus(1, 2), Bplus(3, 4), Bplus(5, 6)) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+RGB = koov.multi_led(koov.RGB)\n\
+\n\
+\n\
+RGB.on(1 + 2, 3 + 4, 5 + 6)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_number', line: 6 },
+      block1: { type: 'math_number', line: 6 },
+      block2: { type: 'plus', line: 6 },
+      block3: { type: 'math_number', line: 6 },
+      block4: { type: 'math_number', line: 6 },
+      block5: { type: 'plus', line: 6 },
+      block6: { type: 'math_number', line: 6 },
+      block7: { type: 'math_number', line: 6 },
+      block8: { type: 'plus', line: 6 },
+      block12: { type: 'multi_led', line: 6 }
     });
   } finally {
     workspace.dispose();
