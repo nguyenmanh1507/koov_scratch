@@ -434,6 +434,22 @@ export function generator(ScratchBlocks)
     return line;
   };
 
+  ScratchBlocks.Generator.prototype.symbolDb_ = Object.create(null);
+  ScratchBlocks.Generator.prototype.defineSymbol_ = function (key, value) {
+    if (this.symbolDb_[key] && this.symbolDb_[key] !== value)
+      throw new Error(
+        `Symbol ${key} is already defined as ${this.symbolDb_[key]}`);
+    this.symbolDb_[key] = value;
+  };
+  ScratchBlocks.Generator.prototype.referSymbol_ = function (key) {
+    return this.symbolDb_[key];
+  };
+  ScratchBlocks.Generator.prototype.existingSymbol_ = function (value) {
+    return Object.values(this.symbolDb_).includes(value);
+  };
+  ScratchBlocks.Generator.prototype.internSymbol_ = function (prefix, key) {
+    return `${prefix}${key}`;
+  };
   ScratchBlocks.Generator.prototype.prologueLineCount_ = 0;
   ScratchBlocks.Generator.prototype.currentLine_ = () => 0;
 
