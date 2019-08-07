@@ -151,11 +151,12 @@ export function python(ScratchBlocks) {
 
     ScratchBlocks.Python.symbolDb_ = Object.create(null);
     ScratchBlocks.Python.reservedSymbols_ = [];
-    ScratchBlocks.Python.internSymbol_ = function (prefix, key) {
+    ScratchBlocks.Python.internSymbol_ = function (prefix, name) {
+      const key = `${prefix}${name}`;
       if (this.referSymbol_(key))
         return this.referSymbol_(key);
 
-      const base = `${prefix}${key.replace(/[^a-zA-Z0-9_]/g, '')}`;
+      const base = `${prefix}${name.replace(/[^a-zA-Z0-9_]/g, '')}`;
       for (var i = '';; i++) {
         if (!this.existingSymbol_(`${base}${i}`)) {
           this.defineSymbol_(key, `${base}${i}`);
