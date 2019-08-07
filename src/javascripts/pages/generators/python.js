@@ -149,7 +149,27 @@ export function python(ScratchBlocks) {
     // to actual function names (to avoid collisions with user functions).
     ScratchBlocks.Python.functionNames_ = Object.create(null);
 
+    ScratchBlocks.Python.symbolDb_ = Object.create(null);
+    ScratchBlocks.Python.internSymbol_ = function (prefix, key) {
+      if (this.referSymbol_(key))
+        return this.referSymbol_(key);
+
+      const base = `${prefix}${key.replace(/[^a-zA-Z0-9_]/g, '')}`;
+      for (var i = '';; i++) {
+        if (!this.existingSymbol_(`${base}${i}`)) {
+          this.defineSymbol_(key, `${base}${i}`);
+          return this.referSymbol_(key);
+        }
+      }
+    };
+    this.RESERVED_WORDS_.split(',').forEach(x => {
+      this.defineSymbol_(x, x);
+    });
+    this.defineSymbol_('_', '_');
+    this.defineSymbol_('main', 'main');
+
     ScratchBlocks.Python.lineNumberDb_ = Object.create(null);
+    ScratchBlocks.Python.startLineDb_ = Object.create(null);
     ScratchBlocks.Python.prologueLineCount_ = 0;
     ScratchBlocks.Python.currentLine_ = (
       () => ScratchBlocks.Python.prologueLineCount_);

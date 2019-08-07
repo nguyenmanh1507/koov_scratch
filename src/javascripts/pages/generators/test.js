@@ -2670,11 +2670,58 @@ test('function(empty)', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
-def f():\n\
+def f_f():\n\
   pass\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'function', line: 0 } });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('function(conflicting function name)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bfunction('f', [ Bwait(1) ]),
+        Bfunction('f ', [ Bwait(2) ]),
+        Bfunction('$f', [ Bwait(3) ])]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import time\n\
+\n\
+\n\
+def f_f():\n\
+  time.sleep(1)\n\
+\n\
+\n\
+def f_f1():\n\
+  time.sleep(2)\n\
+\n\
+\n\
+def f_f2():\n\
+  time.sleep(3)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'math_positive_number', line: 4, },
+      block1: { type: 'wait', line: 4, },
+      block2: { type: 'function', line: 3, },
+      block3: { type: 'math_positive_number', line: 8, },
+      block4: { type: 'wait', line: 8, },
+      block5: { type: 'function', line: 7, },
+      block6: { type: 'math_positive_number', line: 12, },
+      block7: { type: 'wait', line: 12, },
+      block8: { type: 'function', line: 11, },
+    });
   } finally {
     workspace.dispose();
   }
@@ -2707,7 +2754,7 @@ def main():\n\
   time.sleep(2)\n\
 \n\
 \n\
-def f():\n\
+def f_f():\n\
   pass\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
@@ -2734,7 +2781,7 @@ test('function(with single wait)', () => {
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
 import time\n\n\n\
-def f():\n\
+def f_f():\n\
   time.sleep(1)\n');
   } finally {
     workspace.dispose();
@@ -2753,7 +2800,7 @@ test('function(with two waits)', () => {
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
 import time\n\n\n\
-def f():\n\
+def f_f():\n\
   time.sleep(1)\n\
   time.sleep(2)\n');
   } finally {
@@ -2777,10 +2824,10 @@ test('function(empty) and call_function', () => {
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
 def main():\n\
-  f()\n\
+  f_f()\n\
 \n\
 \n\
-def f():\n\
+def f_f():\n\
   pass\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
@@ -2806,8 +2853,8 @@ test('function contains call_function', () => {
 
     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
     expect(pcode).toBe('\
-def f():\n\
-  f()\n');
+def f_f():\n\
+  f_f()\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'call_function', line: 1 },

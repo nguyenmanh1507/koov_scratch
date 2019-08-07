@@ -237,20 +237,19 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['function'] = (block) => {
+    const op = 'function';
     const fn = block.getFieldValue('FUNCTION');
-    if (fn === 'main')
-      throw new Error(`Function name 'main' is reserved`);
+    if (!fn)
+      throw new Error(`${op}: no arguments`);
     const tag = `def ${fn}`;
     ScratchBlocks.Python.setStartLine_(tag);
     ScratchBlocks.Python.addLineNumberDb_(block);
     ScratchBlocks.Python.adjustCurrentLine_(1);
     const stmts = ScratchBlocks.Python.statementToCode(
       block, 'BLOCKS') || pass();
-    const op = 'function';
-    if (!fn)
-      throw new Error(`${op}: no arguments`);
 
-    ScratchBlocks.Python.definitions_[tag] = `def ${fn}():\n${stmts}`;
+    const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
+    ScratchBlocks.Python.definitions_[tag] = `def ${symbol}():\n${stmts}`;
     return null;
   };
 
@@ -261,7 +260,8 @@ export function control(ScratchBlocks) {
     if (!fn)
       throw new Error(`${op}: no arguments`);
 
-    return `${fn}()\n`;
+    const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
+    return `${symbol}()\n`;
   };
 
   ScratchBlocks.Python['if_then'] = (block) => {
