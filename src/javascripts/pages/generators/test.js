@@ -106,7 +106,7 @@ const Bif_then_else = (condition, then_blks, else_blks) => (
       ...statements(then_blks, "THEN_BLOCKS"),
       ...statements(else_blks, "ELSE_BLOCKS")]));
 
-const Bnumber = (n, type, num) => {
+const Bnumber = (n, type, num = "NUM") => {
   const [ shadow_arg, block_arg ] = (() => {
     if (n === null)
       return [[], []];
@@ -117,7 +117,7 @@ const Bnumber = (n, type, num) => {
 
   return [
     Bshadow({ type: type }, [
-      field({ name: num ? num : "NUM" }, [...shadow_arg]) ]),
+      field({ name: num }, [...shadow_arg]) ]),
       ...block_arg ];
 };
 
@@ -165,14 +165,14 @@ const Bmulti_led = (r, g, b) => (
     value({ name: 'G' }, Bnumber(g, 'math_number')),
     value({ name: 'B' }, Bnumber(b, 'math_number')) ]));
 
-const binop = (name, xname, yname) => (x, y) => (
+const binop = (name, xname = "X", yname = "Y") => (x, y) => (
   Bblock({ type: name }, [
-    value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")),
-    value({ name: yname ? yname : "Y" }, Bnumber(y, "math_number")) ]));
+    value({ name: xname }, Bnumber(x, "math_number")),
+    value({ name: yname }, Bnumber(y, "math_number")) ]));
 
-const uniop = (name, xname) => (x) => (
+const uniop = (name, xname = "X") => (x) => (
   Bblock({ type: name }, [
-    value({ name: xname ? xname : "X" }, Bnumber(x, "math_number")) ]));
+    value({ name: xname }, Bnumber(x, "math_number")) ]));
 
 const Bplus = binop('plus');
 const Bminus = binop('minus');;
