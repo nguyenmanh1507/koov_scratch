@@ -285,7 +285,7 @@ test('wait notation (double)', () => {
               value({ name: "SECS" }, [
                 shadow({ type: "math_positive_number", id: 'block2' }, [
                   field({ name: "NUM" }, [ 2 ]) ])]) ])])]),
-        Bwait(3) )}).toThrow(/block already chained/);
+        Bwait(3) )}).toThrow(/^block already chained: /);
 
   } finally {
     workspace.dispose();
@@ -1059,9 +1059,9 @@ test('light_sensor_value notation', () => {
     expect(dom2).toEqual(dom3);
 
     expect(() => { Blight_sensor_value(); }).toThrow(
-      'Number of args 0 does not match with fields: PORT');
+      (/^Number of args 0 does not match with fields: PORT$/));
     expect(() => { Blight_sensor_value([], []); }).toThrow(
-      'Number of args 2 does not match with fields: PORT');
+      (/^Number of args 2 does not match with fields: PORT$/));
   } finally {
     workspace.dispose();
   }
@@ -1091,12 +1091,12 @@ test('3_axis_digital_accelerometer_value notation', () => {
     expect(dom2).toEqual(dom3);
 
     expect(() => { B3_axis_digital_accelerometer_value(); }).toThrow(
-      'Number of args 0 does not match with fields: PORT,DIRECTION');
+      (/^Number of args 0 does not match with fields: PORT,DIRECTION$/));
     expect(() => { B3_axis_digital_accelerometer_value([]); }).toThrow(
-      'Number of args 1 does not match with fields: PORT,DIRECTION');
+      (/^Number of args 1 does not match with fields: PORT,DIRECTION$/));
     expect(() => {
       B3_axis_digital_accelerometer_value([], [], []); }).toThrow(
-        'Number of args 3 does not match with fields: PORT,DIRECTION');
+        (/^Number of args 3 does not match with fields: PORT,DIRECTION$/));
   } finally {
     workspace.dispose();
   }
@@ -2386,6 +2386,14 @@ V2.on()\n');
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
       block0: { type: 'turn_led', line: 6 }
     });
+
+    expect(() => {
+      const dom = j2e(
+        xml({}, [
+          Bturn_led("V2", "NONE") ]));
+      ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+      ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
+        (/^turn_led: Invalid mode: NONE$/));
   } finally {
     workspace.dispose();
   }
@@ -3050,7 +3058,7 @@ def main():\n\
           Btouch_sensor_value([ "K2" ], [ "NONE" ]) ]));
       ScratchBlocks.Xml.domToWorkspace(dom, workspace);
       ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
-        'Unknown mode: NONE');
+        (/^touch_sensor_value: Unknown mode: NONE$/));
   } finally {
     workspace.dispose();
   }
@@ -3173,7 +3181,7 @@ def main():\n\
           Bbutton_value([ "K2" ], [ "NONE" ]) ]));
       ScratchBlocks.Xml.domToWorkspace(dom, workspace);
       ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
-        'Unknown mode: NONE');
+        (/^button_value: Unknown mode: NONE$/));
   } finally {
     workspace.dispose();
   }
@@ -3459,7 +3467,7 @@ test('wait_until(empty condition)', () => {
 
     expect(
       () => ScratchBlocks.Python.workspaceToCode(workspace)).toThrow(
-        'wait_until: no arguments');
+        (/^wait_until: No arguments$/));
   } finally {
     workspace.dispose();
   }

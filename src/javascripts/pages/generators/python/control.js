@@ -55,7 +55,7 @@ export function control(ScratchBlocks) {
   const uniop_value = (block, op, order) => {
     const x = ScratchBlocks.Python.valueToCode(block, 'X', order);
     if (!x)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
     return x;
   };
 
@@ -158,7 +158,7 @@ export function control(ScratchBlocks) {
     const tag = `def main`;
     ScratchBlocks.Python.setStartLine_(tag);
     ScratchBlocks.Python.addLineNumberDb_(block);
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // 'def main():'
     const code = ScratchBlocks.Python.prefixLines(
       ScratchBlocks.Python.blockToCode(block.getNextBlock()) || 'pass',
       ScratchBlocks.Python.INDENT);
@@ -176,7 +176,7 @@ export function control(ScratchBlocks) {
       block, 'SECS', ScratchBlocks.Python.ORDER_NONE);
     const op = 'wait';
     if (!secs)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
     use_module('time');
     ScratchBlocks.Python.adjustCurrentLine_(1);
     return `time.sleep(${secs})\n`;
@@ -193,7 +193,7 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['forever'] = (block) => {
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // 'while True:'
     const stmts = statementToCode(block);
 
     return `while True:\n${stmts}`;
@@ -202,11 +202,11 @@ export function control(ScratchBlocks) {
   ScratchBlocks.Python['repeat'] = (block) => {
     const count = ScratchBlocks.Python.valueToCode(
       block, 'COUNT', ScratchBlocks.Python.ORDER_NONE);
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // for _ in range():
     const stmts = statementToCode(block);
     const op = 'repeat';
     if (!count)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
 
     return `for _ in range(${count}):\n${stmts}`;
   };
@@ -214,11 +214,11 @@ export function control(ScratchBlocks) {
   ScratchBlocks.Python['repeat_until'] = (block) => {
     const cond = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // while not ...:
     const stmts = statementToCode(block);
     const op = 'repeat_until';
     if (!cond)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
 
     return `while not ${cond}:\n${stmts}`;
   };
@@ -229,7 +229,7 @@ export function control(ScratchBlocks) {
       block, 'CONDITION', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
     const op = 'wait_until';
     if (!cond)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
 
     use_module('time');
     return `while not ${cond}:\n${stmts}`;
@@ -239,12 +239,12 @@ export function control(ScratchBlocks) {
     const op = 'function';
     const fn = block.getFieldValue('FUNCTION');
     if (!fn)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
     const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
     const tag = `def ${symbol}`;
     ScratchBlocks.Python.setStartLine_(tag);
     ScratchBlocks.Python.addLineNumberDb_(block);
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // def ...():
     const stmts = statementToCode(block);
 
     ScratchBlocks.Python.definitions_[tag] = `def ${symbol}():\n${stmts}`;
@@ -252,24 +252,24 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['call_function'] = (block) => {
-    ScratchBlocks.Python.adjustCurrentLine_(1);
     const fn = block.getFieldValue('FUNCTION');
     const op = 'call_function';
     if (!fn)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
 
     const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
+    ScratchBlocks.Python.adjustCurrentLine_(1);
     return `${symbol}()\n`;
   };
 
   ScratchBlocks.Python['if_then'] = (block) => {
     const condition = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_NONE);
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // if ...:
     const stmts = statementToCode(block);
     const op = 'if_then';
     if (!condition)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
 
     return `if ${condition}:\n${stmts}`;
   };
@@ -277,13 +277,13 @@ export function control(ScratchBlocks) {
   ScratchBlocks.Python['if_then_else'] = (block) => {
     const condition = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_NONE);
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // if ...:
     const then_blocks = statementToCode(block, 'THEN_BLOCKS');
-    ScratchBlocks.Python.adjustCurrentLine_(1);
+    ScratchBlocks.Python.adjustCurrentLine_(1); // else:
     const else_blocks = statementToCode(block, 'ELSE_BLOCKS');
     const op = 'if_then_else';
     if (!condition)
-      throw new Error(`${op}: no arguments`);
+      throw new Error(`${op}: No arguments`);
 
     return `if ${condition}:\n${then_blocks}else:\n${else_blocks}`;
   };
@@ -367,7 +367,7 @@ export function control(ScratchBlocks) {
       return `${port}.on()\n`;
     if (mode === 'OFF')
       return `${port}.off()\n`;
-    throw new Error(`turn_led: invalid mode: ${mode}`);
+    throw new Error(`turn_led: Invalid mode: ${mode}`);
   };
 
   ScratchBlocks.Python['multi_led'] = (block) => {
@@ -384,6 +384,10 @@ export function control(ScratchBlocks) {
     ScratchBlocks.Python.adjustCurrentLine_(1);
     return `${port}.on(${r}, ${g}, ${b})\n`;
   };
+
+  /*
+   * Sensors.
+   */
 
   ScratchBlocks.Python['light_sensor_value'] = (block) => {
     const port = block.getFieldValue('PORT');
@@ -438,28 +442,30 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['touch_sensor_value'] = (block) => {
+    const op = 'touch_sensor_value';
     const port = block.getFieldValue('PORT');
     const mode = block.getFieldValue('MODE');
 
     use_module('koov');
     use_port(port, 'touch_sensor');
     if (mode === 'ON')
-      return [ `${port}.value == 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+      return [`${port}.value == 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
     if (mode === 'OFF')
-      return [ `${port}.value != 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
-    throw new Error(`Unknown mode: ${mode}`);
+      return [`${port}.value != 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+    throw new Error(`${op}: Unknown mode: ${mode}`);
   };
 
   ScratchBlocks.Python['button_value'] = (block) => {
+    const op = 'button_value';
     const port = block.getFieldValue('PORT');
     const mode = block.getFieldValue('MODE');
 
     use_module('koov');
     use_port(port, 'core_button');
     if (mode === 'ON')
-      return [ `${port}.value == 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+      return [`${port}.value == 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
     if (mode === 'OFF')
-      return [ `${port}.value != 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
-    throw new Error(`Unknown mode: ${mode}`);
+      return [`${port}.value != 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+    throw new Error(`${op}: Unknown mode: ${mode}`);
   };
 }
