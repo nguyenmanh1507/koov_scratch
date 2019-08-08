@@ -38,7 +38,7 @@ const chain_blocks = (self, blks) => {
     if (blks.length === 0)
       return;
     if (self.inner.some(x => x.tag === 'next'))
-      throw new Error(`block ${self} already chained`);
+      throw new Error(`block already chained: ${JSON.stringify(self)}`);
     self.inner.push(next({}, [ blks[0] ]));
     rec(blks[0], blks.slice(1));
   };
@@ -64,9 +64,9 @@ const Bstart = (...blks) => (
   chain_blocks(
     Bblock({ type: "when_green_flag_clicked", x: 10, y: 10 }, []), blks));
 
-const statements = (blks, name) => (
+const statements = (blks, name = "BLOCKS") => (
   blks.length === 0 ? [] : [
-    statement({ name: name ? name : "BLOCKS" }, [
+    statement({ name }, [
       chain_blocks(blks[0], blks.slice(1)) ])]);
 
 const Bforever = (...blks) => (
@@ -190,7 +190,27 @@ const Bor = binop('or');
 const Bnot = uniop('not');
 const Bround = uniop('round');
 
-test('wait notation', () => {
+const assert = (msg, e) => { if (!e) throw new Error(msg); return true; };
+
+const sensor = (type, ...fields) => (...arg) => (
+  assert(
+    `Number of args ${arg.length} does not match with fields: ${fields}`,
+    fields.length === arg.length) &&
+    Bblock({ type, x: 10, y: 10 }, fields.map((_, idx) => (
+      field({ name: fields[idx] }, [ ...arg[idx] ]) ))));
+
+const Blight_sensor_value = sensor("light_sensor_value", "PORT");
+const Bsound_sensor_value = sensor("sound_sensor_value", "PORT");
+const Bir_photo_reflector_value = sensor("ir_photo_reflector_value", "PORT");
+const B3_axis_digital_accelerometer_value = sensor(
+  "3_axis_digital_accelerometer_value", "PORT", "DIRECTION");
+const Bcolor_sensor_value = sensor("color_sensor_value", "PORT", "COMPONENT");
+const Bultrasonic_distance_sensor = sensor(
+  "ultrasonic_distance_sensor", "PORT");
+const Btouch_sensor_value = sensor("touch_sensor_value", "PORT", "MODE");
+const Bbutton_value = sensor("button_value", "PORT", "MODE");
+
+test('wait notation (single)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
@@ -216,6 +236,57 @@ test('wait notation', () => {
     const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
     expect(dom2).toEqual(dom3);
     //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('wait notation (double)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "when_green_flag_clicked", id: 'block4', x: 10, y: 10 }, [
+            next({}, [
+              block({ type: "wait", id: 'block1' }, [
+                value({ name: "SECS" }, [
+                  shadow({ type: "math_positive_number", id: 'block0' }, [
+                    field({ name: "NUM" }, [ 1 ]) ])]),
+                next({}, [
+                  block({ type: "wait", id: 'block3' }, [
+                    value({ name: "SECS" }, [
+                      shadow({ type: "math_positive_number", id: 'block2' }, [
+                        field({ name: "NUM" }, [ 2 ]) ])]) ])])])])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Bstart(
+          Bwait(1),
+          Bwait(2))]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+
+    expect(() => {
+      Bstart(
+        block({ type: "wait", id: 'block1' }, [
+          value({ name: "SECS" }, [
+            shadow({ type: "math_positive_number", id: 'block0' }, [
+              field({ name: "NUM" }, [ 1 ]) ])]),
+          next({}, [
+            block({ type: "wait", id: 'block3' }, [
+              value({ name: "SECS" }, [
+                shadow({ type: "math_positive_number", id: 'block2' }, [
+                  field({ name: "NUM" }, [ 2 ]) ])]) ])])]),
+        Bwait(3) )}).toThrow(/block already chained/);
+
   } finally {
     workspace.dispose();
   }
@@ -961,6 +1032,71 @@ test('when_green_flag_clicked notation', () => {
 
     const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
     expect(dom2).toEqual(dom3);
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('light_sensor_value notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "light_sensor_value", id: 'block0', x: 10, y: 10 }, [
+            field({ name: "PORT" }, [ "K2" ]) ])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        Blight_sensor_value([ "K2" ]) ]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+
+    expect(() => { Blight_sensor_value(); }).toThrow(
+      'Number of args 0 does not match with fields: PORT');
+    expect(() => { Blight_sensor_value([], []); }).toThrow(
+      'Number of args 2 does not match with fields: PORT');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('3_axis_digital_accelerometer_value notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, []),
+        block({
+          type: "3_axis_digital_accelerometer_value",
+          id: 'block0', x: 10, y: 10 }, [
+            field({ name: "PORT" }, [ "K2" ]),
+            field({ name: "DIRECTION" }, [ "X" ])])]));
+    const dom2 = j2e(
+      xml({}, [
+        variables({}, []),
+        B3_axis_digital_accelerometer_value([ "K2" ], [ "X" ]) ]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+
+    expect(() => { B3_axis_digital_accelerometer_value(); }).toThrow(
+      'Number of args 0 does not match with fields: PORT,DIRECTION');
+    expect(() => { B3_axis_digital_accelerometer_value([]); }).toThrow(
+      'Number of args 1 does not match with fields: PORT,DIRECTION');
+    expect(() => {
+      B3_axis_digital_accelerometer_value([], [], []); }).toThrow(
+        'Number of args 3 does not match with fields: PORT,DIRECTION');
   } finally {
     workspace.dispose();
   }
@@ -2349,6 +2485,701 @@ RGB.on(1 + 2, 3 + 4, 5 + 6)\n');
 });
 
 /*
+ * Tests for light_sensor block.
+ */
+
+test('light_sensor_value(K2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Blight_sensor_value([ "K2" ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.light_sensor(koov.K2)\n\
+\n\
+\n\
+K2.value\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "light_sensor_value", line: 6, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('light_sensor_value(K2) in wait block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bwait(Bplus(1, Blight_sensor_value([ "K2" ]))) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+import time\n\
+\n\
+\n\
+K2 = koov.light_sensor(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  time.sleep(1 + K2.value)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'light_sensor_value', line: 8, },
+      block1: { type: 'math_number', line: 8, },
+      block3: { type: 'plus', line: 8, },
+      block5: { type: 'wait', line: 8, },
+      block6: { type: 'when_green_flag_clicked', line: 7, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for sound_sensor block.
+ */
+
+test('sound_sensor_value(K2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bsound_sensor_value([ "K2" ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.sound_sensor(koov.K2)\n\
+\n\
+\n\
+K2.value\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "sound_sensor_value", line: 6, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('sound_sensor_value(K2) in wait block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bwait(Bplus(1, Bsound_sensor_value([ "K2" ]))) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+import time\n\
+\n\
+\n\
+K2 = koov.sound_sensor(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  time.sleep(1 + K2.value)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'sound_sensor_value', line: 8, },
+      block1: { type: 'math_number', line: 8, },
+      block3: { type: 'plus', line: 8, },
+      block5: { type: 'wait', line: 8, },
+      block6: { type: 'when_green_flag_clicked', line: 7, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for ir_photo_reflector block.
+ */
+
+test('ir_photo_reflector_value(K2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bir_photo_reflector_value([ "K2" ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.ir_photo_reflector(koov.K2)\n\
+\n\
+\n\
+K2.value\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "ir_photo_reflector_value", line: 6, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('ir_photo_reflector_value(K2) in wait block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bwait(Bplus(1, Bir_photo_reflector_value([ "K2" ]))) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+import time\n\
+\n\
+\n\
+K2 = koov.ir_photo_reflector(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  time.sleep(1 + K2.value)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'ir_photo_reflector_value', line: 8, },
+      block1: { type: 'math_number', line: 8, },
+      block3: { type: 'plus', line: 8, },
+      block5: { type: 'wait', line: 8, },
+      block6: { type: 'when_green_flag_clicked', line: 7, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for ultrasonic_distance_sensor block.
+ */
+
+test('ultrasonic_distance_sensor(K2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bultrasonic_distance_sensor([ "K2" ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.ultrasonic_distance_sensor(koov.K2)\n\
+\n\
+\n\
+K2.value\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "ultrasonic_distance_sensor", line: 6, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('ultrasonic_distance_sensor(K2) in wait block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bwait(Bplus(1, Bultrasonic_distance_sensor([ "K2" ]))) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+import time\n\
+\n\
+\n\
+K2 = koov.ultrasonic_distance_sensor(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  time.sleep(1 + K2.value)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'ultrasonic_distance_sensor', line: 8, },
+      block1: { type: 'math_number', line: 8, },
+      block3: { type: 'plus', line: 8, },
+      block5: { type: 'wait', line: 8, },
+      block6: { type: 'when_green_flag_clicked', line: 7, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for 3_axis_digital_accelerometer_value block.
+ */
+
+test('3_axis_digital_accelerometer_value(K0)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        B3_axis_digital_accelerometer_value([ "K0" ], [ "X" ]),
+        B3_axis_digital_accelerometer_value([ "K0" ], [ "Y" ]),
+        B3_axis_digital_accelerometer_value([ "K0" ], [ "Z" ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K0 = koov.3_axis_digital_accelerometer(koov.K0)\n\
+\n\
+\n\
+K0.x\n\
+\n\
+K0.y\n\
+\n\
+K0.z\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "3_axis_digital_accelerometer_value", line: 6, },
+      block1: { type: "3_axis_digital_accelerometer_value", line: 8, },
+      block2: { type: "3_axis_digital_accelerometer_value", line: 10, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('3_axis_digital_accelerometer_value(K0) in wait block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bwait(
+            Bplus(1, B3_axis_digital_accelerometer_value([ "K0" ], [ "X" ]))),
+          Bwait(
+            Bplus(2, B3_axis_digital_accelerometer_value([ "K0" ], [ "Y" ]))),
+          Bwait(
+            Bplus(
+              3, B3_axis_digital_accelerometer_value([ "K0" ], [ "Z" ]))) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+import time\n\
+\n\
+\n\
+K0 = koov.3_axis_digital_accelerometer(koov.K0)\n\
+\n\
+\n\
+def main():\n\
+  time.sleep(1 + K0.x)\n\
+  time.sleep(2 + K0.y)\n\
+  time.sleep(3 + K0.z)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: '3_axis_digital_accelerometer_value', line: 8, },
+      block1: { type: 'math_number', line: 8, },
+      block3: { type: 'plus', line: 8, },
+      block5: { type: 'wait', line: 8, },
+      block6: { type: '3_axis_digital_accelerometer_value', line: 9, },
+      block7: { type: 'math_number', line: 9, },
+      block9: { type: 'plus', line: 9, },
+      block11: { type: 'wait', line: 9, },
+      block12: { type: '3_axis_digital_accelerometer_value', line: 10, },
+      block13: { type: 'math_number', line: 10, },
+      block15: { type: 'plus', line: 10, },
+      block17: { type: 'wait', line: 10, },
+      block18: { type: 'when_green_flag_clicked', line: 7, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for color_sensor_value block.
+ */
+
+test('color_sensor_value(K0)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bcolor_sensor_value([ "K0" ], [ "R" ]),
+        Bcolor_sensor_value([ "K0" ], [ "G" ]),
+        Bcolor_sensor_value([ "K0" ], [ "B" ]) ]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K0 = koov.color_sensor(koov.K0)\n\
+\n\
+\n\
+K0.r\n\
+\n\
+K0.g\n\
+\n\
+K0.b\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "color_sensor_value", line: 6, },
+      block1: { type: "color_sensor_value", line: 8, },
+      block2: { type: "color_sensor_value", line: 10, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('color_sensor_value(K0) in wait block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bwait(
+            Bplus(1, Bcolor_sensor_value([ "K0" ], [ "R" ]))),
+          Bwait(
+            Bplus(2, Bcolor_sensor_value([ "K0" ], [ "G" ]))),
+          Bwait(
+            Bplus(3, Bcolor_sensor_value([ "K0" ], [ "B" ]))) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+import time\n\
+\n\
+\n\
+K0 = koov.color_sensor(koov.K0)\n\
+\n\
+\n\
+def main():\n\
+  time.sleep(1 + K0.r)\n\
+  time.sleep(2 + K0.g)\n\
+  time.sleep(3 + K0.b)\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'color_sensor_value', line: 8, },
+      block1: { type: 'math_number', line: 8, },
+      block3: { type: 'plus', line: 8, },
+      block5: { type: 'wait', line: 8, },
+      block6: { type: 'color_sensor_value', line: 9, },
+      block7: { type: 'math_number', line: 9, },
+      block9: { type: 'plus', line: 9, },
+      block11: { type: 'wait', line: 9, },
+      block12: { type: 'color_sensor_value', line: 10, },
+      block13: { type: 'math_number', line: 10, },
+      block15: { type: 'plus', line: 10, },
+      block17: { type: 'wait', line: 10, },
+      block18: { type: 'when_green_flag_clicked', line: 7, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for touch_sensor block.
+ */
+
+test('touch_sensor_value(K2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Btouch_sensor_value([ "K2" ], [ "ON" ]),
+        Btouch_sensor_value([ "K2" ], [ "OFF" ])]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.touch_sensor(koov.K2)\n\
+\n\
+\n\
+K2.value == 0\n\
+\n\
+K2.value != 0\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "touch_sensor_value", line: 6, },
+      block1: { type: "touch_sensor_value", line: 8, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('touch_sensor_value(K2) in if_then block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bif_then([ Btouch_sensor_value([ "K2" ], [ "ON" ]) ], []),
+          Bif_then([ Btouch_sensor_value([ "K2" ], [ "OFF" ]) ], []) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.touch_sensor(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  if K2.value == 0:\n\
+    pass\n\
+  if K2.value != 0:\n\
+    pass\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'touch_sensor_value', line: 7, },
+      block1: { type: 'if_then', line: 7, },
+      block2: { type: 'touch_sensor_value', line: 9, },
+      block3: { type: 'if_then', line: 9, },
+      block4: { type: 'when_green_flag_clicked', line: 6, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('touch_sensor_value(K2) in if_then not block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bif_then([ Bnot(Btouch_sensor_value([ "K2" ], [ "ON" ])) ], []),
+          Bif_then([
+            Bnot(Btouch_sensor_value([ "K2" ], [ "OFF" ])) ], []) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.touch_sensor(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  if not K2.value == 0:\n\
+    pass\n\
+  if not K2.value != 0:\n\
+    pass\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'touch_sensor_value', line: 7, },
+      block2: { type: 'not', line: 7, },
+      block3: { type: 'if_then', line: 7, },
+      block4: { type: 'touch_sensor_value', line: 9, },
+      block6: { type: 'not', line: 9, },
+      block7: { type: 'if_then', line: 9, },
+      block8: { type: 'when_green_flag_clicked', line: 6, },
+    });
+
+    expect(() => {
+      const dom = j2e(
+        xml({}, [
+          Btouch_sensor_value([ "K2" ], [ "NONE" ]) ]));
+      ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+      ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
+        'Unknown mode: NONE');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for core_button block.
+ */
+
+test('button_value(K2)', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bbutton_value([ "K2" ], [ "ON" ]),
+        Bbutton_value([ "K2" ], [ "OFF" ])]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.core_button(koov.K2)\n\
+\n\
+\n\
+K2.value == 0\n\
+\n\
+K2.value != 0\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: "button_value", line: 6, },
+      block1: { type: "button_value", line: 8, }
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('button_value(K2) in if_then block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bif_then([ Bbutton_value([ "K2" ], [ "ON" ]) ], []),
+          Bif_then([ Bbutton_value([ "K2" ], [ "OFF" ]) ], []) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.core_button(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  if K2.value == 0:\n\
+    pass\n\
+  if K2.value != 0:\n\
+    pass\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'button_value', line: 7, },
+      block1: { type: 'if_then', line: 7, },
+      block2: { type: 'button_value', line: 9, },
+      block3: { type: 'if_then', line: 9, },
+      block4: { type: 'when_green_flag_clicked', line: 6, },
+    });
+  } finally {
+    workspace.dispose();
+  }
+});
+
+test('button_value(K2) in if_then not block', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Bif_then([ Bnot(Bbutton_value([ "K2" ], [ "ON" ])) ], []),
+          Bif_then([
+            Bnot(Bbutton_value([ "K2" ], [ "OFF" ])) ], []) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+\n\
+\n\
+K2 = koov.core_button(koov.K2)\n\
+\n\
+\n\
+def main():\n\
+  if not K2.value == 0:\n\
+    pass\n\
+  if not K2.value != 0:\n\
+    pass\n');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      block0: { type: 'button_value', line: 7, },
+      block2: { type: 'not', line: 7, },
+      block3: { type: 'if_then', line: 7, },
+      block4: { type: 'button_value', line: 9, },
+      block6: { type: 'not', line: 9, },
+      block7: { type: 'if_then', line: 9, },
+      block8: { type: 'when_green_flag_clicked', line: 6, },
+    });
+
+    expect(() => {
+      const dom = j2e(
+        xml({}, [
+          Bbutton_value([ "K2" ], [ "NONE" ]) ]));
+      ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+      ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
+        'Unknown mode: NONE');
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
  * Tests for forever block.
  */
 
@@ -2627,7 +3458,8 @@ test('wait_until(empty condition)', () => {
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
     expect(
-      () => ScratchBlocks.Python.workspaceToCode(workspace)).toThrow();
+      () => ScratchBlocks.Python.workspaceToCode(workspace)).toThrow(
+        'wait_until: no arguments');
   } finally {
     workspace.dispose();
   }

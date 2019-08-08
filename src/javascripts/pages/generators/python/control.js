@@ -182,10 +182,19 @@ export function control(ScratchBlocks) {
     return `time.sleep(${secs})\n`;
   };
 
+  const statementToCode = (block, name = "BLOCKS") => {
+    const stmts = ScratchBlocks.Python.statementToCode(block, name);
+
+    if (stmts)
+      return stmts;
+
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return pass();
+  };
+
   ScratchBlocks.Python['forever'] = (block) => {
     ScratchBlocks.Python.adjustCurrentLine_(1);
-    const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || pass();
+    const stmts = statementToCode(block);
 
     return `while True:\n${stmts}`;
   };
@@ -194,8 +203,7 @@ export function control(ScratchBlocks) {
     const count = ScratchBlocks.Python.valueToCode(
       block, 'COUNT', ScratchBlocks.Python.ORDER_NONE);
     ScratchBlocks.Python.adjustCurrentLine_(1);
-    const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || pass();
+    const stmts = statementToCode(block);
     const op = 'repeat';
     if (!count)
       throw new Error(`${op}: no arguments`);
@@ -207,8 +215,7 @@ export function control(ScratchBlocks) {
     const cond = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_LOGICAL_NOT);
     ScratchBlocks.Python.adjustCurrentLine_(1);
-    const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || pass();
+    const stmts = statementToCode(block);
     const op = 'repeat_until';
     if (!cond)
       throw new Error(`${op}: no arguments`);
@@ -238,8 +245,7 @@ export function control(ScratchBlocks) {
     ScratchBlocks.Python.setStartLine_(tag);
     ScratchBlocks.Python.addLineNumberDb_(block);
     ScratchBlocks.Python.adjustCurrentLine_(1);
-    const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || pass();
+    const stmts = statementToCode(block);
 
     ScratchBlocks.Python.definitions_[tag] = `def ${symbol}():\n${stmts}`;
     return null;
@@ -260,8 +266,7 @@ export function control(ScratchBlocks) {
     const condition = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_NONE);
     ScratchBlocks.Python.adjustCurrentLine_(1);
-    const stmts = ScratchBlocks.Python.statementToCode(
-      block, 'BLOCKS') || pass();
+    const stmts = statementToCode(block);
     const op = 'if_then';
     if (!condition)
       throw new Error(`${op}: no arguments`);
@@ -273,11 +278,9 @@ export function control(ScratchBlocks) {
     const condition = ScratchBlocks.Python.valueToCode(
       block, 'CONDITION', ScratchBlocks.Python.ORDER_NONE);
     ScratchBlocks.Python.adjustCurrentLine_(1);
-    const then_blocks = ScratchBlocks.Python.statementToCode(
-      block, 'THEN_BLOCKS') || pass();
+    const then_blocks = statementToCode(block, 'THEN_BLOCKS');
     ScratchBlocks.Python.adjustCurrentLine_(1);
-    const else_blocks = ScratchBlocks.Python.statementToCode(
-      block, 'ELSE_BLOCKS') || pass();
+    const else_blocks = statementToCode(block, 'ELSE_BLOCKS');
     const op = 'if_then_else';
     if (!condition)
       throw new Error(`${op}: no arguments`);
@@ -380,5 +383,83 @@ export function control(ScratchBlocks) {
     use_port(port, 'multi_led');
     ScratchBlocks.Python.adjustCurrentLine_(1);
     return `${port}.on(${r}, ${g}, ${b})\n`;
+  };
+
+  ScratchBlocks.Python['light_sensor_value'] = (block) => {
+    const port = block.getFieldValue('PORT');
+
+    use_module('koov');
+    use_port(port, 'light_sensor');
+    return [`${port}.value`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['sound_sensor_value'] = (block) => {
+    const port = block.getFieldValue('PORT');
+
+    use_module('koov');
+    use_port(port, 'sound_sensor');
+    return [`${port}.value`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['ir_photo_reflector_value'] = (block) => {
+    const port = block.getFieldValue('PORT');
+
+    use_module('koov');
+    use_port(port, 'ir_photo_reflector');
+    return [`${port}.value`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['ultrasonic_distance_sensor'] = (block) => {
+    const port = block.getFieldValue('PORT');
+
+    use_module('koov');
+    use_port(port, 'ultrasonic_distance_sensor');
+    return [`${port}.value`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['3_axis_digital_accelerometer_value'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const direction = block.getFieldValue('DIRECTION');
+
+    use_module('koov');
+    use_port(port, '3_axis_digital_accelerometer');
+    return [
+      `${port}.${direction.toLowerCase()}`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['color_sensor_value'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const component = block.getFieldValue('COMPONENT');
+
+    use_module('koov');
+    use_port(port, 'color_sensor');
+    return [
+      `${port}.${component.toLowerCase()}`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['touch_sensor_value'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const mode = block.getFieldValue('MODE');
+
+    use_module('koov');
+    use_port(port, 'touch_sensor');
+    if (mode === 'ON')
+      return [ `${port}.value == 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+    if (mode === 'OFF')
+      return [ `${port}.value != 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+    throw new Error(`Unknown mode: ${mode}`);
+  };
+
+  ScratchBlocks.Python['button_value'] = (block) => {
+    const port = block.getFieldValue('PORT');
+    const mode = block.getFieldValue('MODE');
+
+    use_module('koov');
+    use_port(port, 'core_button');
+    if (mode === 'ON')
+      return [ `${port}.value == 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+    if (mode === 'OFF')
+      return [ `${port}.value != 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
+    throw new Error(`Unknown mode: ${mode}`);
   };
 }

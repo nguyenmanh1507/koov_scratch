@@ -111,7 +111,7 @@ export function generator(ScratchBlocks)
           line = this.scrubNakedValue(line);
         }
         code.push(line);
-        this.adjustCurrentLine_(1);
+        this.adjustCurrentLine_(2);
       }
     }
     code = code.join('\n');  // Blank line between each section.
