@@ -2781,7 +2781,7 @@ test('3_axis_digital_accelerometer_value(K0)', () => {
 import koov\n\
 \n\
 \n\
-K0 = koov.3_axis_digital_accelerometer(koov.K0)\n\
+K0 = koov.accelerometer(koov.K0)\n\
 \n\
 \n\
 K0.x\n\
@@ -2823,7 +2823,7 @@ import koov\n\
 import time\n\
 \n\
 \n\
-K0 = koov.3_axis_digital_accelerometer(koov.K0)\n\
+K0 = koov.accelerometer(koov.K0)\n\
 \n\
 \n\
 def main():\n\
