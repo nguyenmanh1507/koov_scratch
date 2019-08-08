@@ -452,23 +452,61 @@ export function generator(ScratchBlocks)
   ScratchBlocks.Generator.prototype.internSymbol_ = function (prefix, name) {
     return `${prefix}${name}`;
   };
+
+  /*
+   * Number of lines for prologue.  Calculated after blocks are
+   * converted to code.
+   */
   ScratchBlocks.Generator.prototype.prologueLineCount_ = 0;
+
+  /*
+   * Holds closure to calculate absolute line number for the current
+   * line.
+   */
   ScratchBlocks.Generator.prototype.currentLine_ = () => 0;
 
+  /*
+   * Start line offset database.  Used to adjust line number of
+   * functions.
+   */
   ScratchBlocks.Generator.prototype.startLineDb_ = Object.create(null);
+
+  /*
+   * Prepare to start counting line numbers for functions.  Line
+   * numbers of functions are initially relative to the start of
+   * function.
+   */
   ScratchBlocks.Generator.prototype.setStartLine_ = function (tag) {
+    if (this.startLineDb_[tag] !== undefined)
+      throw new Error(`setStartLine_: Duplicated tag: ${tag}`);
     this.startLineDb_[tag] = 0;
     this.currentLine_ = () => this.startLineDb_[tag];
   };
+
+  /*
+   * Block id to line number database.
+   */
   ScratchBlocks.Generator.prototype.lineNumberDb_ = Object.create(null);
+
+  /*
+   * Capture current line number for the given block.  The absolute
+   * line number can be calculated after all conversions are done.
+   */
   ScratchBlocks.Generator.prototype.addLineNumberDb_ = function (block) {
     this.lineNumberDb_[block.id] = this.currentLine_;
   };
+
+  /*
+   * Advance current line number by `n'.
+   */
   ScratchBlocks.Generator.prototype.adjustCurrentLine_ = function (n) {
     const lineFn = this.currentLine_;
     this.currentLine_ = () => lineFn() + n;
   };
 
+  /*
+   * Calculated absolute line number for each blocks.
+   */
   ScratchBlocks.Generator.prototype.blockIdToLineNumberMap = function (ws) {
     const v = Object.create(null);
     for (var id in this.lineNumberDb_) {
