@@ -174,7 +174,7 @@ ScratchBlocks.Blocks['color_sensor_value'] = {
   },
 };
 
-ScratchBlocks.Blocks['ultrasonic_distance_sensor'] = {
+ScratchBlocks.Blocks['ultrasonic_distance_sensor_value'] = {
   init: function() {
     this.jsonInit({
       message0: 'distance sensor %1',

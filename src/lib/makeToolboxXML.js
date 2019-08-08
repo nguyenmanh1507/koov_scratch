@@ -245,7 +245,7 @@ const sensing = () => {
     <block type="reset_timer"></block>
     <block type="timer"></block>
     <block type="color_sensor_value"></block>
-    <block type="ultrasonic_distance_sensor"></block>
+    <block type="ultrasonic_distance_sensor_value"></block>
   </category>
   `;
 };

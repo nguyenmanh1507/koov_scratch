@@ -206,7 +206,7 @@ const B3_axis_digital_accelerometer_value = sensor(
   "3_axis_digital_accelerometer_value", "PORT", "DIRECTION");
 const Bcolor_sensor_value = sensor("color_sensor_value", "PORT", "COMPONENT");
 const Bultrasonic_distance_sensor = sensor(
-  "ultrasonic_distance_sensor", "PORT");
+  "ultrasonic_distance_sensor_value", "PORT");
 const Btouch_sensor_value = sensor("touch_sensor_value", "PORT", "MODE");
 const Bbutton_value = sensor("button_value", "PORT", "MODE");
 
@@ -2697,7 +2697,7 @@ def main():\n\
  * Tests for ultrasonic_distance_sensor block.
  */
 
-test('ultrasonic_distance_sensor(K2)', () => {
+test('ultrasonic_distance_sensor_value(K2)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
@@ -2718,14 +2718,14 @@ K2 = koov.ultrasonic_distance_sensor(koov.K2)\n\
 K2.value\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: "ultrasonic_distance_sensor", line: 6, }
+      block0: { type: "ultrasonic_distance_sensor_value", line: 6, }
     });
   } finally {
     workspace.dispose();
   }
 });
 
-test('ultrasonic_distance_sensor(K2) in wait block', () => {
+test('ultrasonic_distance_sensor_value(K2) in wait block', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
   try {
@@ -2749,7 +2749,7 @@ def main():\n\
   time.sleep(1 + K2.value)\n');
 
     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'ultrasonic_distance_sensor', line: 8, },
+      block0: { type: 'ultrasonic_distance_sensor_value', line: 8, },
       block1: { type: 'math_number', line: 8, },
       block3: { type: 'plus', line: 8, },
       block5: { type: 'wait', line: 8, },
