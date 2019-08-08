@@ -426,7 +426,7 @@ export function control(ScratchBlocks) {
     const direction = block.getFieldValue('DIRECTION');
 
     use_module('koov');
-    use_port(port, '3_axis_digital_accelerometer');
+    use_port(port, 'accelerometer');
     return [
       `${port}.${direction.toLowerCase()}`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
