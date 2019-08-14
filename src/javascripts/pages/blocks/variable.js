@@ -6,17 +6,18 @@ const COLOUR = '#f27f62';
 ScratchBlocks.Blocks['variable_ref'] = {
   init: function() {
     this.jsonInit({
-      message0: 'variable %1',
+      message0: '%1',
+      lastDummyAlign0: 'CENTRE',
       args0: [
         {
-          type: 'field_variable',
-          name: 'NAME',
-          variable: 'x',
-          // variableTypes: ['Number', 'String'],
-          // defaultType: 'String',
+          type: 'field_variable_getter',
+          text: '',
+          name: 'VARIABLE',
+          variableType: '',
         },
       ],
-      extensions: ['output_number'],
+      checkboxInFlyout: true,
+      extensions: ['contextMenu_getVariableBlock', 'output_string'],
       colour: COLOUR,
     });
   },
@@ -28,14 +29,13 @@ ScratchBlocks.Blocks['set_variable_to'] = {
       message0: 'set variable %1 to %2',
       args0: [
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
         },
         {
           type: 'input_value',
           name: 'VALUE',
-          check: 'Number',
+          // check: 'Number',
         },
       ],
       extensions: ['shape_statement'],
@@ -50,17 +50,34 @@ ScratchBlocks.Blocks['change_variable_by'] = {
       message0: 'increase variable %1 by %2',
       args0: [
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
         },
         {
           type: 'input_value',
           name: 'VALUE',
-          check: 'Number',
         },
       ],
       extensions: ['shape_statement'],
+      colour: COLOUR,
+    });
+  },
+};
+
+ScratchBlocks.Blocks['list'] = {
+  init: function() {
+    this.jsonInit({
+      message0: '%1',
+      args0: [
+        {
+          type: 'field_variable_getter',
+          text: '',
+          name: 'LIST',
+          variableType: ScratchBlocks.LIST_VARIABLE_TYPE,
+        },
+      ],
+      checkboxInFlyout: true,
+      extensions: ['contextMenu_getListBlock', 'output_string'],
       colour: COLOUR,
     });
   },
@@ -74,12 +91,11 @@ ScratchBlocks.Blocks['list_add'] = {
         {
           type: 'input_value',
           name: 'VALUE',
-          check: 'Number',
         },
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
+          variableTypes: [ScratchBlocks.LIST_VARIABLE_TYPE],
         },
       ],
       extensions: ['shape_statement'],
@@ -98,9 +114,9 @@ ScratchBlocks.Blocks['list_delete'] = {
           name: 'POSITION',
         },
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
+          variableTypes: [ScratchBlocks.LIST_VARIABLE_TYPE],
         },
       ],
       extensions: ['shape_statement'],
@@ -117,17 +133,15 @@ ScratchBlocks.Blocks['list_insert'] = {
         {
           type: 'input_value',
           name: 'VALUE',
-          check: 'Number',
         },
         {
           type: 'input_value',
           name: 'POSITION',
-          check: 'Number',
         },
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
+          variableTypes: [ScratchBlocks.LIST_VARIABLE_TYPE],
         },
       ],
       extensions: ['shape_statement'],
@@ -144,17 +158,15 @@ ScratchBlocks.Blocks['list_replace'] = {
         {
           type: 'input_value',
           name: 'POSITION',
-          check: 'Number',
         },
         {
           type: 'input_value',
           name: 'VALUE',
-          check: 'Number',
         },
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
+          variableTypes: [ScratchBlocks.LIST_VARIABLE_TYPE],
         },
       ],
       extensions: ['shape_statement'],
@@ -170,16 +182,16 @@ ScratchBlocks.Blocks['list_ref'] = {
       args0: [
         {
           type: 'input_value',
-          name: 'VALUE',
-          check: 'Number',
+          name: 'POSITION',
         },
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
+          variableTypes: [ScratchBlocks.LIST_VARIABLE_TYPE],
         },
       ],
-      extensions: ['output_number'],
+      output: null,
+      outputShape: ScratchBlocks.OUTPUT_SHAPE_ROUND,
       colour: COLOUR,
     });
   },
@@ -191,12 +203,33 @@ ScratchBlocks.Blocks['list_length'] = {
       message0: 'length of list %1',
       args0: [
         {
-          type: 'field_dropdown',
+          type: 'field_variable',
           name: 'NAME',
-          options: [['VAR', 'VAR']],
+          variableTypes: [ScratchBlocks.LIST_VARIABLE_TYPE],
         },
       ],
       extensions: ['output_number'],
+      colour: COLOUR,
+    });
+  },
+};
+
+ScratchBlocks.Blocks['list_contain'] = {
+  init: function() {
+    this.jsonInit({
+      message0: 'list %1 contains %2',
+      args0: [
+        {
+          type: 'field_variable',
+          name: 'NAME',
+          variableTypes: [ScratchBlocks.LIST_VARIABLE_TYPE],
+        },
+        {
+          type: 'input_value',
+          name: 'VALUE',
+        },
+      ],
+      extensions: ['output_boolean'],
       colour: COLOUR,
     });
   },
