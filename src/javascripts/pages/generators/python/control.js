@@ -468,4 +468,15 @@ export function control(ScratchBlocks) {
       return [`${port}.value != 0`, ScratchBlocks.Python.ORDER_RELATIONAL];
     throw new Error(`${op}: Unknown mode: ${mode}`);
   };
+
+  ScratchBlocks.Python['timer'] = (block) => {
+    use_module('koov');
+    return [`koov.timer()`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['reset_timer'] = (block) => {
+    use_module('koov');
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `koov.reset_timer()\n`;
+  };
 }
