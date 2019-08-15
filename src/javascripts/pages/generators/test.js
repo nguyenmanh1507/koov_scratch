@@ -210,6 +210,11 @@ const Bultrasonic_distance_sensor = sensor(
 const Btouch_sensor_value = sensor("touch_sensor_value", "PORT", "MODE");
 const Bbutton_value = sensor("button_value", "PORT", "MODE");
 
+const Breset_timer = () => (
+  Bblock({ type: "reset_timer" }, []));
+const Btimer = () => (
+  Bblock({ type: "timer" }, []));
+
 test('wait notation (single)', () => {
   const workspace = new ScratchBlocks.Workspace();
   id = 0;
@@ -3182,6 +3187,46 @@ def main():\n\
       ScratchBlocks.Xml.domToWorkspace(dom, workspace);
       ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
         (/^button_value: Unknown mode: NONE$/));
+  } finally {
+    workspace.dispose();
+  }
+});
+
+/*
+ * Tests for timer and reset_timer block.
+ */
+
+test('timer and reset_timer', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  id = 0;
+  try {
+    const dom = j2e(
+      xml({}, [
+        Bstart(
+          Breset_timer(),
+          Bwait_until([ Bgreater_than(Btimer(), 5) ], []) )]));
+
+    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+
+    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+    expect(pcode).toBe('\
+import koov\n\
+import time\n\
+\n\
+\n\
+def main():\n\
+  koov.reset_timer()\n\
+  while not koov.timer() > 5:\n\
+    time.sleep(0.01)\n\
+');
+
+    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+      "block0": { "type": "reset_timer", "line": 5, },
+      "block1": { "type": "timer", "line": 6, },
+      "block3": { "type": "math_number", "line": 6, },
+      "block4": { "type": "greater_than", "line": 6, },
+      "block5": { "type": "wait_until", "line": 6, },
+      "block6": { "type": "when_green_flag_clicked", "line": 4, } });
   } finally {
     workspace.dispose();
   }
