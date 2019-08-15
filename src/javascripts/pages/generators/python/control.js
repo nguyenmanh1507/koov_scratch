@@ -413,7 +413,7 @@ export function control(ScratchBlocks) {
     return [`${port}.value`, ScratchBlocks.Python.ORDER_ATOMIC];
   };
 
-  ScratchBlocks.Python['ultrasonic_distance_sensor'] = (block) => {
+  ScratchBlocks.Python['ultrasonic_distance_sensor_value'] = (block) => {
     const port = block.getFieldValue('PORT');
 
     use_module('koov');
