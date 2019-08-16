@@ -7,6 +7,15 @@
 const xmlserializer = require('xmlserializer');
 import { ScratchBlocks } from '../blocks/ScratchBlocks';
 
+/*
+ * For blockly error message.
+ */
+global.XMLSerializer = function() {
+  this.serializeToString = function(dom) {
+    return xmlserializer.serializeToString(dom)
+  };
+};
+
 const merge = (a, b) => Object.assign({}, a, b);
 const e = (tag) => (attrs, inner) => {
   if (!inner instanceof Array)
@@ -14,8 +23,11 @@ const e = (tag) => (attrs, inner) => {
   return { tag, attrs, inner };
 };
 
-const { xml, block, next, value, shadow, field, statement, variables } = [
-  'xml', 'block', 'next', 'value', 'shadow', 'field', 'statement', 'variables'
+const {
+  xml, block, next, value, shadow, field,
+  statement, variables, variable } = [
+    'xml', 'block', 'next', 'value', 'shadow', 'field',
+    'statement', 'variables', 'variable'
 ].reduce((acc, x) => {
   acc[x] = e(x);
   return acc;
@@ -27,7 +39,7 @@ const j2e = j => {
 
   const e = document.createElement(j.tag);
   Object.keys(j.attrs || {}).
-    filter(k => j.attrs[k]).
+    filter(k => j.attrs[k] !== null).
     forEach(k => e.setAttribute(k, j.attrs[k]));
   (j.inner || []).forEach(j => e.appendChild(j2e(j)));
   return e;
@@ -47,10 +59,30 @@ const chain_blocks = (self, blks) => {
 };
 
 let id = 0;
+let varmap = {};
+const new_id = () => `block${id++}`;
+const variable_id = (name) => {
+  if (!varmap[name])
+    varmap[name] = new_id();
+  return varmap[name];
+};
+
+const setup = () => {
+  id = 0;
+  varmap = Object.create(null);
+};
+
+const Bxml = (attrs, inner) => (
+  xml(attrs, [
+    variables({}, Object.keys(varmap).map(name => variable({
+      type: "",
+      id: varmap[name],
+      islocal: "false",
+      iscloud: "false" }, [ name ]))), ...inner]));
 
 const Bblock = (attrs, inner) => {
   if (!attrs.hasOwnProperty('id'))
-    attrs.id = `block${id++}`;
+    attrs.id = new_id();
   return block(attrs, inner);
 };
 
@@ -215,9 +247,24 @@ const Breset_timer = () => (
 const Btimer = () => (
   Bblock({ type: "timer" }, []));
 
+const Bvariable_ref = (name, opts) => (
+  Bblock({ type: "variable_ref", ...opts }, [
+    field({
+      name: 'NAME', id: variable_id(name), variabletype: '' }, [ ...name ])]));
+
+const Bset_variable_to = (name, v) => (
+  Bblock({ type: "set_variable_to" }, [
+    field({ name: 'NAME' }, [ ...name ]),
+    value({ name: 'VALUE' }, Bnumber(v, 'math_number'))]));
+
+const Bchange_variable_by = (name, v) => (
+  Bblock({ type: "change_variable_by" }, [
+    field({ name: 'NAME' }, [ ...name ]),
+    value({ name: 'VALUE' }, Bnumber(v, 'math_number'))]));
+
 test('wait notation (single)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -230,8 +277,7 @@ test('wait notation (single)', () => {
                   shadow({ type: "math_positive_number", id: 'block0' }, [
                     field({ name: "NUM" }, [ 999 ]) ])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bwait(999))]));
 
@@ -248,7 +294,7 @@ test('wait notation (single)', () => {
 
 test('wait notation (double)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -266,8 +312,7 @@ test('wait notation (double)', () => {
                       shadow({ type: "math_positive_number", id: 'block2' }, [
                         field({ name: "NUM" }, [ 2 ]) ])]) ])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bwait(1),
           Bwait(2))]));
@@ -299,7 +344,7 @@ test('wait notation (double)', () => {
 
 test('set_servomotor_degree (empty) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -313,8 +358,7 @@ test('set_servomotor_degree (empty) notation', () => {
                   shadow({ type: "math_angle", id: 'block0' }, [
                     field({ name: "NUM" }, [ 0 ]) ])]) ])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bset_servomotor_degree('V2', 0))]));
 
@@ -331,7 +375,7 @@ test('set_servomotor_degree (empty) notation', () => {
 
 test('set_servomotor_degree (1 + 2) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -352,8 +396,7 @@ test('set_servomotor_degree (1 + 2) notation', () => {
                       shadow({ type: "math_number", id: 'block1' }, [
                         field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bset_servomotor_degree('V2', Bplus(1, 2)))]));
 
@@ -370,7 +413,7 @@ test('set_servomotor_degree (1 + 2) notation', () => {
 
 test('set_dcmotor_power notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -384,8 +427,7 @@ test('set_dcmotor_power notation', () => {
                   shadow({ type: "math_number", id: 'block0' }, [
                     field({ name: "NUM" }, [ 0 ]) ])]) ])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bset_dcmotor_power('V0', 0))]));
 
@@ -402,7 +444,7 @@ test('set_dcmotor_power notation', () => {
 
 test('turn_dcmotor_on notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -414,8 +456,7 @@ test('turn_dcmotor_on notation', () => {
                 field({ name: "PORT" }, [ 'V0' ]),
                 field({ name: "DIRECTION" }, [ 'NORMAL' ]) ])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bturn_dcmotor_on('V0', 'NORMAL'))]));
 
@@ -432,7 +473,7 @@ test('turn_dcmotor_on notation', () => {
 
 test('turn_dcmotor_off notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -444,8 +485,7 @@ test('turn_dcmotor_off notation', () => {
                 field({ name: "PORT" }, [ 'V0' ]),
                 field({ name: "MODE" }, [ 'COAST' ]) ])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bturn_dcmotor_off('V0', 'COAST'))]));
 
@@ -462,7 +502,7 @@ test('turn_dcmotor_off notation', () => {
 
 test('buzzer_on (empty) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -476,8 +516,7 @@ test('buzzer_on (empty) notation', () => {
                   shadow({ type: "note", id: 'block0' }, [
                     field({ name: "NOTE" }, [ 0 ]) ])]) ])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bbuzzer_on('V2', 0))]));
 
@@ -494,7 +533,7 @@ test('buzzer_on (empty) notation', () => {
 
 test('buzzer_on (1 + 2) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -515,8 +554,7 @@ test('buzzer_on (1 + 2) notation', () => {
                       shadow({ type: "math_number", id: 'block1' }, [
                         field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bbuzzer_on('V2', Bplus(1, 2)))]));
 
@@ -533,7 +571,7 @@ test('buzzer_on (1 + 2) notation', () => {
 
 test('turn_led notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -545,8 +583,7 @@ test('turn_led notation', () => {
                 field({ name: "PORT" }, [ 'V2' ]),
                 field({ name: "MODE" }, [ 'ON' ]) ])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bturn_led('V2', 'ON'))]));
 
@@ -563,7 +600,7 @@ test('turn_led notation', () => {
 
 test('multi_led (1 + 2, 3 + 4, 5 + 6) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -603,8 +640,7 @@ test('multi_led (1 + 2, 3 + 4, 5 + 6) notation', () => {
                       shadow({ type: "math_number", id: 'block7' }, [
                         field({ name: "NUM" }, [ 6 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bmulti_led(Bplus(1, 2), Bplus(3, 4), Bplus(5, 6)))]));
 
@@ -621,7 +657,7 @@ test('multi_led (1 + 2, 3 + 4, 5 + 6) notation', () => {
 
 test('forever notation (empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -631,8 +667,7 @@ test('forever notation (empty)', () => {
             next({}, [
               block({ type: "forever", id: 'block0' }, [])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bforever())]));
 
@@ -648,7 +683,7 @@ test('forever notation (empty)', () => {
 
 test('forever notation (non empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -663,8 +698,7 @@ test('forever notation (non empty)', () => {
                       shadow({ type: "math_positive_number", id: 'block0' }, [
                         field({ name: "NUM" }, [ 999 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bforever(
             Bwait(999)))]));
@@ -681,7 +715,7 @@ test('forever notation (non empty)', () => {
 
 test('repeat notation (no count and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -694,8 +728,7 @@ test('repeat notation (no count and empty blocks)', () => {
                   shadow({ type: "math_whole_number", id: 'block0' }, [
                     field({ name: "NUM" })])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Brepeat(null, []))]));
 
@@ -711,7 +744,7 @@ test('repeat notation (no count and empty blocks)', () => {
 
 test('repeat notation (count == 1 and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -724,8 +757,7 @@ test('repeat notation (count == 1 and empty blocks)', () => {
                   shadow({ type: "math_whole_number", id: 'block0' }, [
                     field({ name: "NUM" }, [1])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Brepeat(1, []))]));
 
@@ -741,7 +773,7 @@ test('repeat notation (count == 1 and empty blocks)', () => {
 
 test('repeat notation (count == 1 and single block)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -759,8 +791,7 @@ test('repeat notation (count == 1 and single block)', () => {
                       shadow({ type: "math_positive_number", id: 'block0' }, [
                         field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Brepeat(1, [ Bwait(2) ]))]));
 
@@ -776,7 +807,7 @@ test('repeat notation (count == 1 and single block)', () => {
 
 test('repeat notation (count == 1 and two blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -801,8 +832,7 @@ test('repeat notation (count == 1 and two blocks)', () => {
                               field({ name: "NUM" }, [ 3 ])
                             ])])])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Brepeat(1, [ Bwait(2), Bwait(3) ]))]));
 
@@ -818,7 +848,7 @@ test('repeat notation (count == 1 and two blocks)', () => {
 
 test('function notation (no name and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -828,8 +858,7 @@ test('function notation (no name and empty blocks)', () => {
         block({ type: "function", id: 'block1', x: 10, y: 10 }, [
           field({ name: "FUNCTION" }, [])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(),
         Bfunction([], [])]));
 
@@ -845,7 +874,7 @@ test('function notation (no name and empty blocks)', () => {
 
 test('function notation (name == "f" and empty blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -855,8 +884,7 @@ test('function notation (name == "f" and empty blocks)', () => {
         block({ type: "function", id: 'block1', x: 10, y: 10 }, [
           field({ name: "FUNCTION" }, [ 'f' ])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(),
         Bfunction(['f'], [])]));
 
@@ -872,7 +900,7 @@ test('function notation (name == "f" and empty blocks)', () => {
 
 test('function notation (name == "f" and single block)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -888,8 +916,7 @@ test('function notation (name == "f" and single block)', () => {
                   shadow({ type: "math_positive_number", id: 'block1' }, [
                     field({ name: "NUM" }, [ 2 ]) ])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(),
         Bfunction(['f'], [ Bwait(2) ])]));
 
@@ -905,7 +932,7 @@ test('function notation (name == "f" and single block)', () => {
 
 test('function notation (name == "f" and two blocks)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -926,8 +953,7 @@ test('function notation (name == "f" and two blocks)', () => {
                       type: "math_positive_number", id: 'block3' }, [
                         field({ name: "NUM" }, [ 3 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(),
         Bfunction(['f'], [ Bwait(2), Bwait(3) ])]));
 
@@ -943,7 +969,7 @@ test('function notation (name == "f" and two blocks)', () => {
 
 test('call_function notation (no name)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -953,8 +979,7 @@ test('call_function notation (no name)', () => {
         block({ type: "call_function", id: 'block1', x: 10, y: 10 }, [
           field({ name: "FUNCTION" }, [ "NAME" ])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(),
         Bcall_function([ "NAME" ])]));
 
@@ -970,7 +995,7 @@ test('call_function notation (no name)', () => {
 
 test('wait(1 + 2) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -991,8 +1016,7 @@ test('wait(1 + 2) notation', () => {
                         field({ name: "NUM" }, [ 2 ]) ]) ])]) ])])])])]));
 
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bwait(Bplus(1, 2)))]));
 
@@ -1008,7 +1032,7 @@ test('wait(1 + 2) notation', () => {
 
 test('when_green_flag_clicked notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -1026,8 +1050,7 @@ test('when_green_flag_clicked notation', () => {
                       shadow({ type: "math_positive_number", id: 'block2' }, [
                         field({ name: "NUM" }, [ 2 ]) ])])])])])])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bwait(1),
           Bwait(2) )]));
@@ -1044,7 +1067,7 @@ test('when_green_flag_clicked notation', () => {
 
 test('light_sensor_value notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -1053,8 +1076,7 @@ test('light_sensor_value notation', () => {
           type: "light_sensor_value", id: 'block0', x: 10, y: 10 }, [
             field({ name: "PORT" }, [ "K2" ]) ])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Blight_sensor_value([ "K2" ]) ]));
 
     expect(dom1).toEqual(dom2);
@@ -1074,7 +1096,7 @@ test('light_sensor_value notation', () => {
 
 test('3_axis_digital_accelerometer_value notation', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom1 = j2e(
       xml({}, [
@@ -1085,8 +1107,7 @@ test('3_axis_digital_accelerometer_value notation', () => {
             field({ name: "PORT" }, [ "K2" ]),
             field({ name: "DIRECTION" }, [ "X" ])])]));
     const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         B3_axis_digital_accelerometer_value([ "K2" ], [ "X" ]) ]));
 
     expect(dom1).toEqual(dom2);
@@ -1107,16 +1128,61 @@ test('3_axis_digital_accelerometer_value notation', () => {
   }
 });
 
+test('variable/set_variabkle_to/change_variable_by notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  setup();
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, [
+          variable({
+            type: "",
+            id: 'block5',
+            islocal: "false",
+            iscloud: "false" }, [ 'x' ])]),
+        block({type: 'when_green_flag_clicked', id: 'block4', x: 10, y: 10 }, [
+          next({}, [
+            block({ type: "set_variable_to", id: 'block1' }, [
+              field({ name: "NAME" }, [ "VAR" ]),
+              value({ name: "VALUE" }, [
+                shadow({ type: "math_number", id: 'block0' }, [
+                  field({ name: "NUM" }, []) ])]),
+              next({}, [
+                block({ type: "change_variable_by", id: 'block3' }, [
+                  field({ name: "NAME" }, [ "VAR" ]),
+                  value({ name: "VALUE" }, [
+                    shadow({ type: "math_number", id: 'block2' }, [
+                      field({ name: "NUM" }, []) ])])])])])])]),
+        block({ type: "variable_ref", id: 'block6', x: 10, y: 10 }, [
+          field({
+            name: "NAME", id: 'block5', variabletype: '' }, [ "x" ]) ])]));
+    const dom2 = j2e(
+      Bxml({}, [
+        Bstart(
+          Bset_variable_to([ "VAR" ], null),
+          Bchange_variable_by([ "VAR" ], null) ),
+        Bvariable_ref([ "x" ], { x: 10, y: 10 })]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+  } finally {
+    workspace.dispose();
+  }
+});
+
 /*
  * Tests for when_green_flag_clicked is under construction.
  */
 
 test('when_green_flag_clicked with empty blocks', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bstart() ]));
+      Bxml({}, [ Bstart() ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1137,10 +1203,10 @@ test('when_green_flag_clicked with empty blocks', () => {
 
 test('1 + 2', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(1, 2) ]));
+      Bxml({}, [ Bplus(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1153,10 +1219,10 @@ test('1 + 2', () => {
 
 test('1 + (2 + 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(1, Bplus(2, 3)) ]));
+      Bxml({}, [ Bplus(1, Bplus(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1169,10 +1235,10 @@ test('1 + (2 + 3)', () => {
 
 test('(1 + 2) + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(Bplus(1, 2), 3) ]));
+      Bxml({}, [ Bplus(Bplus(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1185,10 +1251,10 @@ test('(1 + 2) + 3', () => {
 
 test('1 + (2 * 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(1, Bmultiply(2, 3)) ]));
+      Bxml({}, [ Bplus(1, Bmultiply(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1201,10 +1267,10 @@ test('1 + (2 * 3)', () => {
 
 test('(1 * 2) + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(Bmultiply(1, 2), 3) ]));
+      Bxml({}, [ Bplus(Bmultiply(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1217,10 +1283,10 @@ test('(1 * 2) + 3', () => {
 
 test('(1 + 2) * 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmultiply(Bplus(1, 2), 3) ]));
+      Bxml({}, [ Bmultiply(Bplus(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1233,10 +1299,10 @@ test('(1 + 2) * 3', () => {
 
 test('1 * (2 * 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmultiply(1, Bmultiply(2, 3)) ]));
+      Bxml({}, [ Bmultiply(1, Bmultiply(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1249,10 +1315,10 @@ test('1 * (2 * 3)', () => {
 
 test('(1 * 2) * 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmultiply(Bmultiply(1, 2), 3) ]));
+      Bxml({}, [ Bmultiply(Bmultiply(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1269,10 +1335,10 @@ test('(1 * 2) * 3', () => {
 
 test('1 - 2', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(1, 2) ]));
+      Bxml({}, [ Bminus(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1285,10 +1351,10 @@ test('1 - 2', () => {
 
 test('1 - (2 - 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(1, Bminus(2, 3)) ]));
+      Bxml({}, [ Bminus(1, Bminus(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1301,10 +1367,10 @@ test('1 - (2 - 3)', () => {
 
 test('(1 - 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(Bminus(1, 2), 3) ]));
+      Bxml({}, [ Bminus(Bminus(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1317,10 +1383,10 @@ test('(1 - 2) - 3', () => {
 
 test('1 - (2 / 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(1, Bdivide(2, 3)) ]));
+      Bxml({}, [ Bminus(1, Bdivide(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1333,10 +1399,10 @@ test('1 - (2 / 3)', () => {
 
 test('(1 / 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(Bdivide(1, 2), 3) ]));
+      Bxml({}, [ Bminus(Bdivide(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1349,10 +1415,10 @@ test('(1 / 2) - 3', () => {
 
 test('(1 - 2) / 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bdivide(Bminus(1, 2), 3) ]));
+      Bxml({}, [ Bdivide(Bminus(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1365,10 +1431,10 @@ test('(1 - 2) / 3', () => {
 
 test('1 / (2 / 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bdivide(1, Bdivide(2, 3)) ]));
+      Bxml({}, [ Bdivide(1, Bdivide(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1381,10 +1447,10 @@ test('1 / (2 / 3)', () => {
 
 test('(1 / 2) / 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bdivide(Bdivide(1, 2), 3) ]));
+      Bxml({}, [ Bdivide(Bdivide(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1397,10 +1463,10 @@ test('(1 / 2) / 3', () => {
 
 test('1 - (2 % 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(1, Bmod(2, 3)) ]));
+      Bxml({}, [ Bminus(1, Bmod(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1413,10 +1479,10 @@ test('1 - (2 % 3)', () => {
 
 test('(1 % 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(Bmod(1, 2), 3) ]));
+      Bxml({}, [ Bminus(Bmod(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1429,10 +1495,10 @@ test('(1 % 2) - 3', () => {
 
 test('(1 - 2) % 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmod(Bminus(1, 2), 3) ]));
+      Bxml({}, [ Bmod(Bminus(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1445,10 +1511,10 @@ test('(1 - 2) % 3', () => {
 
 test('1 * (2 % 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmultiply(1, Bmod(2, 3)) ]));
+      Bxml({}, [ Bmultiply(1, Bmod(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1461,10 +1527,10 @@ test('1 * (2 % 3)', () => {
 
 test('(1 % 2) * 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmultiply(Bmod(1, 2), 3) ]));
+      Bxml({}, [ Bmultiply(Bmod(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1477,10 +1543,10 @@ test('(1 % 2) * 3', () => {
 
 test('(1 * 2) % 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmod(Bmultiply(1, 2), 3) ]));
+      Bxml({}, [ Bmod(Bmultiply(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1497,10 +1563,10 @@ test('(1 * 2) % 3', () => {
 
 test('1 + (2 - 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(1, Bminus(2, 3)) ]));
+      Bxml({}, [ Bplus(1, Bminus(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1513,10 +1579,10 @@ test('1 + (2 - 3)', () => {
 
 test('(1 + 2) - 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(Bplus(1, 2), 3) ]));
+      Bxml({}, [ Bminus(Bplus(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1529,10 +1595,10 @@ test('(1 + 2) - 3', () => {
 
 test('1 * (2 / 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmultiply(1, Bdivide(2, 3)) ]));
+      Bxml({}, [ Bmultiply(1, Bdivide(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1545,10 +1611,10 @@ test('1 * (2 / 3)', () => {
 
 test('(1 * 2) / 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bdivide(Bmultiply(1, 2), 3) ]));
+      Bxml({}, [ Bdivide(Bmultiply(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1561,10 +1627,10 @@ test('(1 * 2) / 3', () => {
 
 test('round(1.5)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bround(1.5) ]));
+      Bxml({}, [ Bround(1.5) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1577,10 +1643,10 @@ test('round(1.5)', () => {
 
 test('1 + round(1.5)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(1, Bround(1.5)) ]));
+      Bxml({}, [ Bplus(1, Bround(1.5)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1593,10 +1659,10 @@ test('1 + round(1.5)', () => {
 
 test('round(1.5) - 1', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bminus(Bround(1.5), 1) ]));
+      Bxml({}, [ Bminus(Bround(1.5), 1) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1609,10 +1675,10 @@ test('round(1.5) - 1', () => {
 
 test('1 / (round(1.5) - 1)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bdivide(1, Bminus(Bround(1.5), 1)) ]));
+      Bxml({}, [ Bdivide(1, Bminus(Bround(1.5), 1)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1625,10 +1691,10 @@ test('1 / (round(1.5) - 1)', () => {
 
 test('1 * (round(1.5) * 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmultiply(1, Bmultiply(Bround(1.5), 2)) ]));
+      Bxml({}, [ Bmultiply(1, Bmultiply(Bround(1.5), 2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1645,10 +1711,10 @@ test('1 * (round(1.5) * 2)', () => {
 
 test('pick_random(1, 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bpick_random(1, 2) ]));
+      Bxml({}, [ Bpick_random(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1667,10 +1733,10 @@ import random\n\n\n\
 
 test('pick_random(1 + 2, 3 - 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bpick_random(Bplus(1, 2), Bminus(3, 4)) ]));
+      Bxml({}, [ Bpick_random(Bplus(1, 2), Bminus(3, 4)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1689,10 +1755,10 @@ import random\n\n\n\
 
 test('1 + pick_random(2, 3)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bplus(1, Bpick_random(2, 3)) ]));
+      Bxml({}, [ Bplus(1, Bpick_random(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1715,10 +1781,10 @@ import random\n\n\n\
 
 test('1 < 2', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bless_than(1, 2) ]));
+      Bxml({}, [ Bless_than(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1731,10 +1797,10 @@ test('1 < 2', () => {
 
 test('1 + 2 < 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bless_than(Bplus(1, 2), 3) ]));
+      Bxml({}, [ Bless_than(Bplus(1, 2), 3) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1747,10 +1813,10 @@ test('1 + 2 < 3', () => {
 
 test('1 < 2 + 3', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bless_than(1, Bplus(2, 3)) ]));
+      Bxml({}, [ Bless_than(1, Bplus(2, 3)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1763,10 +1829,10 @@ test('1 < 2 + 3', () => {
 
 test('1 + 2 < 3 - 4', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bless_than(Bplus(1, 2), Bminus(3, 4)) ]));
+      Bxml({}, [ Bless_than(Bplus(1, 2), Bminus(3, 4)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1779,10 +1845,10 @@ test('1 + 2 < 3 - 4', () => {
 
 test('1 <= 2', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bless_than_or_equal(1, 2) ]));
+      Bxml({}, [ Bless_than_or_equal(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1795,10 +1861,10 @@ test('1 <= 2', () => {
 
 test('1 == 2', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bequal(1, 2) ]));
+      Bxml({}, [ Bequal(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1811,10 +1877,10 @@ test('1 == 2', () => {
 
 test('1 > 2', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bgreater_than(1, 2) ]));
+      Bxml({}, [ Bgreater_than(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1827,10 +1893,10 @@ test('1 > 2', () => {
 
 test('1 >= 2', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bgreater_than_or_equal(1, 2) ]));
+      Bxml({}, [ Bgreater_than_or_equal(1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1843,10 +1909,10 @@ test('1 >= 2', () => {
 
 test('1 < 2 && 3 <= 4', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
+      Bxml({}, [ Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1859,10 +1925,10 @@ test('1 < 2 && 3 <= 4', () => {
 
 test('1 < 2 || 3 <= 4', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
+      Bxml({}, [ Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -1875,10 +1941,10 @@ test('1 < 2 || 3 <= 4', () => {
 
 test('(1 < 2 && 3 <= 4) || (5 > 6 && 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bor(
           Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
           Band(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
@@ -1894,10 +1960,10 @@ test('(1 < 2 && 3 <= 4) || (5 > 6 && 7 <= 8)', () => {
 
 test('(1 < 2 || 3 <= 4) && (5 > 6 || 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Band(
           Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
           Bor(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
@@ -1913,10 +1979,10 @@ test('(1 < 2 || 3 <= 4) && (5 > 6 || 7 <= 8)', () => {
 
 test('(1 < 2 && 3 <= 4) && (5 > 6 && 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Band(
           Band(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
           Band(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
@@ -1932,10 +1998,10 @@ test('(1 < 2 && 3 <= 4) && (5 > 6 && 7 <= 8)', () => {
 
 test('(1 < 2 || 3 <= 4) || (5 > 6 || 7 <= 8)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bor(
           Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4)),
           Bor(Bgreater_than(5, 6), Bgreater_than_or_equal(7, 8)) )]));
@@ -1951,10 +2017,10 @@ test('(1 < 2 || 3 <= 4) || (5 > 6 || 7 <= 8)', () => {
 
 test('not (1 < 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bnot(Bless_than(1, 2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -1968,10 +2034,10 @@ test('not (1 < 2)', () => {
 
 test('not (1 < 2) && not (3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Band(Bnot(Bless_than(1, 2)), Bnot(Bless_than_or_equal(3, 4))) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -1985,10 +2051,10 @@ test('not (1 < 2) && not (3 <= 4)', () => {
 
 test('not (1 < 2 && 3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bnot(Band(Bless_than(1, 2), Bless_than_or_equal(3, 4))) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -2002,10 +2068,10 @@ test('not (1 < 2 && 3 <= 4)', () => {
 
 test('not (1 < 2) || not (3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bor(Bnot(Bless_than(1, 2)), Bnot(Bless_than_or_equal(3, 4))) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -2019,10 +2085,10 @@ test('not (1 < 2) || not (3 <= 4)', () => {
 
 test('not (1 < 2 || 3 <= 4)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bnot(Bor(Bless_than(1, 2), Bless_than_or_equal(3, 4))) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -2040,10 +2106,10 @@ test('not (1 < 2 || 3 <= 4)', () => {
 
 test('wait(1)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bwait(1) ]));
+      Bxml({}, [ Bwait(1) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2063,10 +2129,10 @@ time.sleep(1)\n');
 
 test('wait(1 + 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bwait(Bplus(1, 2)) ]));
+      Bxml({}, [ Bwait(Bplus(1, 2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2092,10 +2158,10 @@ time.sleep(1 + 2)\n');
 
 test('set_servomotor_degree(V2, 1)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bset_servomotor_degree('V2', 1) ]));
+      Bxml({}, [ Bset_servomotor_degree('V2', 1) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2120,10 +2186,10 @@ V2.set_degree(1)\n');
 
 test('set_servomotor_degree(V2, 1 + 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bset_servomotor_degree('V2', Bplus(1, 2)) ]));
+      Bxml({}, [ Bset_servomotor_degree('V2', Bplus(1, 2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2154,10 +2220,10 @@ V2.set_degree(1 + 2)\n');
 
 test('set_dcmotor_power(V0, 1)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bset_dcmotor_power('V0', 1) ]));
+      Bxml({}, [ Bset_dcmotor_power('V0', 1) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2182,10 +2248,10 @@ V0.set_power(1)\n');
 
 test('set_dcmotor_power(V0, 1 + 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bset_dcmotor_power('V0', Bplus(1, 2)) ]));
+      Bxml({}, [ Bset_dcmotor_power('V0', Bplus(1, 2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2216,10 +2282,10 @@ V0.set_power(1 + 2)\n');
 
 test('turn_dcmotor_on(V0, NORMAL)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bturn_dcmotor_on('V0', 'NORMAL') ]));
+      Bxml({}, [ Bturn_dcmotor_on('V0', 'NORMAL') ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2247,10 +2313,10 @@ V0.set_mode(koov.dc_motor.NORMAL)\n');
 
 test('turn_dcmotor_off(V0, COAST)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bturn_dcmotor_off('V0', 'COAST') ]));
+      Bxml({}, [ Bturn_dcmotor_off('V0', 'COAST') ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2278,10 +2344,10 @@ V0.set_mode(koov.dc_motor.COAST)\n');
 
 test('buzzer_on(V2, 1)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bbuzzer_on('V2', 1) ]));
+      Bxml({}, [ Bbuzzer_on('V2', 1) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2306,10 +2372,10 @@ V2.on(1)\n');
 
 test('buzzer_on(V2, 1 + 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bbuzzer_on('V2', Bplus(1, 2)) ]));
+      Bxml({}, [ Bbuzzer_on('V2', Bplus(1, 2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2340,10 +2406,10 @@ V2.on(1 + 2)\n');
 
 test('buzzer_off(V2, 1)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bbuzzer_off('V2') ]));
+      Bxml({}, [ Bbuzzer_off('V2') ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2371,10 +2437,10 @@ V2.off()\n');
 
 test('turn_led(V2, ON)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bturn_led('V2', 'ON') ]));
+      Bxml({}, [ Bturn_led('V2', 'ON') ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2394,7 +2460,7 @@ V2.on()\n');
 
     expect(() => {
       const dom = j2e(
-        xml({}, [
+        Bxml({}, [
           Bturn_led("V2", "NONE") ]));
       ScratchBlocks.Xml.domToWorkspace(dom, workspace);
       ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
@@ -2406,10 +2472,10 @@ V2.on()\n');
 
 test('turn_led(V2, OFF)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bturn_led('V2', 'OFF') ]));
+      Bxml({}, [ Bturn_led('V2', 'OFF') ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2433,10 +2499,10 @@ V2.off()\n');
 
 test('multi_led(0, 1, 2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmulti_led(0, 1, 2) ]));
+      Bxml({}, [ Bmulti_led(0, 1, 2) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2463,10 +2529,10 @@ RGB.on(0, 1, 2)\n');
 
 test('multi_led(1 + 2, 3 + 4, 5 + 6)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bmulti_led(Bplus(1, 2), Bplus(3, 4), Bplus(5, 6)) ]));
+      Bxml({}, [ Bmulti_led(Bplus(1, 2), Bplus(3, 4), Bplus(5, 6)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -2503,10 +2569,10 @@ RGB.on(1 + 2, 3 + 4, 5 + 6)\n');
 
 test('light_sensor_value(K2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Blight_sensor_value([ "K2" ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -2531,10 +2597,10 @@ K2.value\n');
 
 test('light_sensor_value(K2) in wait block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bwait(Bplus(1, Blight_sensor_value([ "K2" ]))) )]));
 
@@ -2570,10 +2636,10 @@ def main():\n\
 
 test('sound_sensor_value(K2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bsound_sensor_value([ "K2" ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -2598,10 +2664,10 @@ K2.value\n');
 
 test('sound_sensor_value(K2) in wait block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bwait(Bplus(1, Bsound_sensor_value([ "K2" ]))) )]));
 
@@ -2637,10 +2703,10 @@ def main():\n\
 
 test('ir_photo_reflector_value(K2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bir_photo_reflector_value([ "K2" ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -2665,10 +2731,10 @@ K2.value\n');
 
 test('ir_photo_reflector_value(K2) in wait block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bwait(Bplus(1, Bir_photo_reflector_value([ "K2" ]))) )]));
 
@@ -2704,10 +2770,10 @@ def main():\n\
 
 test('ultrasonic_distance_sensor_value(K2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bultrasonic_distance_sensor([ "K2" ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -2732,10 +2798,10 @@ K2.value\n');
 
 test('ultrasonic_distance_sensor_value(K2) in wait block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bwait(Bplus(1, Bultrasonic_distance_sensor([ "K2" ]))) )]));
 
@@ -2771,10 +2837,10 @@ def main():\n\
 
 test('3_axis_digital_accelerometer_value(K0)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         B3_axis_digital_accelerometer_value([ "K0" ], [ "X" ]),
         B3_axis_digital_accelerometer_value([ "K0" ], [ "Y" ]),
         B3_axis_digital_accelerometer_value([ "K0" ], [ "Z" ]) ]));
@@ -2807,10 +2873,10 @@ K0.z\n');
 
 test('3_axis_digital_accelerometer_value(K0) in wait block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bwait(
             Bplus(1, B3_axis_digital_accelerometer_value([ "K0" ], [ "X" ]))),
@@ -2862,10 +2928,10 @@ def main():\n\
 
 test('color_sensor_value(K0)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bcolor_sensor_value([ "K0" ], [ "R" ]),
         Bcolor_sensor_value([ "K0" ], [ "G" ]),
         Bcolor_sensor_value([ "K0" ], [ "B" ]) ]));
@@ -2898,10 +2964,10 @@ K0.b\n');
 
 test('color_sensor_value(K0) in wait block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bwait(
             Bplus(1, Bcolor_sensor_value([ "K0" ], [ "R" ]))),
@@ -2952,10 +3018,10 @@ def main():\n\
 
 test('touch_sensor_value(K2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Btouch_sensor_value([ "K2" ], [ "ON" ]),
         Btouch_sensor_value([ "K2" ], [ "OFF" ])]));
 
@@ -2984,10 +3050,10 @@ K2.value != 0\n');
 
 test('touch_sensor_value(K2) in if_then block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bif_then([ Btouch_sensor_value([ "K2" ], [ "ON" ]) ], []),
           Bif_then([ Btouch_sensor_value([ "K2" ], [ "OFF" ]) ], []) )]));
@@ -3022,10 +3088,10 @@ def main():\n\
 
 test('touch_sensor_value(K2) in if_then not block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bif_then([ Bnot(Btouch_sensor_value([ "K2" ], [ "ON" ])) ], []),
           Bif_then([
@@ -3059,7 +3125,7 @@ def main():\n\
 
     expect(() => {
       const dom = j2e(
-        xml({}, [
+        Bxml({}, [
           Btouch_sensor_value([ "K2" ], [ "NONE" ]) ]));
       ScratchBlocks.Xml.domToWorkspace(dom, workspace);
       ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
@@ -3075,10 +3141,10 @@ def main():\n\
 
 test('button_value(K2)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bbutton_value([ "K2" ], [ "ON" ]),
         Bbutton_value([ "K2" ], [ "OFF" ])]));
 
@@ -3107,10 +3173,10 @@ K2.value != 0\n');
 
 test('button_value(K2) in if_then block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bif_then([ Bbutton_value([ "K2" ], [ "ON" ]) ], []),
           Bif_then([ Bbutton_value([ "K2" ], [ "OFF" ]) ], []) )]));
@@ -3145,10 +3211,10 @@ def main():\n\
 
 test('button_value(K2) in if_then not block', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Bif_then([ Bnot(Bbutton_value([ "K2" ], [ "ON" ])) ], []),
           Bif_then([
@@ -3182,7 +3248,7 @@ def main():\n\
 
     expect(() => {
       const dom = j2e(
-        xml({}, [
+        Bxml({}, [
           Bbutton_value([ "K2" ], [ "NONE" ]) ]));
       ScratchBlocks.Xml.domToWorkspace(dom, workspace);
       ScratchBlocks.Python.workspaceToCode(workspace); }).toThrow(
@@ -3198,10 +3264,10 @@ def main():\n\
 
 test('timer and reset_timer', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bstart(
           Breset_timer(),
           Bwait_until([ Bgreater_than(Btimer(), 5) ], []) )]));
@@ -3238,10 +3304,10 @@ def main():\n\
 
 test('forever(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bforever() ]));
+      Bxml({}, [ Bforever() ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3254,10 +3320,10 @@ test('forever(empty)', () => {
 
 test('forever(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bforever(Bwait(1)) ]));
+      Bxml({}, [ Bforever(Bwait(1)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3273,10 +3339,10 @@ while True:\n\
 
 test('forever(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bforever(Bwait(1), Bwait(2)) ]));
+      Bxml({}, [ Bforever(Bwait(1), Bwait(2)) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3293,10 +3359,10 @@ while True:\n\
 
 test('nested forever(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bforever(
           Bwait(1),
           Bwait(2),
@@ -3326,10 +3392,10 @@ while True:\n\
 
 test('repeat(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Brepeat(1, []) ]));
+      Bxml({}, [ Brepeat(1, []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3342,10 +3408,10 @@ test('repeat(empty)', () => {
 
 test('repeat(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Brepeat(Bplus(1, 2), [ Bwait(1) ]) ]));
+      Bxml({}, [ Brepeat(Bplus(1, 2), [ Bwait(1) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3361,10 +3427,10 @@ for _ in range(1 + 2):\n\
 
 test('repeat(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Brepeat(1, [ Bwait(1), Bwait(2) ]) ]));
+      Bxml({}, [ Brepeat(1, [ Bwait(1), Bwait(2) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3381,10 +3447,10 @@ for _ in range(1):\n\
 
 test('nested repeat(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Brepeat(1, [
           Bwait(1),
           Bwait(2),
@@ -3414,10 +3480,10 @@ for _ in range(1):\n\
 
 test('repeat_until(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Brepeat_until([ Bequal(1, 0) ], []) ]));
+      Bxml({}, [ Brepeat_until([ Bequal(1, 0) ], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3430,10 +3496,10 @@ test('repeat_until(empty)', () => {
 
 test('repeat_until(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Brepeat_until([ Band(Bequal(1, 0), Bequal(2, 3)) ], [ Bwait(1) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -3450,10 +3516,10 @@ while not (1 == 0 and 2 == 3):\n\
 
 test('repeat_until(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Brepeat_until([ Bequal(1, 0) ], [ Bwait(1), Bwait(2) ]) ]));
+      Bxml({}, [ Brepeat_until([ Bequal(1, 0) ], [ Bwait(1), Bwait(2) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3470,10 +3536,10 @@ while not 1 == 0:\n\
 
 test('nested repeat_until(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Brepeat_until([ Bequal(1, 0) ], [
           Bwait(1),
           Bwait(2),
@@ -3503,10 +3569,10 @@ while not 1 == 0:\n\
 
 test('wait_until(empty condition)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bwait_until([], []) ]));
+      Bxml({}, [ Bwait_until([], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3520,10 +3586,10 @@ test('wait_until(empty condition)', () => {
 
 test('wait_until(non empty condition)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bwait_until([ Bequal(1, 0) ], []) ]));
+      Bxml({}, [ Bwait_until([ Bequal(1, 0) ], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3543,10 +3609,10 @@ while not 1 == 0:\n\
 
 test('function(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bfunction('f', []) ]));
+      Bxml({}, [ Bfunction('f', []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3567,11 +3633,10 @@ def f_f():\n\
 
 test('function(reserved symbol name)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bfunction('main', []),
         Bstart() ]));
 
@@ -3597,10 +3662,10 @@ def main():\n\
 
 test('function(conflicting function name)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bfunction('f', [ Bwait(1) ]),
         Bfunction('f ', [ Bwait(2) ]),
         Bfunction('$f', [ Bwait(3) ])]));
@@ -3644,11 +3709,10 @@ def f_f2():\n\
 
 test('function(empty) and start', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bwait(1),
           Bwait(2) ),
@@ -3686,10 +3750,10 @@ def f_f():\n\
 
 test('function(with single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bfunction('f', [ Bwait(1) ]) ]));
+      Bxml({}, [ Bfunction('f', [ Bwait(1) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3705,10 +3769,10 @@ def f_f():\n\
 
 test('function(with two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bfunction('f', [ Bwait(1), Bwait(2) ]) ]));
+      Bxml({}, [ Bfunction('f', [ Bwait(1), Bwait(2) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3725,11 +3789,10 @@ def f_f():\n\
 
 test('function(empty) and call_function', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bstart(
           Bcall_function('f') ),
         Bfunction('f', []) ]));
@@ -3756,11 +3819,10 @@ def f_f():\n\
 
 test('function contains call_function', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
-        variables({}, []),
+      Bxml({}, [
         Bfunction('f', [
           Bcall_function('f') ])]));
 
@@ -3785,10 +3847,10 @@ def f_f():\n\
 
 test('if then(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then([ Bless_than(1, 2) ], []) ]));
+      Bxml({}, [ Bif_then([ Bless_than(1, 2) ], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3801,10 +3863,10 @@ test('if then(empty)', () => {
 
 test('if then(single wait)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3) ]) ]));
+      Bxml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3820,10 +3882,10 @@ if 1 < 2:\n\
 
 test('if then(two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3), Bwait(4) ]) ]));
+      Bxml({}, [ Bif_then([ Bless_than(1, 2) ], [ Bwait(3), Bwait(4) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3840,10 +3902,10 @@ if 1 < 2:\n\
 
 test('if then(nested two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bif_then([ Bless_than(1, 2) ], [
           Bwait(3),
           Bwait(4),
@@ -3873,10 +3935,10 @@ if 1 < 2:\n\
 
 test('if then else(empty)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], []) ]));
+      Bxml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3893,10 +3955,10 @@ else:\n\
 
 test('if then else(single wait in then clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [ Bwait(3) ], []) ]));
+      Bxml({}, [ Bif_then_else([ Bless_than(1, 2) ], [ Bwait(3) ], []) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3914,10 +3976,10 @@ else:\n\
 
 test('if then else(single wait in else clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], [ Bwait(3) ]) ]));
+      Bxml({}, [ Bif_then_else([ Bless_than(1, 2) ], [], [ Bwait(3) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
@@ -3935,10 +3997,10 @@ else:\n\
 
 test('if then else(single wait in both clause)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bif_then_else([ Bless_than(1, 2) ], [ Bwait(3) ], [ Bwait(4) ]) ]));
 
     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
@@ -3957,10 +4019,10 @@ else:\n\
 
 test('if then else(two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bif_then_else(
           [ Bless_than(1, 2) ],
           [ Bwait(3), Bwait(4) ],
@@ -3984,10 +4046,10 @@ else:\n\
 
 test('if then else(nested two waits)', () => {
   const workspace = new ScratchBlocks.Workspace();
-  id = 0;
+  setup();
   try {
     const dom = j2e(
-      xml({}, [
+      Bxml({}, [
         Bif_then_else(
           [ Bless_than(1, 2) ],
           [
