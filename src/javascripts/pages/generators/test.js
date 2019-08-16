@@ -288,11 +288,11 @@ test('wait notation (single)', with_ws((workspace) => {
       Bstart(
         Bwait(999))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -318,11 +318,11 @@ test('wait notation (double)', with_ws((workspace) => {
         Bwait(1),
         Bwait(2))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 
   expect(() => {
@@ -357,11 +357,11 @@ test('set_servomotor_degree (empty) notation', with_ws((workspace) => {
       Bstart(
         Bset_servomotor_degree('V2', 0))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -389,11 +389,11 @@ test('set_servomotor_degree (1 + 2) notation', with_ws((workspace) => {
       Bstart(
         Bset_servomotor_degree('V2', Bplus(1, 2)))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -414,11 +414,11 @@ test('set_dcmotor_power notation', with_ws((workspace) => {
       Bstart(
         Bset_dcmotor_power('V0', 0))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -437,11 +437,11 @@ test('turn_dcmotor_on notation', with_ws((workspace) => {
       Bstart(
         Bturn_dcmotor_on('V0', 'NORMAL'))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -460,11 +460,11 @@ test('turn_dcmotor_off notation', with_ws((workspace) => {
       Bstart(
         Bturn_dcmotor_off('V0', 'COAST'))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -485,11 +485,11 @@ test('buzzer_on (empty) notation', with_ws((workspace) => {
       Bstart(
         Bbuzzer_on('V2', 0))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -517,11 +517,11 @@ test('buzzer_on (1 + 2) notation', with_ws((workspace) => {
       Bstart(
         Bbuzzer_on('V2', Bplus(1, 2)))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -540,11 +540,11 @@ test('turn_led notation', with_ws((workspace) => {
       Bstart(
         Bturn_led('V2', 'ON'))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -591,11 +591,11 @@ test('multi_led (1 + 2, 3 + 4, 5 + 6) notation', with_ws((workspace) => {
       Bstart(
         Bmulti_led(Bplus(1, 2), Bplus(3, 4), Bplus(5, 6)))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
   //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 }));
 
@@ -612,11 +612,11 @@ test('forever notation (empty)', with_ws((workspace) => {
       Bstart(
         Bforever())]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('forever notation (non empty)', with_ws((workspace) => {
@@ -638,11 +638,11 @@ test('forever notation (non empty)', with_ws((workspace) => {
         Bforever(
           Bwait(999)))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('repeat notation (no count and empty blocks)', with_ws((workspace) => {
@@ -661,11 +661,11 @@ test('repeat notation (no count and empty blocks)', with_ws((workspace) => {
       Bstart(
         Brepeat(null, []))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('repeat notation (count == 1 and empty blocks)', with_ws((workspace) => {
@@ -684,11 +684,11 @@ test('repeat notation (count == 1 and empty blocks)', with_ws((workspace) => {
       Bstart(
         Brepeat(1, []))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('repeat notation (count == 1 and single block)', with_ws((workspace) => {
@@ -712,11 +712,11 @@ test('repeat notation (count == 1 and single block)', with_ws((workspace) => {
       Bstart(
         Brepeat(1, [ Bwait(2) ]))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('repeat notation (count == 1 and two blocks)', with_ws((workspace) => {
@@ -747,11 +747,11 @@ test('repeat notation (count == 1 and two blocks)', with_ws((workspace) => {
       Bstart(
         Brepeat(1, [ Bwait(2), Bwait(3) ]))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('function notation (no name and empty blocks)', with_ws((workspace) => {
@@ -767,11 +767,11 @@ test('function notation (no name and empty blocks)', with_ws((workspace) => {
       Bstart(),
       Bfunction([], [])]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('function notation (name == "f" and empty blocks)', with_ws((workspace) => {
@@ -787,11 +787,11 @@ test('function notation (name == "f" and empty blocks)', with_ws((workspace) => 
       Bstart(),
       Bfunction(['f'], [])]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('function notation (name == "f" and single block)', with_ws((workspace) => {
@@ -813,11 +813,11 @@ test('function notation (name == "f" and single block)', with_ws((workspace) => 
       Bstart(),
       Bfunction(['f'], [ Bwait(2) ])]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('function notation (name == "f" and two blocks)', with_ws((workspace) => {
@@ -844,11 +844,11 @@ test('function notation (name == "f" and two blocks)', with_ws((workspace) => {
       Bstart(),
       Bfunction(['f'], [ Bwait(2), Bwait(3) ])]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('call_function notation (no name)', with_ws((workspace) => {
@@ -864,11 +864,11 @@ test('call_function notation (no name)', with_ws((workspace) => {
       Bstart(),
       Bcall_function([ "NAME" ])]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('wait(1 + 2) notation', with_ws((workspace) => {
@@ -895,11 +895,11 @@ test('wait(1 + 2) notation', with_ws((workspace) => {
       Bstart(
         Bwait(Bplus(1, 2)))]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('when_green_flag_clicked notation', with_ws((workspace) => {
@@ -924,11 +924,11 @@ test('when_green_flag_clicked notation', with_ws((workspace) => {
         Bwait(1),
         Bwait(2) )]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('light_sensor_value notation', with_ws((workspace) => {
@@ -942,11 +942,11 @@ test('light_sensor_value notation', with_ws((workspace) => {
     Bxml({}, [
       Blight_sensor_value([ "K2" ]) ]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 
   expect(() => { Blight_sensor_value(); }).toThrow(
     (/^Number of args 0 does not match with fields: PORT$/));
@@ -967,11 +967,11 @@ test('3_axis_digital_accelerometer_value notation', with_ws((workspace) => {
     Bxml({}, [
       B3_axis_digital_accelerometer_value([ "K2" ], [ "X" ]) ]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 
   expect(() => { B3_axis_digital_accelerometer_value(); }).toThrow(
     (/^Number of args 0 does not match with fields: PORT,DIRECTION$/));
@@ -1014,11 +1014,11 @@ test('variable/set_variabkle_to/change_variable_by notation', with_ws((workspace
         Bchange_variable_by([ "VAR" ], null) ),
       Bvariable_ref([ "x" ], { x: 10, y: 10 })]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 test('two variable notation', with_ws((workspace) => {
@@ -1046,11 +1046,11 @@ test('two variable notation', with_ws((workspace) => {
       Bvariable_ref([ "x" ], { x: 10, y: 10 }),
       Bvariable_ref([ "y" ], { x: 10, y: 10 })]));
 
-  expect(dom1).toEqual(dom2);
+  expect(dom2).toEqual(dom1);
   ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
   const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-  expect(dom2).toEqual(dom3);
+  expect(dom3).toEqual(dom2);
 }));
 
 /*
