@@ -1173,6 +1173,44 @@ test('variable/set_variabkle_to/change_variable_by notation', () => {
   }
 });
 
+test('two variable notation', () => {
+  const workspace = new ScratchBlocks.Workspace();
+  setup();
+  try {
+    const dom1 = j2e(
+      xml({}, [
+        variables({}, [
+          variable({
+            type: "",
+            id: 'block0',
+            islocal: "false",
+            iscloud: "false" }, [ 'x' ]),
+          variable({
+            type: "",
+            id: 'block2',
+            islocal: "false",
+            iscloud: "false" }, [ 'y' ])]),
+        block({ type: "variable_ref", id: 'block1', x: 10, y: 10 }, [
+          field({
+            name: "NAME", id: 'block0', variabletype: '' }, [ "x" ]) ]),
+        block({ type: "variable_ref", id: 'block3', x: 10, y: 10 }, [
+          field({
+            name: "NAME", id: 'block2', variabletype: '' }, [ "y" ]) ])]));
+    const dom2 = j2e(
+      Bxml({}, [
+        Bvariable_ref([ "x" ], { x: 10, y: 10 }),
+        Bvariable_ref([ "y" ], { x: 10, y: 10 })]));
+
+    expect(dom1).toEqual(dom2);
+    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+
+    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+    expect(dom2).toEqual(dom3);
+  } finally {
+    workspace.dispose();
+  }
+});
+
 /*
  * Tests for when_green_flag_clicked is under construction.
  */
