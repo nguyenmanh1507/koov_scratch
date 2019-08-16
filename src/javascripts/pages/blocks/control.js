@@ -33,9 +33,9 @@ ScratchBlocks.Blocks['function'] = {
           text: 'function',
         },
         {
-          type: 'field_input',
+          type: 'field_variable',
           name: 'FUNCTION',
-          text: '',
+          variableTypes: ['function'],
         },
       ],
       message1: '%1',
@@ -51,9 +51,9 @@ ScratchBlocks.Blocks['call_function'] = {
       message0: 'call function %1',
       args0: [
         {
-          type: 'field_dropdown',
+          type: 'field_variable_getter',
           name: 'FUNCTION',
-          options: [['NAME', 'NAME']],
+          variableType: 'function',
         },
       ],
       extensions: ['shape_statement'],

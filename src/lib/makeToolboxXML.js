@@ -8,8 +8,6 @@ const control = () => {
   return `
   <category name="%{BKY_CATEGORY_CONTROL}" id="control" colour="#2cc3ea" secondaryColour="#2cc3ea">
     <block type="when_green_flag_clicked"></block>
-    <block type="function"></block>
-    <block type="call_function"></block>
     <block type="wait">
       <value name="SECS">
         <shadow type="math_positive_number">
@@ -258,17 +256,9 @@ const variable = () => {
 
 const koovFunction = () => {
   return `
-  <category name="Function" id="koovFunction" custom="KOOV_VARIABLES" colour="#f27f62" secondaryColour="#f27f62"></category>
+  <category name="Function" id="koovFunctions" custom="KOOV_FUNCTIONS" colour="#2cc3ea" secondaryColour="#2cc3ea"></category>
   `;
 };
-
-// const customVar = () => {
-//   return `<category name="CustomVar" id="customVar" custom="VARIABLE" colour="#f27f62" secondaryColour="#f27f62"></category>`;
-// };
-
-// const customFunc = () => {
-//   return `<category name="Variables" id="koovVariables" custom="KOOV_VARIABLES" colour="#f27f62" secondaryColour="#f27f62"></category>`;
-// };
 
 const xmlOpen = '<xml style="display: none">';
 const xmlClose = '</xml>';
@@ -276,8 +266,6 @@ const xmlClose = '</xml>';
 const makeToolboxXML = () => {
   return [
     xmlOpen,
-    // customFunc(),
-    // customVar(),
     control(),
     motion(),
     sensing(),

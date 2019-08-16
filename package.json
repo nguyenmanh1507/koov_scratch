@@ -6,7 +6,8 @@
     "start": "webpack-dev-server --hot --history-api-fallback --host 0.0.0.0 --port 4001 --config webpack.dev.js",
     "test": "jest",
     "flow": "flow",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "styleguide": "npx styleguidist server"
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
@@ -16,6 +17,7 @@
     "react-dom": "^16.8.6",
     "react-hot-loader": "^4.8.4",
     "react-modal": "^3.9.1",
+    "react-styleguidist": "^9.1.14",
     "scratch-blocks": "^0.1.0-prerelease.1561987297",
     "scratch-gui": "^0.1.0-prerelease.20190417215243",
     "styled-components": "^4.3.2"

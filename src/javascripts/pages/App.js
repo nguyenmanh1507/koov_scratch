@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
-import isEmpty from 'lodash/isEmpty';
 import Modal, { Props as ModalProps } from 'react-modal';
+
 import {
   ScratchBlocks,
   // makeToolBox
@@ -9,6 +9,8 @@ import {
 import makeToolboxXML from '../../lib/makeToolboxXML';
 import Prompt from '../components/Prompt';
 import KoovVariables from '../dynamic-categories/koov-variables';
+import KoovFunctions from '../dynamic-categories/koov-functions';
+import LEDMatrixPrompt from '../components/LEDMatrixPrompt';
 
 Modal.setAppElement('#main');
 
@@ -18,6 +20,8 @@ type State = {
     callback: ModalProps.callback,
     message: string,
     defaultValue?: string,
+    optTitle: string,
+    optVarType: string,
   },
 };
 class App extends React.Component<Props, State> {
@@ -40,9 +44,14 @@ class App extends React.Component<Props, State> {
       readOnly: false,
     });
 
+    // register koov dynamic categories
     this.workspace.registerToolboxCategoryCallback(
       'KOOV_VARIABLES',
       KoovVariables.variablesCategory
+    );
+    this.workspace.registerToolboxCategoryCallback(
+      'KOOV_FUNCTIONS',
+      KoovFunctions.FunctionsCategory
     );
 
     this.workspace.updateToolbox(makeToolboxXML());
@@ -59,12 +68,12 @@ class App extends React.Component<Props, State> {
     ScratchBlocks.prompt = (
       message,
       defaultValue,
-      callback
-      // optTitle,
-      // optVarType
+      callback,
+      optTitle,
+      optVarType
     ) => {
       this.setState({
-        prompt: { callback, message, defaultValue },
+        prompt: { callback, message, defaultValue, optTitle, optVarType },
       });
     };
   }
@@ -80,7 +89,6 @@ class App extends React.Component<Props, State> {
 
     if (prompt) {
       prompt.callback(value);
-      console.info('callback');
     }
     this.handleRequestClose();
   };
@@ -104,29 +112,16 @@ class App extends React.Component<Props, State> {
     console.info(code);
   }
 
-  handleTestClick = () => {
-    console.info({ workspace: this.workspace.getAllVariables() });
-  };
-
   render() {
     const { prompt } = this.state;
+    const isOpenPrompt = prompt ? prompt.optVarType !== 'led' : false;
+    const isOpenLEDPrompt = prompt ? prompt.optVarType === 'led' : false;
 
     return (
       <React.Fragment>
         <div className={'button'} onClick={this.onClick.bind(this)}>
           toCode
         </div>
-        <button
-          style={{
-            position: 'absolute',
-            top: 20,
-            right: 20,
-            zIndex: 100,
-          }}
-          onClick={this.handleTestClick}
-        >
-          Test
-        </button>
         <div className={'scratch-blocks-overlay'} />
         <div
           className={'scratch-canvas'}
@@ -136,7 +131,13 @@ class App extends React.Component<Props, State> {
         />
         <Prompt
           label={prompt ? prompt.message : ''}
-          isOpen={!isEmpty(prompt)}
+          isOpen={isOpenPrompt}
+          onRequestClose={this.handleRequestClose}
+          onOk={this.handlePromptCallback}
+        />
+        <LEDMatrixPrompt
+          label={prompt ? prompt.message : ''}
+          isOpen={isOpenLEDPrompt}
           onRequestClose={this.handleRequestClose}
           onOk={this.handlePromptCallback}
         />

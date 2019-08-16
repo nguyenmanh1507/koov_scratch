@@ -4,13 +4,12 @@ import escape from 'lodash/escape';
 
 const KoovVariables = {};
 
-ScratchBlocks.LED_VARIABLE_TYPE = 'led';
 ScratchBlocks.Msg.NEW_LED = 'Make a led';
 ScratchBlocks.Msg.NEW_LED_TITLE = 'New led name:';
 ScratchBlocks.DEFAULT_LIST_ITEM = '';
 ScratchBlocks.Msg.DEFAULT_LIST_ITEM = '';
 
-KoovVariables.variablesCategory = function(workspace: any) {
+KoovVariables.variablesCategory = function(workspace: ScratchBlocks) {
   let variableModelList = workspace.getVariablesOfType('');
   variableModelList.sort(ScratchBlocks.VariableModel.compareByName);
   const xmlList = [];
@@ -70,6 +69,16 @@ KoovVariables.variablesCategory = function(workspace: any) {
   variableModelList = workspace.getVariablesOfType(
     ScratchBlocks.LED_VARIABLE_TYPE
   );
+  variableModelList.sort(ScratchBlocks.VariableModel.compareByName);
+  for (let i = 0; i < variableModelList.length; i++) {
+    KoovVariables.addDataLed(xmlList, variableModelList[i]);
+  }
+
+  if (variableModelList.length > 0) {
+    xmlList[xmlList.length - 1].setAttribute('gap', 24);
+    const firstVariable = variableModelList[0];
+    KoovVariables.addLedMatrix(xmlList, firstVariable);
+  }
 
   return xmlList;
 };
@@ -82,8 +91,6 @@ KoovVariables.createVariableButtonHandler = function(
   // const
   const type = opt_type || '';
   let msg = '';
-
-  console.info(ScratchBlocks.Msg);
 
   const promptAndCheckWithAlert = function(defaultName: string) {
     KoovVariables.promptName(
@@ -481,6 +488,41 @@ KoovVariables.addListContainsItem = function(
   ]);
 };
 
+KoovVariables.addDataLed = function(xmlList: Array<Object>, variable: Object) {
+  // <block id="ledId" type="led_ref">
+  //    <field name="LED">ledname</field>
+  // </block>
+  KoovVariables.addBlock(xmlList, variable, 'led_ref', 'LED');
+  // In the flyout, this ID must match variable ID for monitor syncing reasons
+  xmlList[xmlList.length - 1].setAttribute('id', variable.getId());
+};
+
+KoovVariables.addLedMatrix = function(
+  xmlList: Array<Object>,
+  variable: Object
+) {
+  // <block id="ledId" type="led_matrix">
+  //   <field name="LED">ledname</field>
+  //   <field name="PORT">port</field>
+  //   <value name="X">
+  //     <shadow type="math_integer">
+  //        <field name="NUM">0</field>
+  //     </shadow>
+  //     <shadow type="math_integer">
+  //        <field name="NUM">0</field>
+  //     </shadow>
+  //   </value>
+  // </block>
+  KoovVariables.addBlock(
+    xmlList,
+    variable,
+    'led_matrix',
+    'IMAGE',
+    ['X', 'math_integer', 0],
+    ['Y', 'math_integer', 0]
+  );
+};
+
 KoovVariables.addBlock = function(
   xmlList: Array<any>,
   variable: Object,
@@ -536,6 +578,8 @@ KoovVariables.createValue = function(
       fieldName = 'TEXT';
       break;
     case 'POSITION':
+    case 'X':
+    case 'Y':
       fieldName = 'NUM';
       break;
     case 'VALUE':

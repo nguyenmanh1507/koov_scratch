@@ -235,6 +235,26 @@ ScratchBlocks.Blocks['list_contain'] = {
   },
 };
 
+ScratchBlocks.Blocks['led_ref'] = {
+  init: function() {
+    this.jsonInit({
+      message0: '%1',
+      lastDummyAlign0: 'CENTRE',
+      args0: [
+        {
+          type: 'field_variable_getter',
+          text: '',
+          name: 'LED',
+          variableType: ['led'],
+        },
+      ],
+      checkboxInFlyout: true,
+      extensions: ['contextMenu_getVariableBlock', 'output_string'],
+      colour: COLOUR,
+    });
+  },
+};
+
 ScratchBlocks.Blocks['led_matrix'] = {
   init: function() {
     this.jsonInit({
@@ -243,23 +263,15 @@ ScratchBlocks.Blocks['led_matrix'] = {
         {
           type: 'input_value',
           name: 'X',
-          // value: 0,
-          // min: 0,
-          // max: 100,
-          // precision: 1,
         },
         {
           type: 'input_value',
           name: 'Y',
-          // value: 0,
-          // min: 0,
-          // max: 100,
-          // precision: 1,
         },
         {
-          type: 'input_value',
+          type: 'field_variable',
           name: 'IMAGE',
-          text: '',
+          variableTypes: ['led'],
         },
         {
           type: 'field_dropdown',

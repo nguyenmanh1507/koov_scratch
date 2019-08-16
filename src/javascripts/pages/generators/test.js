@@ -816,157 +816,157 @@ test('repeat notation (count == 1 and two blocks)', () => {
   }
 });
 
-test('function notation (no name and empty blocks)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom1 = j2e(
-      xml({}, [
-        variables({}, []),
-        block({
-          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
-        block({ type: "function", id: 'block1', x: 10, y: 10 }, [
-          field({ name: "FUNCTION" }, [])])]));
-    const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
-        Bstart(),
-        Bfunction([], [])]));
+// test('function notation (no name and empty blocks)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom1 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         block({
+//           type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+//         block({ type: "function", id: 'block1', x: 10, y: 10 }, [
+//           field({ name: "FUNCTION" }, [])])]));
+//     const dom2 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bstart(),
+//         Bfunction([], [])]));
 
-    expect(dom1).toEqual(dom2);
-    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+//     expect(dom1).toEqual(dom2);
+//     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
-    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    expect(dom2).toEqual(dom3);
-  } finally {
-    workspace.dispose();
-  }
-});
+//     const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     expect(dom2).toEqual(dom3);
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function notation (name == "f" and empty blocks)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom1 = j2e(
-      xml({}, [
-        variables({}, []),
-        block({
-          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
-        block({ type: "function", id: 'block1', x: 10, y: 10 }, [
-          field({ name: "FUNCTION" }, [ 'f' ])])]));
-    const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
-        Bstart(),
-        Bfunction(['f'], [])]));
+// test('function notation (name == "f" and empty blocks)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom1 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         block({
+//           type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+//         block({ type: "function", id: 'block1', x: 10, y: 10 }, [
+//           field({ name: "FUNCTION" }, [ 'f' ])])]));
+//     const dom2 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bstart(),
+//         Bfunction(['f'], [])]));
 
-    expect(dom1).toEqual(dom2);
-    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+//     expect(dom1).toEqual(dom2);
+//     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
-    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    expect(dom2).toEqual(dom3);
-  } finally {
-    workspace.dispose();
-  }
-});
+//     const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     expect(dom2).toEqual(dom3);
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function notation (name == "f" and single block)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom1 = j2e(
-      xml({}, [
-        variables({}, []),
-        block({
-          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
-        block({
-          type: "function", id: 'block3', x: 10, y: 10 }, [
-            field({ name: "FUNCTION" }, [ 'f' ]),
-            statement({ name: "BLOCKS" }, [
-              block({ type: "wait", id: 'block2' }, [
-                value({ name: "SECS" }, [
-                  shadow({ type: "math_positive_number", id: 'block1' }, [
-                    field({ name: "NUM" }, [ 2 ]) ])])])])])]));
-    const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
-        Bstart(),
-        Bfunction(['f'], [ Bwait(2) ])]));
+// test('function notation (name == "f" and single block)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom1 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         block({
+//           type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+//         block({
+//           type: "function", id: 'block3', x: 10, y: 10 }, [
+//             field({ name: "FUNCTION" }, [ 'f' ]),
+//             statement({ name: "BLOCKS" }, [
+//               block({ type: "wait", id: 'block2' }, [
+//                 value({ name: "SECS" }, [
+//                   shadow({ type: "math_positive_number", id: 'block1' }, [
+//                     field({ name: "NUM" }, [ 2 ]) ])])])])])]));
+//     const dom2 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bstart(),
+//         Bfunction(['f'], [ Bwait(2) ])]));
 
-    expect(dom1).toEqual(dom2);
-    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+//     expect(dom1).toEqual(dom2);
+//     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
-    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    expect(dom2).toEqual(dom3);
-  } finally {
-    workspace.dispose();
-  }
-});
+//     const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     expect(dom2).toEqual(dom3);
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function notation (name == "f" and two blocks)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom1 = j2e(
-      xml({}, [
-        variables({}, []),
-        block({
-          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
-        block({ type: "function", id: 'block5', x: 10, y: 10 }, [
-          field({ name: "FUNCTION" }, [ 'f' ]),
-          statement({ name: "BLOCKS" }, [
-            block({ type: "wait", id: 'block2' }, [
-              value({ name: "SECS" }, [
-                shadow({ type: "math_positive_number", id: 'block1' }, [
-                  field({ name: "NUM" }, [ 2 ]) ])]),
-              next({}, [
-                block({ type: "wait", id: 'block4' }, [
-                  value({ name: "SECS" }, [
-                    shadow({
-                      type: "math_positive_number", id: 'block3' }, [
-                        field({ name: "NUM" }, [ 3 ]) ])])])])])])])]));
-    const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
-        Bstart(),
-        Bfunction(['f'], [ Bwait(2), Bwait(3) ])]));
+// test('function notation (name == "f" and two blocks)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom1 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         block({
+//           type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+//         block({ type: "function", id: 'block5', x: 10, y: 10 }, [
+//           field({ name: "FUNCTION" }, [ 'f' ]),
+//           statement({ name: "BLOCKS" }, [
+//             block({ type: "wait", id: 'block2' }, [
+//               value({ name: "SECS" }, [
+//                 shadow({ type: "math_positive_number", id: 'block1' }, [
+//                   field({ name: "NUM" }, [ 2 ]) ])]),
+//               next({}, [
+//                 block({ type: "wait", id: 'block4' }, [
+//                   value({ name: "SECS" }, [
+//                     shadow({
+//                       type: "math_positive_number", id: 'block3' }, [
+//                         field({ name: "NUM" }, [ 3 ]) ])])])])])])])]));
+//     const dom2 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bstart(),
+//         Bfunction(['f'], [ Bwait(2), Bwait(3) ])]));
 
-    expect(dom1).toEqual(dom2);
-    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+//     expect(dom1).toEqual(dom2);
+//     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
-    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    expect(dom2).toEqual(dom3);
-  } finally {
-    workspace.dispose();
-  }
-});
+//     const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     expect(dom2).toEqual(dom3);
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('call_function notation (no name)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom1 = j2e(
-      xml({}, [
-        variables({}, []),
-        block({
-          type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
-        block({ type: "call_function", id: 'block1', x: 10, y: 10 }, [
-          field({ name: "FUNCTION" }, [ "NAME" ])])]));
-    const dom2 = j2e(
-      xml({}, [
-        variables({}, []),
-        Bstart(),
-        Bcall_function([ "NAME" ])]));
+// test('call_function notation (no name)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom1 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         block({
+//           type: "when_green_flag_clicked", id: 'block0', x: 10, y: 10 }, []),
+//         block({ type: "call_function", id: 'block1', x: 10, y: 10 }, [
+//           field({ name: "FUNCTION" }, [ "NAME" ])])]));
+//     const dom2 = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bstart(),
+//         Bcall_function([ "NAME" ])]));
 
-    expect(dom1).toEqual(dom2);
-    ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
+//     expect(dom1).toEqual(dom2);
+//     ScratchBlocks.Xml.domToWorkspace(dom2, workspace);
 
-    const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    expect(dom2).toEqual(dom3);
-  } finally {
-    workspace.dispose();
-  }
-});
+//     const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     expect(dom2).toEqual(dom3);
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
 test('wait(1 + 2) notation', () => {
   const workspace = new ScratchBlocks.Workspace();
@@ -3541,243 +3541,243 @@ while not 1 == 0:\n\
  * Tests for function block.
  */
 
-test('function(empty)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [ Bfunction('f', []) ]));
+// test('function(empty)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [ Bfunction('f', []) ]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+//     //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-def f_f():\n\
-  pass\n');
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// def f_f():\n\
+//   pass\n');
 
-    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'function', line: 0 } });
-  } finally {
-    workspace.dispose();
-  }
-});
+//     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+//       block0: { type: 'function', line: 0 } });
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function(reserved symbol name)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [
-        variables({}, []),
-        Bfunction('main', []),
-        Bstart() ]));
+// test('function(reserved symbol name)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bfunction('main', []),
+//         Bstart() ]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+//     //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-def f_main():\n\
-  pass\n\n\n\
-def main():\n\
-  pass\n');
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// def f_main():\n\
+//   pass\n\n\n\
+// def main():\n\
+//   pass\n');
 
-    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'function', line: 0 },
-      block1: { type: 'when_green_flag_clicked', line: 4 }});
-  } finally {
-    workspace.dispose();
-  }
-});
+//     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+//       block0: { type: 'function', line: 0 },
+//       block1: { type: 'when_green_flag_clicked', line: 4 }});
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function(conflicting function name)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [
-        Bfunction('f', [ Bwait(1) ]),
-        Bfunction('f ', [ Bwait(2) ]),
-        Bfunction('$f', [ Bwait(3) ])]));
+// test('function(conflicting function name)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [
+//         Bfunction('f', [ Bwait(1) ]),
+//         Bfunction('f ', [ Bwait(2) ]),
+//         Bfunction('$f', [ Bwait(3) ])]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+//     //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-import time\n\
-\n\
-\n\
-def f_f():\n\
-  time.sleep(1)\n\
-\n\
-\n\
-def f_f1():\n\
-  time.sleep(2)\n\
-\n\
-\n\
-def f_f2():\n\
-  time.sleep(3)\n');
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// import time\n\
+// \n\
+// \n\
+// def f_f():\n\
+//   time.sleep(1)\n\
+// \n\
+// \n\
+// def f_f1():\n\
+//   time.sleep(2)\n\
+// \n\
+// \n\
+// def f_f2():\n\
+//   time.sleep(3)\n');
 
-    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'math_positive_number', line: 4, },
-      block1: { type: 'wait', line: 4, },
-      block2: { type: 'function', line: 3, },
-      block3: { type: 'math_positive_number', line: 8, },
-      block4: { type: 'wait', line: 8, },
-      block5: { type: 'function', line: 7, },
-      block6: { type: 'math_positive_number', line: 12, },
-      block7: { type: 'wait', line: 12, },
-      block8: { type: 'function', line: 11, },
-    });
-  } finally {
-    workspace.dispose();
-  }
-});
+//     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+//       block0: { type: 'math_positive_number', line: 4, },
+//       block1: { type: 'wait', line: 4, },
+//       block2: { type: 'function', line: 3, },
+//       block3: { type: 'math_positive_number', line: 8, },
+//       block4: { type: 'wait', line: 8, },
+//       block5: { type: 'function', line: 7, },
+//       block6: { type: 'math_positive_number', line: 12, },
+//       block7: { type: 'wait', line: 12, },
+//       block8: { type: 'function', line: 11, },
+//     });
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function(empty) and start', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [
-        variables({}, []),
-        Bstart(
-          Bwait(1),
-          Bwait(2) ),
-        Bfunction('f', []) ]));
+// test('function(empty) and start', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bstart(
+//           Bwait(1),
+//           Bwait(2) ),
+//         Bfunction('f', []) ]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
-    //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+//     //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+//     //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-import time\n\
-\n\
-\n\
-def main():\n\
-  time.sleep(1)\n\
-  time.sleep(2)\n\
-\n\
-\n\
-def f_f():\n\
-  pass\n');
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// import time\n\
+// \n\
+// \n\
+// def main():\n\
+//   time.sleep(1)\n\
+//   time.sleep(2)\n\
+// \n\
+// \n\
+// def f_f():\n\
+//   pass\n');
 
-    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block4: { type: 'when_green_flag_clicked', line: 3 },
-      block1: { type: 'wait', line: 4 },
-      block0: { type: 'math_positive_number', line: 4 },
-      block3: { type: 'wait', line: 5 },
-      block2: { type: 'math_positive_number', line: 5 },
-      block5: { type: 'function', line: 8 } });
-  } finally {
-    workspace.dispose();
-  }
-});
+//     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+//       block4: { type: 'when_green_flag_clicked', line: 3 },
+//       block1: { type: 'wait', line: 4 },
+//       block0: { type: 'math_positive_number', line: 4 },
+//       block3: { type: 'wait', line: 5 },
+//       block2: { type: 'math_positive_number', line: 5 },
+//       block5: { type: 'function', line: 8 } });
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function(with single wait)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [ Bfunction('f', [ Bwait(1) ]) ]));
+// test('function(with single wait)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [ Bfunction('f', [ Bwait(1) ]) ]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-import time\n\n\n\
-def f_f():\n\
-  time.sleep(1)\n');
-  } finally {
-    workspace.dispose();
-  }
-});
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// import time\n\n\n\
+// def f_f():\n\
+//   time.sleep(1)\n');
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function(with two waits)', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [ Bfunction('f', [ Bwait(1), Bwait(2) ]) ]));
+// test('function(with two waits)', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [ Bfunction('f', [ Bwait(1), Bwait(2) ]) ]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-import time\n\n\n\
-def f_f():\n\
-  time.sleep(1)\n\
-  time.sleep(2)\n');
-  } finally {
-    workspace.dispose();
-  }
-});
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// import time\n\n\n\
+// def f_f():\n\
+//   time.sleep(1)\n\
+//   time.sleep(2)\n');
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function(empty) and call_function', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [
-        variables({}, []),
-        Bstart(
-          Bcall_function('f') ),
-        Bfunction('f', []) ]));
+// test('function(empty) and call_function', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bstart(
+//           Bcall_function('f') ),
+//         Bfunction('f', []) ]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-def main():\n\
-  f_f()\n\
-\n\
-\n\
-def f_f():\n\
-  pass\n');
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// def main():\n\
+//   f_f()\n\
+// \n\
+// \n\
+// def f_f():\n\
+//   pass\n');
 
-    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'call_function', line: 1 },
-      block1: { type: 'when_green_flag_clicked', line: 0 },
-      block2: { type: 'function', line: 4 } });
-  } finally {
-    workspace.dispose();
-  }
-});
+//     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+//       block0: { type: 'call_function', line: 1 },
+//       block1: { type: 'when_green_flag_clicked', line: 0 },
+//       block2: { type: 'function', line: 4 } });
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
-test('function contains call_function', () => {
-  const workspace = new ScratchBlocks.Workspace();
-  id = 0;
-  try {
-    const dom = j2e(
-      xml({}, [
-        variables({}, []),
-        Bfunction('f', [
-          Bcall_function('f') ])]));
+// test('function contains call_function', () => {
+//   const workspace = new ScratchBlocks.Workspace();
+//   id = 0;
+//   try {
+//     const dom = j2e(
+//       xml({}, [
+//         variables({}, []),
+//         Bfunction('f', [
+//           Bcall_function('f') ])]));
 
-    ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+//     ScratchBlocks.Xml.domToWorkspace(dom, workspace);
 
-    const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
-    expect(pcode).toBe('\
-def f_f():\n\
-  f_f()\n');
+//     const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+//     expect(pcode).toBe('\
+// def f_f():\n\
+//   f_f()\n');
 
-    expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-      block0: { type: 'call_function', line: 1 },
-      block1: { type: 'function', line: 0 } });
-  } finally {
-    workspace.dispose();
-  }
-});
+//     expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+//       block0: { type: 'call_function', line: 1 },
+//       block1: { type: 'function', line: 0 } });
+//   } finally {
+//     workspace.dispose();
+//   }
+// });
 
 /*
  * Tests for if then.
