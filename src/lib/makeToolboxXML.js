@@ -8,8 +8,6 @@ const control = () => {
   return `
   <category name="%{BKY_CATEGORY_CONTROL}" id="control" colour="#2cc3ea" secondaryColour="#2cc3ea">
     <block type="when_green_flag_clicked"></block>
-    <block type="function"></block>
-    <block type="call_function"></block>
     <block type="wait">
       <value name="SECS">
         <shadow type="math_positive_number">
@@ -252,86 +250,13 @@ const sensing = () => {
 
 const variable = () => {
   return `
-  <category name="Variables" id="variable" colour="#f27f62" secondaryColour="#f27f62">
-    <block type="variable_ref"></block>
-    <block type="set_variable_to">
-      <value name="VALUE">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-    </block>
-    <block type="change_variable_by">
-      <value name="VALUE">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-    </block>
-    <block type="list_add">
-      <value name="VALUE">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-    </block>
-    <block type="list_delete">
-      <value name="POSITION">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-    </block>
-    <block type="list_insert">
-      <value name="VALUE">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-      <value name="POSITION">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-    </block>
-    <block type="list_replace">      
-      <value name="POSITION">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-      <value name="VALUE">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-    </block>
-    <block type="list_ref">
-      <value name="VALUE">
-        <shadow type="math_number">
-          <field name="NUM"/>
-        </shadow>
-      </value>
-    </block>
-    <block type="list_length"></block>
-    <block type="led_matrix">
-      <value name="X">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-      <value name="Y">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-      <value name="IMAGE">
-        <shadow type="text">
-          <field name="TEXT"></field>
-        </shadow>
-      </value>
-    </block>
-  </category>
+  <category name="Variables" id="koovVariables" custom="KOOV_VARIABLES" colour="#f27f62" secondaryColour="#f27f62"></category>
+  `;
+};
+
+const koovFunction = () => {
+  return `
+  <category name="Function" id="koovFunctions" custom="KOOV_FUNCTIONS" colour="#2cc3ea" secondaryColour="#2cc3ea"></category>
   `;
 };
 
@@ -346,6 +271,7 @@ const makeToolboxXML = () => {
     sensing(),
     operator(),
     variable(),
+    koovFunction(),
     xmlClose,
   ].join('\n');
 };
