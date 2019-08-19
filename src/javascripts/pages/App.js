@@ -108,7 +108,7 @@ class App extends React.Component<Props, State> {
   }
 
   onClick() {
-    let code = ScratchBlocks.JavaScript.workspaceToCode(this.workspace);
+    let code = ScratchBlocks.Python.workspaceToCode(this.workspace);
     console.info(code);
   }
 
