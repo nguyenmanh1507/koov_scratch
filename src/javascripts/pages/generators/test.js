@@ -84,17 +84,14 @@ const Bxml = (attrs, inner) => (
       islocal: "false",
       iscloud: "false" }, [ name ]))), ...inner]));
 
-const Bblock = (attrs, inner) => {
+const assign_id = (f) => (attrs, inner) => {
   if (!attrs.hasOwnProperty('id'))
     attrs.id = new_id();
-  return block(attrs, inner);
+  return f(attrs, inner);
 };
 
-const Bshadow = (attrs, inner) => {
-  if (!attrs.hasOwnProperty('id'))
-    attrs.id = `block${id++}`;
-  return shadow(attrs, inner);
-};
+const Bblock = assign_id(block);
+const Bshadow = assign_id(shadow);
 
 const Bstart = (...blks) => (
   chain_blocks(
