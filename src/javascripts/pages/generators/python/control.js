@@ -14,6 +14,11 @@ export function control(ScratchBlocks) {
     ScratchBlocks.Python.definitions_[`port ${port}`] = init;
   };
 
+  ScratchBlocks.Python['text'] = (block) => {
+    const n = block.getFieldValue('TEXT');
+    return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
   ScratchBlocks.Python['math_number'] = (block) => {
     const n = block.getFieldValue('NUM');
     return [`${n}`, ScratchBlocks.Python.ORDER_ATOMIC];
@@ -237,7 +242,7 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['function'] = (block) => {
     const op = 'function';
-    const fn = block.getFieldValue('FUNCTION');
+    const fn = block.getField('FUNCTION').getText();
     if (!fn)
       throw new Error(`${op}: No arguments`);
     const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
@@ -252,8 +257,8 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['call_function'] = (block) => {
-    const fn = block.getFieldValue('FUNCTION');
     const op = 'call_function';
+    const fn = block.getField('FUNCTION').getText();
     if (!fn)
       throw new Error(`${op}: No arguments`);
 
@@ -478,5 +483,29 @@ export function control(ScratchBlocks) {
     use_module('koov');
     ScratchBlocks.Python.adjustCurrentLine_(1);
     return `koov.reset_timer()\n`;
+  };
+
+  ScratchBlocks.Python['variable_ref'] = (block) => {
+    const name = block.getField('VARIABLE').getText(); // issue #45
+    const symbol = ScratchBlocks.Python.internSymbol_('v_', name);
+    return [`${symbol}`, ScratchBlocks.Python.ORDER_ATOMIC];
+  };
+
+  ScratchBlocks.Python['set_variable_to'] = (block) => {
+    const name = block.getField('NAME').getText();
+    const symbol = ScratchBlocks.Python.internSymbol_('v_', name);
+    const value = ScratchBlocks.Python.valueToCode(
+      block, 'VALUE', ScratchBlocks.Python.ORDER_NONE);
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${symbol} = ${value}\n`;
+  };
+
+  ScratchBlocks.Python['change_variable_by'] = (block) => {
+    const name = block.getField('NAME').getText();
+    const symbol = ScratchBlocks.Python.internSymbol_('v_', name);
+    const value = ScratchBlocks.Python.valueToCode(
+      block, 'VALUE', ScratchBlocks.Python.ORDER_NONE);
+    ScratchBlocks.Python.adjustCurrentLine_(1);
+    return `${symbol} += ${value}\n`;
   };
 }
