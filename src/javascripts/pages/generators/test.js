@@ -3356,3 +3356,40 @@ else:\n\
     block33: { type: 'wait', line: 20 },
     block32: { type: 'math_positive_number', line: 20 } });
 }));
+
+test('variables', with_ws((workspace) => {
+  const dom = j2e(
+    Bxml({}, [
+      Bstart(
+        Bset_variable_to([ "x" ], 1),
+        Bset_variable_to([ "y" ], 1),
+        Bchange_variable_by([ "x" ], 2),
+        Bchange_variable_by([ "y" ], Bplus(Bvariable_ref([ 'x' ]), 1)) )]));
+
+  ScratchBlocks.Xml.domToWorkspace(dom, workspace);
+  //const dom3 = ScratchBlocks.Xml.workspaceToDom(workspace);
+  //console.log('dom3 %o', xmlserializer.serializeToString(dom3));
+
+  const pcode = ScratchBlocks.Python.workspaceToCode(workspace);
+  expect(pcode).toBe('\
+def main():\n\
+  v_x = 1\n\
+  v_y = 1\n\
+  v_x += 2\n\
+  v_y += v_x + 1\n\
+');
+
+  expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
+    "block1": { "type": "text", "line": 1, },
+    "block2": { "type": "set_variable_to", "line": 1, },
+    "block4": { "type": "text", "line": 2, },
+    "block5": { "type": "set_variable_to", "line": 2, },
+    "block6": { "type": "math_number", "line": 3, },
+    "block7": { "type": "change_variable_by", "line": 3, },
+    "block8": { "type": "variable_ref", "line": 4, },
+    "block10": { "type": "math_number", "line": 4, },
+    "block11": { "type": "plus", "line": 4, },
+    "block13": { "type": "change_variable_by", "line": 4, },
+    "block14": { "type": "when_green_flag_clicked", "line": 0, },
+  });
+}));
