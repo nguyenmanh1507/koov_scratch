@@ -237,7 +237,7 @@ export function control(ScratchBlocks) {
 
   ScratchBlocks.Python['function'] = (block) => {
     const op = 'function';
-    const fn = block.getFieldValue('FUNCTION');
+    const fn = block.getField('FUNCTION').getText();
     if (!fn)
       throw new Error(`${op}: No arguments`);
     const symbol = ScratchBlocks.Python.internSymbol_('f_', fn);
@@ -252,8 +252,8 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['call_function'] = (block) => {
-    const fn = block.getFieldValue('FUNCTION');
     const op = 'call_function';
+    const fn = block.getField('FUNCTION').getText();
     if (!fn)
       throw new Error(`${op}: No arguments`);
 
