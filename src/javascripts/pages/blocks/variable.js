@@ -12,7 +12,7 @@ ScratchBlocks.Blocks['variable_ref'] = {
         {
           type: 'field_variable_getter',
           text: '',
-          name: 'VARIABLE',
+          name: 'NAME',
           variableType: '',
         },
       ],

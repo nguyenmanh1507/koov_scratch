@@ -486,7 +486,7 @@ export function control(ScratchBlocks) {
   };
 
   ScratchBlocks.Python['variable_ref'] = (block) => {
-    const name = block.getField('VARIABLE').getText(); // issue #45
+    const name = block.getField('NAME').getText(); // issue #45
     const symbol = ScratchBlocks.Python.internSymbol_('v_', name);
     return [`${symbol}`, ScratchBlocks.Python.ORDER_ATOMIC];
   };

@@ -261,13 +261,13 @@ const Bvariable_field = (name, field_name = 'NAME') => (
 
 const Bvariable_ref = (name, opts) => (
   Bblock({ type: "variable_ref", ...opts }, [
-    Bvariable_field(name, 'VARIABLE') ]));
+    Bvariable_field(name, 'NAME') ]));
 
 const Bset_variable_to = (name, v) => (
   Bblock({ type: "set_variable_to" }, [
     Bvariable_field(name),
     // issue #45
-    value({ name: 'VALUE' }, Bnumber(v, 'text', 'TEXT'))]));
+    value({ name: 'VALUE' }, Bnumber(v, 'math_number', 'NUM'))]));
 
 const Bchange_variable_by = (name, v) => (
   Bblock({ type: "change_variable_by" }, [
@@ -1044,8 +1044,8 @@ test('variable/set_variabkle_to/change_variable_by notation', with_ws(
             block({ type: "set_variable_to", id: 'block2' }, [
               field({ name: "NAME", id: 'block0', variabletype: '' }, [ "u" ]),
               value({ name: "VALUE" }, [
-                shadow({ type: "text", id: 'block1' }, [
-                  field({ name: "TEXT" }, [ 0 ]) ])]),
+                shadow({ type: "math_number", id: 'block1' }, [
+                  field({ name: "NUM" }, [ 0 ]) ])]),
               next({}, [
                 block({ type: "change_variable_by", id: 'block4' }, [
                   field({ name: "NAME", id: 'block0', variabletype: '' }, [
@@ -1055,7 +1055,7 @@ test('variable/set_variabkle_to/change_variable_by notation', with_ws(
                       field({ name: "NUM" }, [ 1 ]) ])])])])])])]),
         block({ type: "variable_ref", id: 'block6', x: 10, y: 10 }, [
           field({
-            name: "VARIABLE", id: 'block0', variabletype: '' }, [ "u" ]) ])]));
+            name: "NAME", id: 'block0', variabletype: '' }, [ "u" ]) ])]));
     const dom2 = j2e(
       Bxml({}, [
         Bstart(
@@ -1086,10 +1086,10 @@ test('two variable notation', with_ws((workspace) => {
           iscloud: "false" }, [ 'y' ])]),
       block({ type: "variable_ref", id: 'block1', x: 10, y: 10 }, [
         field({
-          name: "VARIABLE", id: 'block0', variabletype: '' }, [ "x" ]) ]),
+          name: "NAME", id: 'block0', variabletype: '' }, [ "x" ]) ]),
       block({ type: "variable_ref", id: 'block3', x: 10, y: 10 }, [
         field({
-          name: "VARIABLE", id: 'block2', variabletype: '' }, [ "y" ]) ])]));
+          name: "NAME", id: 'block2', variabletype: '' }, [ "y" ]) ])]));
   const dom2 = j2e(
     Bxml({}, [
       Bvariable_ref([ "x" ], { x: 10, y: 10 }),
@@ -3377,9 +3377,9 @@ def main():\n\
 ');
 
   expect(ScratchBlocks.Python.blockIdToLineNumberMap(workspace)).toEqual({
-    "block1": { "type": "text", "line": 1, },
+    "block1": { "type": "math_number", "line": 1, },
     "block2": { "type": "set_variable_to", "line": 1, },
-    "block4": { "type": "text", "line": 2, },
+    "block4": { "type": "math_number", "line": 2, },
     "block5": { "type": "set_variable_to", "line": 2, },
     "block6": { "type": "math_number", "line": 3, },
     "block7": { "type": "change_variable_by", "line": 3, },
