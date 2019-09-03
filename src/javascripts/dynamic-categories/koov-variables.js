@@ -290,9 +290,9 @@ KoovVariables.addDataVariable = function(
   variable: Object
 ) {
   // <block id="variableId" type="variable_ref">
-  //    <field name="VARIABLE">variablename</field>
+  //    <field name="NAME">variablename</field>
   // </block>
-  KoovVariables.addBlock(xmlList, variable, 'variable_ref', 'VARIABLE');
+  KoovVariables.addBlock(xmlList, variable, 'variable_ref', 'NAME');
   // In the flyout, this ID must match variable ID for monitor syncing reasons
   xmlList[xmlList.length - 1].setAttribute('id', variable.getId());
 };
@@ -306,14 +306,14 @@ KoovVariables.addSetVariableTo = function(
   //    <shadow type="data_variablemenu"></shadow>
   //   </value>
   //   <value name="VALUE">
-  //     <shadow type="text">
-  //       <field name="TEXT">0</field>
+  //     <shadow type="math_number">
+  //       <field name="NUM">0</field>
   //     </shadow>
   //   </value>
   // </block>
   KoovVariables.addBlock(xmlList, variable, 'set_variable_to', 'NAME', [
     'VALUE',
-    'text',
+    'math_number',
     0,
   ]);
 };
@@ -355,14 +355,14 @@ KoovVariables.addAddToList = function(
   // <block type="list_add">
   //   <field name="NAME" variabletype="list" id="">variablename</field>
   //   <value name="VALUE">
-  //     <shadow type="text">
-  //       <field name="TEXT">thing</field>
+  //     <shadow type="math_number">
+  //       <field name="NUM">thing</field>
   //     </shadow>
   //   </value>
   // </block>
   KoovVariables.addBlock(xmlList, variable, 'list_add', 'NAME', [
     'VALUE',
-    'text',
+    'math_number',
     ScratchBlocks.DEFAULT_LIST_ITEM,
   ]);
 };
