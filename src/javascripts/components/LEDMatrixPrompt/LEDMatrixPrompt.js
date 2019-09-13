@@ -7,6 +7,9 @@ import Modal, { ModalProps } from 'react-modal';
 
 import LEDMatrixBoard from './LEDMatrixBoard';
 import { MATRIX_ROW, MATRIX_COLUMN, MATRIX_MAX_COLUMN } from '../../constants';
+import Icon from '../../../assets/icons/eraser_button_on.svg';
+
+console.info({ icon: Icon });
 
 class LEDMatrixPrompt extends Component<Props, State> {
   state = {
@@ -128,7 +131,7 @@ class LEDMatrixPrompt extends Component<Props, State> {
   };
 
   render() {
-    const { isOpen, label, onRequestClose, onOk, ...rest } = this.props;
+    const { isOpen, onRequestClose, onOk, ...rest } = this.props;
     const { varName, selectedColor, matrix } = this.state;
 
     return (
@@ -139,81 +142,82 @@ class LEDMatrixPrompt extends Component<Props, State> {
         {...rest}
       >
         <Container>
-          <ColorAlert color={selectedColor} />
-          <label htmlFor="led-name">{label}</label>
-          <input
-            type="text"
-            value={varName}
-            onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
-              this.setVarName(event.currentTarget.value);
-            }}
-            id="led-name"
-          />
-          <Row>
-            <button
-              onClick={() => {
-                this.setMode('ADD');
+          <Header>
+            {/* <ColorAlert color={selectedColor} /> */}
+            <InputColorName
+              type="text"
+              value={varName}
+              onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
+                this.setVarName(event.currentTarget.value);
               }}
-            >
-              Add color
-            </button>
-            <button
-              onClick={() => {
-                this.setMode('CLEAR');
-              }}
-            >
-              Clear color
-            </button>
-            <button
-              onClick={() => {
-                this.setMode('INSPECT');
-              }}
-            >
-              Inspect color
-            </button>
-            <div>
-              R:{' '}
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={selectedColor.r}
-                onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
-                  this.setSelectedColor({
-                    r: colorValueFormat(event.currentTarget.value),
-                  });
+              id="led-name"
+            />
+            <Row>
+              <button
+                onClick={() => {
+                  this.setMode('ADD');
                 }}
-              />
-            </div>
-            <div>
-              G:{' '}
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={selectedColor.g}
-                onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
-                  this.setSelectedColor({
-                    g: colorValueFormat(event.currentTarget.value),
-                  });
+              >
+                {/* <Icon /> */}
+              </button>
+              <button
+                onClick={() => {
+                  this.setMode('CLEAR');
                 }}
-              />
-            </div>
-            <div>
-              B:{' '}
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={selectedColor.b}
-                onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
-                  this.setSelectedColor({
-                    b: colorValueFormat(event.currentTarget.value),
-                  });
+              >
+                Clear color
+              </button>
+              <button
+                onClick={() => {
+                  this.setMode('INSPECT');
                 }}
-              />
-            </div>
-          </Row>
+              >
+                Inspect color
+              </button>
+              <div>
+                R:{' '}
+                <input
+                  type="number"
+                  min={0}
+                  max={255}
+                  value={selectedColor.r}
+                  onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
+                    this.setSelectedColor({
+                      r: colorValueFormat(event.currentTarget.value),
+                    });
+                  }}
+                />
+              </div>
+              <div>
+                G:{' '}
+                <input
+                  type="number"
+                  min={0}
+                  max={255}
+                  value={selectedColor.g}
+                  onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
+                    this.setSelectedColor({
+                      g: colorValueFormat(event.currentTarget.value),
+                    });
+                  }}
+                />
+              </div>
+              <div>
+                B:{' '}
+                <input
+                  type="number"
+                  min={0}
+                  max={255}
+                  value={selectedColor.b}
+                  onChange={(event: SyntheticInputEvent<HTMLInputElement>) => {
+                    this.setSelectedColor({
+                      b: colorValueFormat(event.currentTarget.value),
+                    });
+                  }}
+                />
+              </div>
+            </Row>
+          </Header>
           <Row>
             <LEDMatrixBoard
               matrix={matrix}
@@ -222,14 +226,16 @@ class LEDMatrixPrompt extends Component<Props, State> {
               handleDeleteColumn={this.handleDeleteColumn}
             />
           </Row>
-          <button onClick={onRequestClose}>Close</button>
-          <button
+          <CancelButton onClick={onRequestClose}>
+            <i className="fas fa-times"></i>
+          </CancelButton>
+          <OkButton
             onClick={() => {
               onOk({ varName, matrix });
             }}
           >
-            OK
-          </button>
+            <i className="fas fa-check"></i>
+          </OkButton>
         </Container>
       </Modal>
     );
@@ -266,8 +272,8 @@ export type MatrixType = {
 function colorValueFormat(value: string): number {
   let color = parseInt(value) || 0;
 
-  if (color > 100) {
-    color = 100;
+  if (color > 255) {
+    color = 255;
   }
 
   if (color < 0) {
@@ -281,8 +287,38 @@ const Container = styled.div``;
 
 const Row = styled.div``;
 
-const ColorAlert = styled.div`
-  width: 100px;
+// const ColorAlert = styled.div`
+//   width: 100px;
+//   height: 40px;
+//   background-color: ${({ color }) => `rgb(${color.r}, ${color.g}, ${color.b})`};
+// `;
+
+const InputColorName = styled.input`
+  border-radius: 8px;
+  background-color: #58687d;
+  width: 100%;
+  border: 0;
   height: 40px;
-  background-color: ${({ color }) => `rgb(${color.r}, ${color.g}, ${color.b})`};
+  padding: 8px;
+  color: #fff;
+  text-align: center;
+`;
+
+const Header = styled.div`
+  padding: 10px 22px;
+`;
+
+const FooterButton = styled.button`
+  border: 0;
+  background-color: transparent;
+  font-size: 28px;
+  cursor: pointer;
+`;
+
+const CancelButton = styled(FooterButton)`
+  color: #000;
+`;
+
+const OkButton = styled(FooterButton)`
+  color: #ffe15c;
 `;

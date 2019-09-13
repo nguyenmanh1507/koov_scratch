@@ -1,5 +1,5 @@
 ```js
-initialState = { isOpen: false };
+initialState = { isOpen: true };
 <div>
   <button
     onClick={() => {
