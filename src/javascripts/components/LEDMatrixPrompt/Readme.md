@@ -19,3 +19,18 @@ initialState = { isOpen: true };
   />
 </div>;
 ```
+
+```js
+import ColorPalette from './ColorPalette';
+
+initialState = { color: { r: 0, g: 0, b: 0 } };
+
+<div>
+  <div>{JSON.stringify(state.color)}</div>
+  <ColorPalette
+    onColorTrackMove={color => {
+      setState({ color });
+    }}
+  />
+</div>;
+```

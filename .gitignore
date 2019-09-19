@@ -75,3 +75,6 @@ Session.vim
 
 # Ignore RubyMine config
 /.idea
+
+# Styleguide build
+styleguide
