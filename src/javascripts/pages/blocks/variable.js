@@ -44,6 +44,27 @@ ScratchBlocks.Blocks['set_variable_to'] = {
   },
 };
 
+ScratchBlocks.Blocks['set_variable_to_ghost'] = {
+  init: function() {
+    this.jsonInit({
+      message0: 'set variable %1 to %2',
+      args0: [
+        {
+          type: 'field_variable',
+          name: 'NAME',
+        },
+        {
+          type: 'input_value',
+          name: 'VALUE',
+          // check: 'Number',
+        },
+      ],
+      extensions: ['shape_statement_ghost'],
+      colour: COLOUR,
+    });
+  },
+};
+
 ScratchBlocks.Blocks['change_variable_by'] = {
   init: function() {
     this.jsonInit({

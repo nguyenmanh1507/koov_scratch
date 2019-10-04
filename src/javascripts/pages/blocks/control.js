@@ -23,6 +23,23 @@ ScratchBlocks.Blocks['when_green_flag_clicked'] = {
   },
 };
 
+ScratchBlocks.Blocks['when_green_flag_clicked_ghost'] = {
+  init: function() {
+    this.jsonInit({
+      enableContextMenu: false,
+      message0: '%1',
+      args0: [
+        {
+          type: 'field_label',
+          text: 'Start',
+        },
+      ],
+      nextStatement: 'GHOST',
+      colour: COLOUR,
+    });
+  },
+};
+
 ScratchBlocks.Blocks['function'] = {
   init: function() {
     this.jsonInit({
@@ -78,6 +95,22 @@ ScratchBlocks.Blocks['wait'] = {
   },
 };
 
+ScratchBlocks.Blocks['wait_ghost'] = {
+  init: function() {
+    this.jsonInit({
+      message0: 'wait %1 secs',
+      args0: [
+        {
+          type: 'input_value',
+          name: 'SECS',
+        },
+      ],
+      extensions: ['shape_statement_ghost'],
+      colour: COLOUR,
+    });
+  },
+};
+
 ScratchBlocks.Blocks['forever'] = {
   init: function() {
     this.jsonInit({
@@ -102,6 +135,36 @@ ScratchBlocks.Blocks['forever'] = {
         },
       ],
       extensions: ['shape_end'],
+      colour: COLOUR,
+    });
+  },
+};
+
+ScratchBlocks.Blocks['forever_ghost'] = {
+  init: function() {
+    this.jsonInit({
+      message0: 'forever',
+      message1: '%1', // Statement
+      message2: '%1', // Icon
+      lastDummyAlign2: 'RIGHT',
+      args1: [
+        {
+          type: 'input_statement',
+          name: 'BLOCKS',
+          check: 'GHOST',
+        },
+      ],
+      args2: [
+        {
+          type: 'field_image',
+          src: PATH_TO_MEDIA + 'repeat.svg',
+          width: 24,
+          height: 24,
+          alt: '*',
+          flip_rtl: true,
+        },
+      ],
+      extensions: ['shape_end_ghost'],
       colour: COLOUR,
     });
   },

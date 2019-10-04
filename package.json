@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
+    "JS-Interpreter": "github:NeilFraser/JS-Interpreter",
     "lodash": "^4.17.15",
     "react": "^16.8.0",
     "react-addons-css-transition-group": "^15.6.2",
@@ -91,7 +92,7 @@
       "prettier --write",
       "git add"
     ],
-    "*.js": [
+    "src/**/*.js": [
       "eslint --fix",
       "git add"
     ]

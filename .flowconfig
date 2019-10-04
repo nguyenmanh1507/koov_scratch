@@ -3,6 +3,7 @@
 .*/node_modules/config-chain/test/broken.json
 .*/node_modules/npmconf/test/.*
 .*/node_modules/findup/test/.*
+.*/node_modules/json/test/.*
 
 [include]
 

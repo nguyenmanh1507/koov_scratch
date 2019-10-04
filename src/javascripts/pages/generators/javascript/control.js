@@ -7,6 +7,34 @@ export function control(ScratchBlocks) {
     return "start();\n";
   };
 
+
+  ScratchBlocks.JavaScript['when_green_flag_clicked_ghost'] = function (_block) {
+    return "\n";
+  };
+
+  ScratchBlocks.JavaScript['set_variable_to_ghost'] = function (_block) {
+    return "var a = 10;\n";
+  };
+
+  ScratchBlocks.JavaScript['set_dcmotor_power_ghost'] = function (_block) {
+    return "var dc = 10\n";
+  };
+
+  ScratchBlocks.JavaScript['set_dcmotor_power'] = function (_block) {
+    return "var dc = 10\n";
+  };
+
+  ScratchBlocks.JavaScript['forever_ghost'] = function (_block) {
+    return `
+      for (var i = 0; i <= 10; i++) {
+        dc = 5;
+        dc = 5;
+        dc = 5;
+        dc = 5;
+      }
+    `;
+  };
+
   ScratchBlocks.JavaScript['wait'] = function (block) {
     console.info(block);
     var secs = block.getInputTargetBlock('SECS');

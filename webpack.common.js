@@ -6,46 +6,46 @@ var webpack = require('webpack');
 
 const plugins = [
   new webpack.EnvironmentPlugin({
-    NODE_ENV: 'development'
+    NODE_ENV: 'development',
   }),
   new Dotenv({
-    systemvars: true
+    systemvars: true,
   }),
   new HtmlWebpackPlugin({
     filename: 'index.html',
-    template: './src/index.ejs'
-  })
+    template: './src/index.ejs',
+  }),
 ];
 
 const resolve = {
-  alias: {}
+  alias: {},
 };
 
 const rules = [
   {
     test: /\.js$/,
-    exclude: /(node_modules)|(vendors)/,
-    use: ['babel-loader', 'eslint-loader']
+    exclude: [/(node_modules)|(vendors)/, /Sandbox/],
+    use: ['babel-loader', 'eslint-loader'],
   },
   {
     test: /\.html$/,
-    use: ['file-loader?name=[name].[ext]']
+    use: ['file-loader?name=[name].[ext]'],
   },
   {
     test: /\.(mp4|zip)$/,
     use: {
-      loader: 'file-loader'
-    }
+      loader: 'file-loader',
+    },
   },
   {
     test: /\.(mp3)$/,
     use: {
-      loader: 'file-loader'
-    }
+      loader: 'file-loader',
+    },
   },
   {
     test: /\.yaml$/,
-    use: ['json-loader', 'yaml-loader']
+    use: ['json-loader', 'yaml-loader'],
   },
   {
     test: /\.(gif|jpg|png|svg)$/,
@@ -53,11 +53,11 @@ const rules = [
       {
         loader: 'url-loader',
         options: {
-          limit: 102400 // 100KB
-        }
+          limit: 102400, // 100KB
+        },
       },
-      'file-loader'
-    ]
+      'file-loader',
+    ],
   },
   {
     test: /fonts\/.*\.(woff|woff2|svg|eot|ttf)?(\?\w+)?$/,
@@ -65,24 +65,24 @@ const rules = [
       {
         loader: 'url-loader',
         options: {
-          limit: 102400 // 100KB
-        }
-      }
-    ]
+          limit: 102400, // 100KB
+        },
+      },
+    ],
   },
   {
     test: /\.(svg)$/,
     issuer: /ScratchBlocks\.jsx?$/,
-    loaders: 'url-loader'
+    loaders: 'url-loader',
   },
   {
     test: /\.(svg)$/,
     exclude: /(pagetop.*\.svg$)|(logo_PROC\.svg$)/,
     issuer: {
       test: /\.jsx?$/,
-      exclude: /ScratchBlocks\.js/
+      exclude: /ScratchBlocks\.js/,
     },
-    loaders: 'svg-react-loader'
+    loaders: 'svg-react-loader',
   },
   {
     test: /\.(svg)$/,
@@ -91,36 +91,36 @@ const rules = [
       {
         loader: 'url-loader',
         options: {
-          limit: 102400 // 100KB
-        }
-      }
-    ]
+          limit: 102400, // 100KB
+        },
+      },
+    ],
   },
   {
     test: /\.(graphql|gql)$/,
     exclude: /node_modules/,
-    loader: 'graphql-tag/loader'
+    loader: 'graphql-tag/loader',
   },
   {
     test: /\.(html)$/,
     use: {
       loader: 'html-loader',
       options: {
-        attrs: [':data-src']
-      }
-    }
-  }
+        attrs: [':data-src'],
+      },
+    },
+  },
 ];
 
 module.exports = {
   entry: {
-    index: './src/index.js'
+    index: './src/index.js',
   },
   output: {
     filename: '[name].[hash].js',
-    publicPath: '/'
+    publicPath: '/',
   },
   plugins,
   resolve,
-  module: { rules }
+  module: { rules },
 };

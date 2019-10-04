@@ -15,9 +15,9 @@ module.exports = {
   plugins: ['babel', 'react', 'flowtype'],
   rules: {
     semi: 'error',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-unused-vars': [1, { argsIgnorePattern: '^_' }],
     'no-multiple-empty-lines': 'error',
-    'no-console': ['error', { allow: ['info', 'warn', 'error'] }],
+    'no-console': [1, { allow: ['info', 'warn', 'error'] }],
   },
   settings: {
     react: {

@@ -59,6 +59,31 @@ ScratchBlocks.Blocks['set_dcmotor_power'] = {
   },
 };
 
+ScratchBlocks.Blocks['set_dcmotor_power_ghost'] = {
+  init: function() {
+    this.jsonInit({
+      message0: 'DC motor %1 speed %2',
+      args0: [
+        {
+          type: 'field_dropdown',
+          name: 'PORT',
+          options: [['V0', 'V0'], ['V1', 'V1']],
+        },
+        {
+          type: 'input_value',
+          name: 'POWER',
+          // value: 0,
+          // min: 0,
+          // max: 100,
+          // precision: 1,
+        },
+      ],
+      extensions: ['shape_statement_ghost'],
+      colour: COLOUR,
+    });
+  },
+};
+
 ScratchBlocks.Blocks['turn_dcmotor_on'] = {
   init: function() {
     this.jsonInit({
